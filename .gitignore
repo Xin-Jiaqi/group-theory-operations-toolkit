@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.vasp
+!tests/fixtures/*.vasp
+.DS_Store
+.idea/
+.vscode/
