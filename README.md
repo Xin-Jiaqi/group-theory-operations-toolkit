@@ -66,6 +66,8 @@ python3 -m unittest discover -s tests -v
 
 参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)、[0.1 迁移说明](docs/MIGRATION_0_1.md)、[来源与验证边界](docs/SOURCES.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
 
+科研使用时请通过 [`CITATION.cff`](CITATION.cff) 引用所使用的准确版本；只有在对应发布或论文确实存在后，才会填写 DOI 或首选论文引用。
+
 ## 范围与后续
 
 目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。后续扩展会优先明确平移、旋转中心、容差和数据来源，再加入表示分解与不变量构造，避免把尚未验证的应用目标写成现有能力。
