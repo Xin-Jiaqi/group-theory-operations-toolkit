@@ -14,6 +14,36 @@ sys.path.insert(0, str(ROOT))
 import group_tools
 
 
+class MinimalStructureRecord:
+    """Small contract double; real cross-repository integration is tested separately."""
+
+    def __init__(self, lattice, species, fractional_coordinates, pbc=(True, True, True), selective_dynamics=None, length_unit="angstrom"):
+        self.lattice = tuple(tuple(row) for row in lattice)
+        self.species = tuple(species)
+        self.fractional_coordinates = tuple(tuple(row) for row in fractional_coordinates)
+        self.pbc = tuple(pbc)
+        self.selective_dynamics = None if selective_dynamics is None else tuple(tuple(row) for row in selective_dynamics)
+        self.length_unit = length_unit
+
+    @classmethod
+    def from_fractional(cls, **kwargs):
+        return cls(**kwargs)
+
+    def wrapped(self):
+        coordinates = [
+            tuple(value % 1.0 if self.pbc[axis] else value for axis, value in enumerate(row))
+            for row in self.fractional_coordinates
+        ]
+        return self.from_fractional(
+            lattice=self.lattice,
+            species=self.species,
+            fractional_coordinates=coordinates,
+            pbc=self.pbc,
+            selective_dynamics=self.selective_dynamics,
+            length_unit=self.length_unit,
+        )
+
+
 def matmul(left, right):
     return [
         [sum(float(left[i][k]) * float(right[k][j]) for k in range(3)) for j in range(3)]
@@ -38,6 +68,130 @@ class RepositoryDataTests(unittest.TestCase):
         self.assertEqual(len(families["tetragonal_D4h"]["layer_groups"]), 64)
         self.assertEqual(len(families["hexagonal_D6h"]["operations"]), 24)
         self.assertEqual(len(families["hexagonal_D6h"]["layer_groups"]), 16)
+
+    def test_public_validator_accepts_canonical_catalog(self):
+        self.assertEqual(group_tools.validate_database(self.database), ())
+
+    def test_public_validator_reports_matrix_corruption(self):
+        corrupted = json.loads(json.dumps(self.database))
+        corrupted["families"]["tetragonal_D4h"]["operations"][0]["matrix_cartesian"][0][0] = 2
+        errors = group_tools.validate_database(corrupted)
+        self.assertTrue(any("not orthogonal" in error for error in errors))
+
+    def test_public_validator_is_total_for_malformed_json(self):
+        mutations = []
+        for path, value in (
+            (("families", "tetragonal_D4h"), []),
+            (("families", "tetragonal_D4h", "operations", 0), "bad"),
+            (("families", "cubic_Oh", "point_groups", 0), "bad"),
+        ):
+            corrupted = json.loads(json.dumps(self.database))
+            target = corrupted
+            for key in path[:-1]:
+                target = target[key]
+            target[path[-1]] = value
+            mutations.append(corrupted)
+        for corrupted in mutations:
+            errors = group_tools.validate_database(corrupted)
+            self.assertTrue(errors)
+
+    def test_public_validator_requires_integer_schema_version(self):
+        for invalid in (True, 1.0):
+            corrupted = json.loads(json.dumps(self.database))
+            corrupted["schema_version"] = invalid
+            self.assertEqual(
+                group_tools.validate_database(corrupted), ("schema_version must be 1",)
+            )
+
+    def test_public_validator_rejects_nested_or_boolean_operation_indices(self):
+        for invalid in ([[]], [True]):
+            corrupted = json.loads(json.dumps(self.database))
+            corrupted["families"]["cubic_Oh"]["point_groups"][0][
+                "operation_indices"
+            ] = invalid
+            errors = group_tools.validate_database(corrupted)
+            self.assertTrue(any("indices must be integers" in error for error in errors))
+
+    def test_public_validator_is_total_for_extreme_numbers_and_table_values(self):
+        mutations = []
+        huge_matrix = json.loads(json.dumps(self.database))
+        huge_matrix["families"]["cubic_Oh"]["operations"][0]["matrix_fractional"][0][
+            0
+        ] = 10**400
+        mutations.append(huge_matrix)
+        for invalid in ([], {}):
+            corrupted = json.loads(json.dumps(self.database))
+            corrupted["families"]["tetragonal_D4h"]["multiplication"]["table"]["1"][
+                "1"
+            ] = invalid
+            mutations.append(corrupted)
+        invalid_row = json.loads(json.dumps(self.database))
+        invalid_row["families"]["hexagonal_D6h"]["multiplication"]["table"][
+            "-3+_001"
+        ] = True
+        mutations.append(invalid_row)
+        for corrupted in mutations:
+            errors = group_tools.validate_database(corrupted)
+            self.assertTrue(errors)
+
+    def test_public_validator_rejects_boolean_and_string_matrix_scalars(self):
+        for invalid in (True, "1"):
+            corrupted = json.loads(json.dumps(self.database))
+            corrupted["families"]["tetragonal_D4h"]["operations"][0][
+                "matrix_fractional"
+            ][0][0] = invalid
+            errors = group_tools.validate_database(corrupted)
+            self.assertTrue(any("JSON numbers" in error for error in errors))
+
+    def test_public_validator_rejects_corrupt_group_metadata(self):
+        mutations = []
+        for family, path, value in (
+            ("cubic_Oh", ("point_groups", 0, "name"), []),
+            ("cubic_Oh", ("point_groups", 0, "order"), True),
+            ("tetragonal_D4h", ("layer_groups", 0, "LG"), "bad"),
+            ("tetragonal_D4h", ("layer_groups", 0, "point_group"), {}),
+            ("tetragonal_D4h", ("layer_groups", 0, "point_group_base"), ""),
+            ("hexagonal_D6h", ("layer_groups", 0, "point_group_embedding"), []),
+        ):
+            corrupted = json.loads(json.dumps(self.database))
+            target = corrupted["families"][family]
+            for key in path[:-1]:
+                target = target[key]
+            target[path[-1]] = value
+            mutations.append(corrupted)
+        parent = json.loads(json.dumps(self.database))
+        parent["families"]["cubic_Oh"]["parent_point_group"] = {}
+        mutations.append(parent)
+        source_name = json.loads(json.dumps(self.database))
+        source_name["families"]["cubic_Oh"]["operations"][0]["source_name"] = []
+        mutations.append(source_name)
+        for corrupted in mutations:
+            self.assertTrue(group_tools.validate_database(corrupted))
+
+    def test_public_validator_checks_basis_subgroups_and_multiplication_metadata(self):
+        corrupted = json.loads(json.dumps(self.database))
+        family = corrupted["families"]["tetragonal_D4h"]
+        family["multiplication"]["identity"] = "-1"
+        family["multiplication"]["inverse"]["4+_001"] = "4+_001"
+        family["layer_groups"][0]["R+_indices"] = [0, 0]
+        family["layer_groups"][0]["R+"] = ["1", "1"]
+        family["operations"][2]["matrix_cartesian"] = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+        ]
+        errors = group_tools.validate_database(corrupted)
+        self.assertTrue(any("wrong identity" in error for error in errors))
+        self.assertTrue(any("wrong inverse" in error for error in errors))
+        self.assertTrue(any("unique" in error or "not closed" in error for error in errors))
+        self.assertTrue(any("basis mapping" in error for error in errors))
+
+    def test_typed_operation_record_is_json_safe(self):
+        record = group_tools.operation_record(self.database, "4^+_{001}", "tetragonal_D4h")
+        self.assertEqual(record.name, "4+_001")
+        self.assertEqual(record.family, "tetragonal_D4h")
+        self.assertEqual(record.matrix("fractional")[0], (0.0, -1.0, 0.0))
+        json.dumps(record.to_dict())
 
     def test_operation_indices_names_and_matrix_shapes(self):
         for family in self.database["families"].values():
@@ -255,28 +409,83 @@ class RepositoryDataTests(unittest.TestCase):
                 pipe_count = block[0].count("|")
                 self.assertTrue(all(line.count("|") == pipe_count for line in block), path)
 
-    def test_poscar_direct_coordinate_transformation(self):
-        source = """test
-1.0
-1 0 0
-0 1 0
-0 0 1
-X
-1
-Direct
-0.25 0.5 0.75
-"""
-        operation = group_tools.get_operation(self.database, "2_001", "cubic_Oh")
-        matrix = group_tools.matrix_for(operation, "fractional")
-        with tempfile.TemporaryDirectory() as directory:
-            input_path = Path(directory) / "POSCAR.vasp"
-            output_path = Path(directory) / "out.vasp"
-            input_path.write_text(source, encoding="utf-8")
-            poscar = group_tools.parse_poscar(input_path)
-            transformed = group_tools.transform_coordinates(poscar["coordinates"], matrix, direct=True)
-            group_tools.write_poscar(output_path, poscar, transformed)
-            result = group_tools.parse_poscar(output_path)
-            self.assertEqual(result["coordinates"], [[0.75, 0.5, 0.75]])
+    def test_structure_contract_applies_fractional_operation(self):
+        structure = MinimalStructureRecord(
+            lattice=[[3, 0, 0], [0, 3, 0], [0, 0, 12]],
+            species=["B", "N"],
+            fractional_coordinates=[[0.25, 0.5, 0.75], [0.1, 0.2, 0.3]],
+            pbc=[True, True, False],
+            selective_dynamics=[[True, False, True], [True, True, True]],
+        )
+        operation = group_tools.operation_record(self.database, "4+_001", "tetragonal_D4h")
+        result = group_tools.apply_fractional_operation(structure, operation)
+        self.assertEqual(result.fractional_coordinates[0], (0.5, 0.25, 0.75))
+        self.assertEqual(result.selective_dynamics[0], (False, True, True))
+        self.assertEqual(result.species, structure.species)
+
+    def test_structure_contract_rejects_pbc_axis_mixing(self):
+        structure = MinimalStructureRecord(
+            lattice=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            species=["H"],
+            fractional_coordinates=[[0.1, 0.2, 0.3]],
+            pbc=[True, True, False],
+        )
+        operation = group_tools.operation_record(self.database, "3+_111", "cubic_Oh")
+        with self.assertRaisesRegex(group_tools.GroupDataError, "PBC"):
+            group_tools.apply_fractional_operation(structure, operation)
+
+    def test_structure_contract_rejects_unrepresentable_selective_flags(self):
+        structure = MinimalStructureRecord(
+            lattice=[[1, 0, 0], [-0.5, math.sqrt(3) / 2, 0], [0, 0, 1]],
+            species=["H"],
+            fractional_coordinates=[[0.1, 0.2, 0.3]],
+            selective_dynamics=[[True, False, True]],
+        )
+        operation = group_tools.operation_record(self.database, "3+_001", "hexagonal_D6h")
+        with self.assertRaisesRegex(group_tools.GroupDataError, "Selective"):
+            group_tools.apply_fractional_operation(structure, operation)
+
+    def test_structure_contract_rejects_incompatible_lattice_metric(self):
+        structure = MinimalStructureRecord(
+            lattice=[[2, 0, 0], [0, 3, 0], [0, 0, 4]],
+            species=["H"],
+            fractional_coordinates=[[0.25, 0.0, 0.0]],
+        )
+        operation = group_tools.operation_record(
+            self.database, "4+_001", "tetragonal_D4h"
+        )
+        with self.assertRaisesRegex(group_tools.GroupDataError, "lattice metric"):
+            group_tools.apply_fractional_operation(structure, operation)
+
+    def test_structure_contract_accepts_hexagonal_metric(self):
+        structure = MinimalStructureRecord(
+            lattice=[[2, 0, 0], [-1, math.sqrt(3), 0], [0, 0, 7]],
+            species=["H"],
+            fractional_coordinates=[[0.25, 0.5, 0.0]],
+        )
+        operation = group_tools.operation_record(
+            self.database, "3+_001", "hexagonal_D6h"
+        )
+        result = group_tools.apply_fractional_operation(structure, operation)
+        self.assertEqual(result.species, structure.species)
+
+    def test_structure_application_composes_in_table_order(self):
+        structure = MinimalStructureRecord(
+            lattice=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            species=["H"],
+            fractional_coordinates=[[0.13, 0.27, 0.41]],
+        )
+        family = "tetragonal_D4h"
+        left = group_tools.operation_record(self.database, "4+_001", family)
+        right = group_tools.operation_record(self.database, "2_100", family)
+        result_name = group_tools.multiply_operations(self.database, family, left.name, right.name)
+        composed = group_tools.operation_record(self.database, result_name, family)
+        sequential = group_tools.apply_fractional_operation(
+            group_tools.apply_fractional_operation(structure, right, wrap=False), left, wrap=False
+        )
+        direct = group_tools.apply_fractional_operation(structure, composed, wrap=False)
+        for actual, expected in zip(sequential.fractional_coordinates[0], direct.fractional_coordinates[0]):
+            self.assertAlmostEqual(actual, expected)
 
 
 if __name__ == "__main__":

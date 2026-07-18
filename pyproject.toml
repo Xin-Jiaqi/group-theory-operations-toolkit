@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling>=1.25,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "group-theory-operations-toolkit"
+version = "0.1.0"
+description = "Validated crystallographic point-operation data and machine interfaces"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+group-ops = "group_theory_operations.cli:main"
+
+[project.optional-dependencies]
+test = ["build>=1.2,<2", "twine>=5,<7"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/group_theory_operations"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"data/group_operations.json" = "group_theory_operations/data/group_operations.json"

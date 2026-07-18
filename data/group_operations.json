@@ -7493,6 +7493,8 @@
       "id": "bilbao_d4h_general_positions",
       "organization": "Bilbao Crystallographic Server",
       "title": "General Positions of the 3D Crystallographic Point Group D4h (4/mmm)",
+      "url": "https://www.cryst.ehu.es/",
+      "accessed": "2026-07-17",
       "scope": [
         "tetragonal_D4h operation order",
         "fractional-coordinate action",
@@ -7506,6 +7508,8 @@
       "id": "bilbao_d6h_general_positions",
       "organization": "Bilbao Crystallographic Server",
       "title": "General Positions of the 3D Crystallographic Point Group D6h (6/mmm)",
+      "url": "https://www.cryst.ehu.es/",
+      "accessed": "2026-07-17",
       "scope": [
         "hexagonal_D6h operation order",
         "fractional-coordinate action",
