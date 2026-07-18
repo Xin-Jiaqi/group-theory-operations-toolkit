@@ -58,15 +58,15 @@ group-ops validate
 
 ## 核对与测试
 
-我逐项对照了 Bilbao Crystallographic Server 的 $D_{4h}(4/mmm)$、$D_{6h}(6/mmm)$ General Positions 截图，以及 Layer Group PDF 中的 LG1–LG80、$R^+/R^-$ 操作集合和点群嵌入。两张乘法表的元素顺序与显示名称也已核对；832 个乘积不是人工抄写，而是由精确整数矩阵生成。
+我对 $D_{4h}$、$D_{6h}$ 的操作顺序、坐标作用、矩阵、层群映射和点群嵌入进行了逐项一致性检查。两张乘法表的 832 个乘积不是人工抄写，而是由精确整数矩阵生成并反向验证。
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-当前测试覆盖矩阵正交性、六角基底变换、群闭合性、Bilbao 坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步、机器接口、乘法/结构变换一致性、PBC 与 Selective-dynamics 拒绝边界。
+当前测试覆盖矩阵正交性、六角基底变换、群闭合性、坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步、机器接口、乘法/结构变换一致性、PBC 与 Selective-dynamics 拒绝边界。
 
-参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)、[0.1 迁移说明](docs/MIGRATION_0_1.md)、[来源与验证边界](docs/SOURCES.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
+参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)、[0.1 迁移说明](docs/MIGRATION_0_1.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
 
 科研使用时请通过 [`CITATION.cff`](CITATION.cff) 引用所使用的准确版本；只有在对应发布或论文确实存在后，才会填写 DOI 或首选论文引用。
 
@@ -74,4 +74,4 @@ python3 -m unittest discover -s tests -v
 
 目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。后续扩展会优先明确平移、旋转中心、容差和数据来源，再加入表示分解与不变量构造，避免把尚未验证的应用目标写成现有能力。
 
-参考资料的核对范围记录在 JSON 顶层 `sources` 字段中。`0.1.0` 仍是发布候选；正式稳定发布前还需要确定代码、数据和文档许可证，并补充每个 Bilbao 页面、访问日期及可复现快照策略。
+`0.1.0` 仍是发布候选；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。正式稳定发布前还需要为 JSON 结构建立版本化兼容策略。

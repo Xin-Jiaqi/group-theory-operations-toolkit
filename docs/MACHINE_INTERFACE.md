@@ -49,10 +49,8 @@ therefore not an unrestricted algebraic coordinate transformer.
 
 Matrices act on column vectors. Therefore `multiply_operations(left, right)` represents $D(left)D(right)$ and the right operation acts first. Integration tests verify that the table result and sequential structure transforms agree.
 
-## Upstream validation references
+## Independent structure validation
 
-- [Bilbao Crystallographic Server point-group tools](https://www.cryst.ehu.es/)
-- [Bilbao server description and citation guidance](https://cryst.ehu.es/wiki/index.php/About_the_Bilbao_Crystallographic_Server)
-- [spglib symmetry dataset API](https://spglib.readthedocs.io/en/stable/api/python-api.html#spglib.spglib.SpglibDataset)
-
-Bilbao is the catalog cross-check source. spglib is the intended independent structure-symmetry consumer/checker; this repository does not claim to replace symmetry inference or standardization.
+[spglib's symmetry dataset API](https://spglib.readthedocs.io/en/stable/api/python-api.html#spglib.spglib.SpglibDataset)
+is the intended independent structure-symmetry consumer/checker. This repository
+does not claim to replace symmetry inference or standardization.

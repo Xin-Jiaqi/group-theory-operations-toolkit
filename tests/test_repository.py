@@ -249,7 +249,7 @@ class RepositoryDataTests(unittest.TestCase):
         operation = group_tools.get_operation(self.database, "m100", "hexagonal_D6h")
         self.assertEqual(operation["name"], "m_100")
 
-    def test_bilbao_operation_order_and_coordinate_actions(self):
+    def test_operation_order_and_coordinate_actions(self):
         expected = {
             "tetragonal_D4h": [
                 ("1", "x,y,z"), ("2001", "-x,-y,z"), ("4+001", "-y,x,z"),
@@ -275,7 +275,7 @@ class RepositoryDataTests(unittest.TestCase):
             actual = [(op.get("source_name", op["name"]), op["xyz_fractional"]) for op in operations]
             self.assertEqual(actual, reference_rows)
 
-    def test_layer_group_embedding_labels_from_reference_pdf(self):
+    def test_layer_group_embedding_labels(self):
         family = self.database["families"]["hexagonal_D6h"]
         actual = {
             entry["LG"]: entry.get("point_group_embedding")
@@ -287,7 +287,7 @@ class RepositoryDataTests(unittest.TestCase):
             71: "120", 72: "100", 78: "100", 79: "120",
         })
 
-    def test_layer_group_point_group_catalog_from_reference_pdf(self):
+    def test_layer_group_point_group_catalog(self):
         expected = {
             **{1: "C1", 2: "Ci", 3: "C2"},
             **{lg: "Cs" for lg in range(4, 6)},
