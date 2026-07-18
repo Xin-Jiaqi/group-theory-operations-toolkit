@@ -6,6 +6,7 @@ build-backend = "hatchling.build"
 name = "group-theory-operations-toolkit"
 version = "0.1.0"
 description = "Validated crystallographic point-operation data and machine interfaces"
+authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
