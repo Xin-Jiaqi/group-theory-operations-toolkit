@@ -4524,7 +4524,7 @@
           "m_1-10"
         ],
         "basis_used_for_exact_generation": "matrix_fractional",
-        "reference_order": "Order follows the user-provided D4h multiplication-table image.",
+        "element_order_note": "Stable display order used by the JSON and Markdown interfaces.",
         "inverse": {
           "1": "1",
           "-1": "-1",
@@ -6832,7 +6832,7 @@
           "m_1-10"
         ],
         "basis_used_for_exact_generation": "matrix_fractional",
-        "reference_order": "Order follows the user-provided D6h multiplication-table image.",
+        "element_order_note": "Stable display order used by the JSON and Markdown interfaces.",
         "inverse": {
           "1": "1",
           "-1": "-1",
@@ -7487,54 +7487,5 @@
         }
       }
     }
-  },
-  "sources": [
-    {
-      "id": "bilbao_d4h_general_positions",
-      "organization": "Bilbao Crystallographic Server",
-      "title": "General Positions of the 3D Crystallographic Point Group D4h (4/mmm)",
-      "scope": [
-        "tetragonal_D4h operation order",
-        "fractional-coordinate action",
-        "matrix",
-        "ITA label",
-        "Seitz label"
-      ],
-      "verification": "Checked against the user-provided D4h screenshot."
-    },
-    {
-      "id": "bilbao_d6h_general_positions",
-      "organization": "Bilbao Crystallographic Server",
-      "title": "General Positions of the 3D Crystallographic Point Group D6h (6/mmm)",
-      "scope": [
-        "hexagonal_D6h operation order",
-        "fractional-coordinate action",
-        "matrix",
-        "ITA label",
-        "Seitz label"
-      ],
-      "verification": "Checked against the user-provided D6h screenshot."
-    },
-    {
-      "id": "xin_layer_group_tables_s1_s5",
-      "author": "Jiaqi Xin",
-      "title": "The eighty layer groups and their point-symmetry operators (Tables S1-S5)",
-      "scope": [
-        "LG1-LG80 point-group labels",
-        "R+ and R- operation membership",
-        "100/110/120 embeddings"
-      ],
-      "verification": "Checked against the five-page user-provided Layer Group PDF."
-    },
-    {
-      "id": "user_d4h_d6h_multiplication_tables",
-      "title": "D4h and D6h point-operation multiplication tables",
-      "scope": [
-        "element order",
-        "row-times-column convention",
-        "display labels"
-      ],
-      "verification": "Headers and convention checked against the two user-provided transparent PNG tables; every cell is regenerated from exact integer matrices."
-    }
-  ]
+  }
 }

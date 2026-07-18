@@ -1,5 +1,7 @@
 # Group Theory Operations Toolkit
 
+[![Verify repository](https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/actions/workflows/verify.yml/badge.svg)](https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/actions/workflows/verify.yml)
+
 这是我为二维材料、层间堆叠与铁电理论研究整理的群论数据仓库。我希望把后续推导中反复使用的点操作、矩阵表示、层群分类和操作乘法集中在一个可靠的数据源中，便于人工查阅，也便于程序和 AI 直接调用。
 
 ## 内容
@@ -12,31 +14,36 @@
 | `tetragonal_D4h` | $D_{4h}$ | 16 | LG1–LG64 | 16×16 |
 | `hexagonal_D6h` | $D_{6h}$ | 24 | LG65–LG80 | 24×24 |
 
-文件结构很简单：`data/group_operations.json` 是唯一机器可读数据源；`docs/group_theory.md` 汇总公式、全部矩阵、层群操作集合和乘法表；`group_tools.py` 用于查询和变换 POSCAR；`tests/test_repository.py` 负责数据校验。
+`data/group_operations.json` 是唯一机器可读数据源；`docs/group_theory.md` 汇总公式、全部矩阵、层群操作集合和乘法表；`group_theory_operations` 提供可安装的 Python/CLI 接口；`group_tools.py` 仅保留为兼容入口；测试负责数据、群闭合和跨仓库结构契约校验。
 
 ## 使用
 
-核心工具只需要 Python 3.10 或更高版本，没有第三方依赖。
+核心查询工具只需要 Python 3.10 或更高版本，没有第三方运行时依赖。
 
 ```bash
 # 查看数据集
-python3 group_tools.py list
+python -m pip install -e .
+group-ops list
 
 # 查询矩阵
-python3 group_tools.py show '4+_001' --family tetragonal_D4h
+group-ops show '4+_001' --family tetragonal_D4h
 
 # 查询层群
-python3 group_tools.py group --family hexagonal_D6h --lg 80
+group-ops group --family hexagonal_D6h --lg 80
 
 # 查询点群
-python3 group_tools.py group --family cubic_Oh --point-group Td
+group-ops group --family cubic_Oh --point-group Td
 
 # 查询乘积
-python3 group_tools.py multiply '4+_001' 2_100 --family tetragonal_D4h
+group-ops multiply '4+_001' 2_100 --family tetragonal_D4h
 
-# 对 POSCAR 坐标施加点操作
-python3 group_tools.py apply-poscar structure.vasp 3+_001 \
+# 对结构施加点操作；文件 I/O 委托给 materials-structure-core
+group-ops apply-structure structure.vasp 3+_001 \
   --family hexagonal_D6h --output transformed.vasp
+
+# 供脚本稳定读取
+group-ops show 4+_001 --family tetragonal_D4h --json
+group-ops validate
 ```
 
 ## 约定
@@ -51,16 +58,20 @@ python3 group_tools.py apply-poscar structure.vasp 3+_001 \
 
 ## 核对与测试
 
-我逐项对照了 Bilbao Crystallographic Server 的 $D_{4h}(4/mmm)$、$D_{6h}(6/mmm)$ General Positions 截图，以及 Layer Group PDF 中的 LG1–LG80、$R^+/R^-$ 操作集合和点群嵌入。两张乘法表的元素顺序与显示名称也已核对；832 个乘积不是人工抄写，而是由精确整数矩阵生成。
+我对 $D_{4h}$、$D_{6h}$ 的操作顺序、坐标作用、矩阵、层群映射和点群嵌入进行了逐项一致性检查。两张乘法表的 832 个乘积不是人工抄写，而是由精确整数矩阵生成并反向验证。
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-当前测试覆盖矩阵正交性、六角基底变换、群闭合性、Bilbao 坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步和 POSCAR 回写。
+当前测试覆盖矩阵正交性、六角基底变换、群闭合性、坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步、机器接口、乘法/结构变换一致性、PBC 与 Selective-dynamics 拒绝边界。
+
+参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)、[0.1 迁移说明](docs/MIGRATION_0_1.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
+
+科研使用时请通过 [`CITATION.cff`](CITATION.cff) 引用所使用的准确版本；只有在对应发布或论文确实存在后，才会填写 DOI 或首选论文引用。
 
 ## 范围与后续
 
-目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；POSCAR 变换也默认围绕原点。后续我会在这个基础上加入层间平移、旋转中心、双层堆叠对称性、铁电极化约束、高通量筛选、表示分解与不变量构造，并继续扩充分数量子铁电相关的群论数据。
+目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。后续扩展会优先明确平移、旋转中心、容差和数据来源，再加入表示分解与不变量构造，避免把尚未验证的应用目标写成现有能力。
 
-参考资料的核对范围记录在 JSON 顶层 `sources` 字段中。正式公开发布时还需要确定代码、数据和文档的许可证，并补充 Bilbao 的具体页面与访问日期。
+`0.1.0` 仍是发布候选；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。正式稳定发布前还需要为 JSON 结构建立版本化兼容策略。
