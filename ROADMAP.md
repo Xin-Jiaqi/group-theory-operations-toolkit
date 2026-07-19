@@ -13,7 +13,7 @@
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
-- [ ] Define a versioned JSON Schema and compatibility policy.
+- [x] Define a versioned JSON Schema and compatibility policy.
 - [ ] Expand the registry toward all 32 crystallographic point groups with independent generator/order/closure tests.
 - [ ] Cross-check structure classifications through a pinned spglib fixture suite.
 - [ ] Define affine Seitz operations before accepting nonzero translations or shifted rotation centers.
