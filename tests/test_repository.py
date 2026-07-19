@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import group_tools
+from jsonschema import Draft202012Validator
 
 
 class MinimalStructureRecord:
@@ -71,6 +72,11 @@ class RepositoryDataTests(unittest.TestCase):
 
     def test_public_validator_accepts_canonical_catalog(self):
         self.assertEqual(group_tools.validate_database(self.database), ())
+
+    def test_catalog_satisfies_versioned_json_schema(self):
+        schema = group_tools.load_schema(ROOT / "schema" / "group-operations-v1.schema.json")
+        errors = sorted(Draft202012Validator(schema).iter_errors(self.database), key=str)
+        self.assertEqual(errors, [])
 
     def test_public_validator_reports_matrix_corruption(self):
         corrupted = json.loads(json.dumps(self.database))

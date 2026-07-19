@@ -54,3 +54,6 @@ Matrices act on column vectors. Therefore `multiply_operations(left, right)` rep
 [spglib's symmetry dataset API](https://spglib.readthedocs.io/en/stable/api/python-api.html#spglib.spglib.SpglibDataset)
 is the intended independent structure-symmetry consumer/checker. This repository
 does not claim to replace symmetry inference or standardization.
+# Schema compatibility
+
+`schema/group-operations-v1.schema.json` describes the public JSON shape for `schema_version: 1`. Additive optional fields are backward compatible within schema v1. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. The JSON Schema checks shape and primitive types; `validate_database()` remains authoritative for group closure, basis conversion, inverse, and multiplication consistency.

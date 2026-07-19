@@ -93,6 +93,34 @@ def _default_text() -> str:
     )
 
 
+def _default_schema_text() -> str:
+    repository_copy = (
+        Path(__file__).resolve().parents[2] / "schema" / "group-operations-v1.schema.json"
+    )
+    if repository_copy.is_file():
+        return repository_copy.read_text(encoding="utf-8")
+    return (
+        resources.files("group_theory_operations")
+        .joinpath("schema/group-operations-v1.schema.json")
+        .read_text(encoding="utf-8")
+    )
+
+
+def load_schema(path: str | Path | None = None) -> dict[str, Any]:
+    """Load the public JSON Schema for catalog schema version 1."""
+
+    try:
+        text = _default_schema_text() if path is None else Path(path).read_text(encoding="utf-8")
+        schema = json.loads(text)
+    except OSError as exc:
+        raise GroupDataError(f"cannot read schema file: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise GroupDataError(f"invalid schema JSON: {exc}") from exc
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        raise GroupDataError("unsupported catalog schema declaration")
+    return schema
+
+
 def load_database(path: str | Path | None = None, *, validate: bool = True) -> dict[str, Any]:
     """Load schema v1 from a path or the packaged canonical catalog."""
 

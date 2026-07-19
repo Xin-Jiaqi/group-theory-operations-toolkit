@@ -6,6 +6,8 @@ import argparse
 import json
 from pathlib import Path
 
+from . import __version__
+
 from .catalog import (
     GroupDataError,
     find_operations,
@@ -124,6 +126,7 @@ def _apply(args: argparse.Namespace, database: dict) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="group-ops")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--database", help="override the packaged schema-v1 JSON")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
