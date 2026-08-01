@@ -1,0 +1,918 @@
+{
+  "schema_version": 1,
+  "source_catalog_schema_version": 1,
+  "source_catalog_sha256": "8bd24914eb8ac7d0796a8b778be6ab8c109a75838816c3d623ca6bcf991404b7",
+  "generated_by": "scripts/generate_crystallographic_point_groups.py",
+  "conventions": {
+    "point_group_order": "standard crystallographic point-group sequence 1-32",
+    "setting": "toolkit canonical orthonormal Cartesian embedding; principal rotation axis along z; explicit operations are authoritative",
+    "operation_source": "operation names resolve through data/group_operations.json"
+  },
+  "point_groups": [
+    {
+      "number": 1,
+      "hm_symbol": "1",
+      "schoenflies_symbol": "C1",
+      "aliases": [],
+      "crystal_system": "triclinic",
+      "host_family": "cubic_Oh",
+      "order": 1,
+      "generators": [],
+      "operations": [
+        "1"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": true
+    },
+    {
+      "number": 2,
+      "hm_symbol": "-1",
+      "schoenflies_symbol": "Ci",
+      "aliases": [
+        "S2"
+      ],
+      "crystal_system": "triclinic",
+      "host_family": "cubic_Oh",
+      "order": 2,
+      "generators": [
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "-1"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 3,
+      "hm_symbol": "2",
+      "schoenflies_symbol": "C2",
+      "aliases": [],
+      "crystal_system": "monoclinic",
+      "host_family": "tetragonal_D4h",
+      "order": 2,
+      "generators": [
+        "2_001"
+      ],
+      "operations": [
+        "1",
+        "2_001"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": true
+    },
+    {
+      "number": 4,
+      "hm_symbol": "m",
+      "schoenflies_symbol": "Cs",
+      "aliases": [],
+      "crystal_system": "monoclinic",
+      "host_family": "tetragonal_D4h",
+      "order": 2,
+      "generators": [
+        "m_001"
+      ],
+      "operations": [
+        "1",
+        "m_001"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": false
+    },
+    {
+      "number": 5,
+      "hm_symbol": "2/m",
+      "schoenflies_symbol": "C2h",
+      "aliases": [],
+      "crystal_system": "monoclinic",
+      "host_family": "tetragonal_D4h",
+      "order": 4,
+      "generators": [
+        "2_001",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "-1",
+        "m_001"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 6,
+      "hm_symbol": "222",
+      "schoenflies_symbol": "D2",
+      "aliases": [],
+      "crystal_system": "orthorhombic",
+      "host_family": "tetragonal_D4h",
+      "order": 4,
+      "generators": [
+        "2_001",
+        "2_100"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 7,
+      "hm_symbol": "mm2",
+      "schoenflies_symbol": "C2v",
+      "aliases": [],
+      "crystal_system": "orthorhombic",
+      "host_family": "tetragonal_D4h",
+      "order": 4,
+      "generators": [
+        "2_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "m_010",
+        "m_100"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": false
+    },
+    {
+      "number": 8,
+      "hm_symbol": "mmm",
+      "schoenflies_symbol": "D2h",
+      "aliases": [],
+      "crystal_system": "orthorhombic",
+      "host_family": "tetragonal_D4h",
+      "order": 8,
+      "generators": [
+        "2_001",
+        "2_100",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "-1",
+        "m_001",
+        "m_010",
+        "m_100"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 9,
+      "hm_symbol": "4",
+      "schoenflies_symbol": "C4",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 4,
+      "generators": [
+        "4+_001"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "4+_001",
+        "4-_001"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": true
+    },
+    {
+      "number": 10,
+      "hm_symbol": "-4",
+      "schoenflies_symbol": "S4",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 4,
+      "generators": [
+        "-4+_001"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "-4+_001",
+        "-4-_001"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 11,
+      "hm_symbol": "4/m",
+      "schoenflies_symbol": "C4h",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 8,
+      "generators": [
+        "4+_001",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "4+_001",
+        "4-_001",
+        "-1",
+        "m_001",
+        "-4+_001",
+        "-4-_001"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 12,
+      "hm_symbol": "422",
+      "schoenflies_symbol": "D4",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 8,
+      "generators": [
+        "4+_001",
+        "2_100"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "4+_001",
+        "4-_001",
+        "2_010",
+        "2_100",
+        "2_110",
+        "2_1-10"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 13,
+      "hm_symbol": "4mm",
+      "schoenflies_symbol": "C4v",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 8,
+      "generators": [
+        "4+_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "4+_001",
+        "4-_001",
+        "m_010",
+        "m_100",
+        "m_110",
+        "m_1-10"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": false
+    },
+    {
+      "number": 14,
+      "hm_symbol": "-42m",
+      "schoenflies_symbol": "D2d",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 8,
+      "generators": [
+        "-4+_001",
+        "2_100"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "-4+_001",
+        "-4-_001",
+        "m_110",
+        "m_1-10"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 15,
+      "hm_symbol": "4/mmm",
+      "schoenflies_symbol": "D4h",
+      "aliases": [],
+      "crystal_system": "tetragonal",
+      "host_family": "tetragonal_D4h",
+      "order": 16,
+      "generators": [
+        "4+_001",
+        "2_100",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "4+_001",
+        "4-_001",
+        "2_010",
+        "2_100",
+        "2_110",
+        "2_1-10",
+        "-1",
+        "m_001",
+        "-4+_001",
+        "-4-_001",
+        "m_010",
+        "m_100",
+        "m_110",
+        "m_1-10"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 16,
+      "hm_symbol": "3",
+      "schoenflies_symbol": "C3",
+      "aliases": [],
+      "crystal_system": "trigonal",
+      "host_family": "hexagonal_D6h",
+      "order": 3,
+      "generators": [
+        "3+_001"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": true
+    },
+    {
+      "number": 17,
+      "hm_symbol": "-3",
+      "schoenflies_symbol": "C3i",
+      "aliases": [
+        "S6"
+      ],
+      "crystal_system": "trigonal",
+      "host_family": "hexagonal_D6h",
+      "order": 6,
+      "generators": [
+        "-3+_001"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "-1",
+        "-3+_001",
+        "-3-_001"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 18,
+      "hm_symbol": "32",
+      "schoenflies_symbol": "D3",
+      "aliases": [],
+      "crystal_system": "trigonal",
+      "host_family": "hexagonal_D6h",
+      "order": 6,
+      "generators": [
+        "3+_001",
+        "2_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_110",
+        "2_100",
+        "2_010"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 19,
+      "hm_symbol": "3m",
+      "schoenflies_symbol": "C3v",
+      "aliases": [],
+      "crystal_system": "trigonal",
+      "host_family": "hexagonal_D6h",
+      "order": 6,
+      "generators": [
+        "3+_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "m_110",
+        "m_100",
+        "m_010"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": false
+    },
+    {
+      "number": 20,
+      "hm_symbol": "-3m",
+      "schoenflies_symbol": "D3d",
+      "aliases": [],
+      "crystal_system": "trigonal",
+      "host_family": "hexagonal_D6h",
+      "order": 12,
+      "generators": [
+        "-3+_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_110",
+        "2_100",
+        "2_010",
+        "-1",
+        "-3+_001",
+        "-3-_001",
+        "m_110",
+        "m_100",
+        "m_010"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 21,
+      "hm_symbol": "6",
+      "schoenflies_symbol": "C6",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 6,
+      "generators": [
+        "6+_001"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_001",
+        "6-_001",
+        "6+_001"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": true
+    },
+    {
+      "number": 22,
+      "hm_symbol": "-6",
+      "schoenflies_symbol": "C3h",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 6,
+      "generators": [
+        "-6+_001"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "m_001",
+        "-6-_001",
+        "-6+_001"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 23,
+      "hm_symbol": "6/m",
+      "schoenflies_symbol": "C6h",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 12,
+      "generators": [
+        "6+_001",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_001",
+        "6-_001",
+        "6+_001",
+        "-1",
+        "-3+_001",
+        "-3-_001",
+        "m_001",
+        "-6-_001",
+        "-6+_001"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 24,
+      "hm_symbol": "622",
+      "schoenflies_symbol": "D6",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 12,
+      "generators": [
+        "6+_001",
+        "2_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_001",
+        "6-_001",
+        "6+_001",
+        "2_110",
+        "2_100",
+        "2_010",
+        "2_1-10",
+        "2_120",
+        "2_210"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 25,
+      "hm_symbol": "6mm",
+      "schoenflies_symbol": "C6v",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 12,
+      "generators": [
+        "6+_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_001",
+        "6-_001",
+        "6+_001",
+        "m_110",
+        "m_100",
+        "m_010",
+        "m_1-10",
+        "m_120",
+        "m_210"
+      ],
+      "centrosymmetric": false,
+      "polar": true,
+      "chiral": false
+    },
+    {
+      "number": 26,
+      "hm_symbol": "-6m2",
+      "schoenflies_symbol": "D3h",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 12,
+      "generators": [
+        "-6+_001",
+        "m_100"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_1-10",
+        "2_120",
+        "2_210",
+        "m_001",
+        "-6-_001",
+        "-6+_001",
+        "m_110",
+        "m_100",
+        "m_010"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 27,
+      "hm_symbol": "6/mmm",
+      "schoenflies_symbol": "D6h",
+      "aliases": [],
+      "crystal_system": "hexagonal",
+      "host_family": "hexagonal_D6h",
+      "order": 24,
+      "generators": [
+        "6+_001",
+        "2_100",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "3+_001",
+        "3-_001",
+        "2_001",
+        "6-_001",
+        "6+_001",
+        "2_110",
+        "2_100",
+        "2_010",
+        "2_1-10",
+        "2_120",
+        "2_210",
+        "-1",
+        "-3+_001",
+        "-3-_001",
+        "m_001",
+        "-6-_001",
+        "-6+_001",
+        "m_110",
+        "m_100",
+        "m_010",
+        "m_1-10",
+        "m_120",
+        "m_210"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 28,
+      "hm_symbol": "23",
+      "schoenflies_symbol": "T",
+      "aliases": [],
+      "crystal_system": "cubic",
+      "host_family": "cubic_Oh",
+      "order": 12,
+      "generators": [
+        "3+_111",
+        "2_001"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "3+_111",
+        "3+_-11-1",
+        "3+_1-1-1",
+        "3+_-1-11",
+        "3-_111",
+        "3-_1-1-1",
+        "3-_-1-11",
+        "3-_-11-1"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 29,
+      "hm_symbol": "m-3",
+      "schoenflies_symbol": "Th",
+      "aliases": [],
+      "crystal_system": "cubic",
+      "host_family": "cubic_Oh",
+      "order": 24,
+      "generators": [
+        "3+_111",
+        "2_001",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "3+_111",
+        "3+_-11-1",
+        "3+_1-1-1",
+        "3+_-1-11",
+        "3-_111",
+        "3-_1-1-1",
+        "3-_-1-11",
+        "3-_-11-1",
+        "-1",
+        "m_001",
+        "m_010",
+        "m_100",
+        "-3+_111",
+        "-3+_-11-1",
+        "-3+_1-1-1",
+        "-3+_-1-11",
+        "-3-_111",
+        "-3-_1-1-1",
+        "-3-_-1-11",
+        "-3-_-11-1"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 30,
+      "hm_symbol": "432",
+      "schoenflies_symbol": "O",
+      "aliases": [],
+      "crystal_system": "cubic",
+      "host_family": "cubic_Oh",
+      "order": 24,
+      "generators": [
+        "4+_001",
+        "3+_111"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "3+_111",
+        "3+_-11-1",
+        "3+_1-1-1",
+        "3+_-1-11",
+        "3-_111",
+        "3-_1-1-1",
+        "3-_-1-11",
+        "3-_-11-1",
+        "2_110",
+        "2_1-10",
+        "4-_001",
+        "4+_001",
+        "4-_100",
+        "2_011",
+        "2_01-1",
+        "4+_100",
+        "4+_010",
+        "2_101",
+        "4-_010",
+        "2_-101"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": true
+    },
+    {
+      "number": 31,
+      "hm_symbol": "-43m",
+      "schoenflies_symbol": "Td",
+      "aliases": [],
+      "crystal_system": "cubic",
+      "host_family": "cubic_Oh",
+      "order": 24,
+      "generators": [
+        "-4+_001",
+        "3+_111"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "3+_111",
+        "3+_-11-1",
+        "3+_1-1-1",
+        "3+_-1-11",
+        "3-_111",
+        "3-_1-1-1",
+        "3-_-1-11",
+        "3-_-11-1",
+        "m_110",
+        "m_1-10",
+        "-4-_001",
+        "-4+_001",
+        "-4-_100",
+        "m_011",
+        "m_01-1",
+        "-4+_100",
+        "-4+_010",
+        "m_101",
+        "-4-_010",
+        "m_-101"
+      ],
+      "centrosymmetric": false,
+      "polar": false,
+      "chiral": false
+    },
+    {
+      "number": 32,
+      "hm_symbol": "m-3m",
+      "schoenflies_symbol": "Oh",
+      "aliases": [],
+      "crystal_system": "cubic",
+      "host_family": "cubic_Oh",
+      "order": 48,
+      "generators": [
+        "4+_001",
+        "3+_111",
+        "-1"
+      ],
+      "operations": [
+        "1",
+        "2_001",
+        "2_010",
+        "2_100",
+        "3+_111",
+        "3+_-11-1",
+        "3+_1-1-1",
+        "3+_-1-11",
+        "3-_111",
+        "3-_1-1-1",
+        "3-_-1-11",
+        "3-_-11-1",
+        "2_110",
+        "2_1-10",
+        "4-_001",
+        "4+_001",
+        "4-_100",
+        "2_011",
+        "2_01-1",
+        "4+_100",
+        "4+_010",
+        "2_101",
+        "4-_010",
+        "2_-101",
+        "-1",
+        "m_001",
+        "m_010",
+        "m_100",
+        "-3+_111",
+        "-3+_-11-1",
+        "-3+_1-1-1",
+        "-3+_-1-11",
+        "-3-_111",
+        "-3-_1-1-1",
+        "-3-_-1-11",
+        "-3-_-11-1",
+        "m_110",
+        "m_1-10",
+        "-4-_001",
+        "-4+_001",
+        "-4-_100",
+        "m_011",
+        "m_01-1",
+        "-4+_100",
+        "-4+_010",
+        "m_101",
+        "-4-_010",
+        "m_-101"
+      ],
+      "centrosymmetric": true,
+      "polar": false,
+      "chiral": false
+    }
+  ]
+}

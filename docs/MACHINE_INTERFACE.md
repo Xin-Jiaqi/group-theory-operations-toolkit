@@ -10,6 +10,11 @@ from group_theory_operations import (
     apply_fractional_operation,
     quadratic_field_representation,
     load_quadratic_field_catalog,
+    load_point_group_registry,
+    get_crystallographic_point_group,
+    point_group_operations,
+    response_tensor_basis,
+    load_optical_response_catalog,
 )
 
 database = load_database()
@@ -18,6 +23,11 @@ product = multiply_operations(database, "tetragonal_D4h", "4+_001", "2_100")
 transformed = apply_fractional_operation(structure, rotation)
 fields = quadratic_field_representation(rotation.matrix_cartesian)
 all_fields = load_quadratic_field_catalog()
+registry = load_point_group_registry()
+point_group = get_crystallographic_point_group("4mm")
+operations = point_group_operations(point_group.number)
+shift_basis = response_tensor_basis("4mm", "shift_current")
+all_invariants = load_optical_response_catalog()
 ```
 
 `OperationRecord` is frozen and exposes explicit fractional and Cartesian matrices. The original JSON remains the canonical data source, while `validate_database` provides a reusable schema/group-consistency gate. The CLI supports JSON output for downstream scripts:
@@ -27,6 +37,8 @@ group-ops list --json
 group-ops show '4^+_{001}' --family tetragonal_D4h --json
 group-ops multiply 4+_001 2_100 --family tetragonal_D4h --json
 group-ops field-representation m_100 --family tetragonal_D4h --json
+group-ops point-groups 4mm --json
+group-ops invariants 4mm shift_current --json
 group-ops validate
 ```
 
@@ -47,6 +59,26 @@ all-operation view. It includes the source-catalog SHA-256 and follows
 `schema/quadratic-field-representations-v1.schema.json`. Regenerate it with
 `python scripts/generate_quadratic_field_representations.py`; the operation
 catalog remains the sole primary source.
+
+## Crystallographic point groups and optical invariants
+
+`data/crystallographic_point_groups.json` registers the standard 32 point groups.
+Each entry fixes its standard number, Hermann-Mauguin and Schoenflies symbols,
+crystal system, host family, setting, generators, closure operations, and
+centrosymmetric/polar/chiral flags. Operation names resolve through the primary
+operation catalog; the registry does not duplicate matrices.
+
+`equivariant_map_basis(A, B)` is the generic solver for maps satisfying
+`A(R) T = T B(R)`. `response_tensor_basis(point_group, response)` applies it to
+three spatial response contracts: `shift_current` and `shg` use the 3x6 map
+`D <- M_+`; `circular_injection_current` uses the 3x3 map `D <- M_-`.
+The returned deterministic basis spans every spatially allowed tensor. It does
+not impose time reversal, frequency, resonance, units, or microscopic physics.
+
+`data/optical_response_invariants.json` freezes the all-group results and binds
+both registry and operation-catalog SHA-256 values. Regenerate the point-group
+registry first, then the invariant catalog. Tests verify the closure and every
+basis vector under every registered operation.
 
 ## Structure-core boundary
 
@@ -79,4 +111,4 @@ is the intended independent structure-symmetry consumer/checker. This repository
 does not claim to replace symmetry inference or standardization.
 # Schema compatibility
 
-`schema/group-operations-v1.schema.json` describes the public operation JSON shape for `schema_version: 1`; `schema/quadratic-field-representations-v1.schema.json` independently versions the generated field view. Additive optional fields are backward compatible within each schema. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. JSON Schema checks shape and primitive types; scientific consistency remains covered by the Python validator and representation tests.
+`schema/group-operations-v1.schema.json` describes the primary operation JSON. The quadratic-field, crystallographic-point-group and optical-invariant artifacts each have an independent v1 schema. Additive optional fields are backward compatible within each schema. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. JSON Schema checks shape and primitive types; scientific consistency remains covered by closure, spglib-signature, representation and equivariance tests.

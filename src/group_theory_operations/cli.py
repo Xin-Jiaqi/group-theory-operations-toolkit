@@ -20,6 +20,12 @@ from .catalog import (
     validate_database,
 )
 from .representations import quadratic_field_representation
+from .point_groups import (
+    get_crystallographic_point_group,
+    iter_crystallographic_point_groups,
+    point_group_operations,
+)
+from .invariants import RESPONSE_SPECS, response_tensor_basis
 from .structure import apply_fractional_operation
 
 
@@ -121,6 +127,55 @@ def _field(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _point_groups(args: argparse.Namespace, database: dict) -> int:
+    if args.name is None:
+        records = list(iter_crystallographic_point_groups())
+        payload = [record.to_dict() for record in records]
+    else:
+        record = get_crystallographic_point_group(args.name)
+        payload = record.to_dict()
+        payload["operation_records"] = [
+            operation.to_dict()
+            for operation in point_group_operations(record.number, database=database)
+        ]
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    records = (
+        list(iter_crystallographic_point_groups())
+        if args.name is None
+        else [get_crystallographic_point_group(args.name)]
+    )
+    for record in records:
+        print(
+            f"{record.number:2d} {record.hm_symbol:6s} {record.schoenflies_symbol:4s} "
+            f"order={record.order:2d} family={record.host_family}"
+        )
+    return 0
+
+
+def _invariants(args: argparse.Namespace, database: dict) -> int:
+    result = response_tensor_basis(args.point_group, args.response, database=database)
+    payload = {
+        "point_group_number": result.point_group_number,
+        "point_group": result.point_group,
+        "schoenflies_symbol": result.schoenflies_symbol,
+        **result.to_dict(),
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"{result.point_group} ({result.schoenflies_symbol}) / {result.response} / "
+        f"shape={result.shape[0]}x{result.shape[1]} / dimension={result.dimension}"
+    )
+    for index, matrix in enumerate(result.basis, start=1):
+        print(f"basis[{index}]")
+        for row in matrix:
+            print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
+    return 0
+
+
 def _validate(_: argparse.Namespace, database: dict) -> int:
     errors = validate_database(database)
     if errors:
@@ -202,6 +257,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     field_parser.add_argument("--json", action="store_true")
     field_parser.set_defaults(handler=_field)
+
+    point_groups_parser = subparsers.add_parser("point-groups")
+    point_groups_parser.add_argument("name", nargs="?")
+    point_groups_parser.add_argument("--json", action="store_true")
+    point_groups_parser.set_defaults(handler=_point_groups)
+
+    invariants_parser = subparsers.add_parser("invariants")
+    invariants_parser.add_argument("point_group")
+    invariants_parser.add_argument("response", choices=tuple(RESPONSE_SPECS))
+    invariants_parser.add_argument("--json", action="store_true")
+    invariants_parser.set_defaults(handler=_invariants)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)

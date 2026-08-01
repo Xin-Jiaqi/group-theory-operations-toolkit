@@ -6,7 +6,7 @@
 
 ## 内容
 
-仓库目前包含三个数据集：
+仓库目前包含五个相互校验的数据集：
 
 | 数据集 | 母点群 | 基础操作 | 群目录 | 乘法表 |
 |---|---:|---:|---|---:|
@@ -15,6 +15,8 @@
 | `hexagonal_D6h` | $D_{6h}$ | 24 | LG65–LG80 | 24×24 |
 
 `data/group_operations.json` 是点操作的唯一事实源；`data/quadratic_field_representations.json` 是由它确定性生成的 $M_+$/$M_-$ 全操作机器表。`docs/group_theory.md` 汇总点操作、层群集合和乘法表，[`docs/quadratic_field_representations.md`](docs/quadratic_field_representations.md) 给出二次场推导及 88 个 $M_-(R)$。Python/CLI 负责查询，测试负责矩阵、群闭合、叉积恒等式、诱导表示同态和跨仓库结构契约。
+
+新增的 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json) 固定 32 个晶体学点群的标准序号、HM/Schoenflies 名称、设置、生成元和闭包操作；[`data/optical_response_invariants.json`](data/optical_response_invariants.json) 给出 shift current、SHG 与 circular injection current 的全部空间点群不变量基。两者均绑定源数据 SHA-256，并有独立 JSON Schema。
 
 ## 使用
 
@@ -41,6 +43,10 @@ group-ops multiply '4+_001' 2_100 --family tetragonal_D4h
 group-ops field-representation m_100 \
   --family tetragonal_D4h --space antisymmetric --json
 
+# 查询 32 点群注册表与允许张量基
+group-ops point-groups 4mm --json
+group-ops invariants 4mm shift_current --json
+
 # 对结构施加点操作；文件 I/O 委托给 materials-structure-core
 group-ops apply-structure structure.vasp 3+_001 \
   --family hexagonal_D6h --output transformed.vasp
@@ -53,6 +59,49 @@ group-ops validate
 ## 约定
 
 矩阵采用列向量约定 $\mathbf r'=D(R)\mathbf r$。操作名统一写成 `2_001`、`4+_001`、`m_100`；程序也接受 `2001`、`4+001`、`m100` 和 `4^+_{001}` 等旧写法。六角晶系同时保存晶格分数坐标矩阵、精确根式笛卡尔矩阵和数值笛卡尔矩阵。对称二次场默认基底为 $(|E_x|^2,|E_y|^2,|E_z|^2,E_xE_y^*+E_yE_x^*,E_xE_z^*+E_zE_x^*,E_yE_z^*+E_zE_y^*)$；反对称基底为 $\mathbf h=i\mathbf E\times\mathbf E^*$，因此 $M_-(R)=\det[D(R)]D(R)$。
+
+不变量求解器使用 $D(R)T_+=T_+M_+(R)$ 与 $D(R)T_-=T_-M_-(R)$。shift current/SHG 的基矩阵为 3×6；circular injection current 为 3×3。它们只表示空间点群选择定则，不替代时间反演、频率、单位、共振或微观机制分析。
+
+## 32 点群与响应维数
+
+注册表使用工具包固定的正交 Cartesian 嵌入，主旋转轴沿 `z`；显式操作列表是最终约定。下表给出全部空间点群解的自由度，完整生成元、闭包操作和基矩阵分别位于两个版本化 JSON 中。
+
+| No. | HM | Schoenflies | Order | Centrosymmetric | Shift | SHG | Circular injection |
+|---:|---|---|---:|:---:|---:|---:|---:|
+| 1 | `1` | `C1` | 1 | no | 18 | 18 | 9 |
+| 2 | `-1` | `Ci` | 2 | yes | 0 | 0 | 0 |
+| 3 | `2` | `C2` | 2 | no | 8 | 8 | 5 |
+| 4 | `m` | `Cs` | 2 | no | 10 | 10 | 4 |
+| 5 | `2/m` | `C2h` | 4 | yes | 0 | 0 | 0 |
+| 6 | `222` | `D2` | 4 | no | 3 | 3 | 3 |
+| 7 | `mm2` | `C2v` | 4 | no | 5 | 5 | 2 |
+| 8 | `mmm` | `D2h` | 8 | yes | 0 | 0 | 0 |
+| 9 | `4` | `C4` | 4 | no | 4 | 4 | 3 |
+| 10 | `-4` | `S4` | 4 | no | 4 | 4 | 2 |
+| 11 | `4/m` | `C4h` | 8 | yes | 0 | 0 | 0 |
+| 12 | `422` | `D4` | 8 | no | 1 | 1 | 2 |
+| 13 | `4mm` | `C4v` | 8 | no | 3 | 3 | 1 |
+| 14 | `-42m` | `D2d` | 8 | no | 2 | 2 | 1 |
+| 15 | `4/mmm` | `D4h` | 16 | yes | 0 | 0 | 0 |
+| 16 | `3` | `C3` | 3 | no | 6 | 6 | 3 |
+| 17 | `-3` | `C3i` | 6 | yes | 0 | 0 | 0 |
+| 18 | `32` | `D3` | 6 | no | 2 | 2 | 2 |
+| 19 | `3m` | `C3v` | 6 | no | 4 | 4 | 1 |
+| 20 | `-3m` | `D3d` | 12 | yes | 0 | 0 | 0 |
+| 21 | `6` | `C6` | 6 | no | 4 | 4 | 3 |
+| 22 | `-6` | `C3h` | 6 | no | 2 | 2 | 0 |
+| 23 | `6/m` | `C6h` | 12 | yes | 0 | 0 | 0 |
+| 24 | `622` | `D6` | 12 | no | 1 | 1 | 2 |
+| 25 | `6mm` | `C6v` | 12 | no | 3 | 3 | 1 |
+| 26 | `-6m2` | `D3h` | 12 | no | 1 | 1 | 0 |
+| 27 | `6/mmm` | `D6h` | 24 | yes | 0 | 0 | 0 |
+| 28 | `23` | `T` | 12 | no | 1 | 1 | 1 |
+| 29 | `m-3` | `Th` | 24 | yes | 0 | 0 | 0 |
+| 30 | `432` | `O` | 24 | no | 0 | 0 | 1 |
+| 31 | `-43m` | `Td` | 24 | no | 1 | 1 | 0 |
+| 32 | `m-3m` | `Oh` | 48 | yes | 0 | 0 | 0 |
+
+`basis[k]` 的行按 `(x,y,z)`；shift/SHG 列按 `(xx,yy,zz,xy,xz,yz)`；circular injection 列按 `(h_x,h_y,h_z)`。任意线性组合都是允许张量。重新生成时先运行 `scripts/generate_crystallographic_point_groups.py`，再运行 `scripts/generate_optical_response_invariants.py`。
 
 乘法表使用“行操作 × 列操作”：`multiplication.table[left][right]` 对应 $D(left)D(right)$，对列向量而言右操作先作用。JSON 使用 `1` 和 `-1` 表示恒等与反演，Markdown 表中显示为 $E$ 和 $I$。Markdown 乘法表按 8 个列操作分块，以保证 Obsidian 和 GitHub 都能正常渲染；程序应直接读取 JSON，而不是解析 Markdown 表格。
 
@@ -68,14 +117,14 @@ group-ops validate
 python3 -m unittest discover -s tests -v
 ```
 
-当前测试覆盖矩阵正交性、六角基底变换、群闭合性、坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步、$M_+$/$M_-$ 定义与同态、复电场直接作用、叉积恒等式、机器接口、乘法/结构变换一致性、PBC 与 Selective-dynamics 拒绝边界。
+当前测试覆盖矩阵正交性、六角基底变换、群闭合性、坐标作用、LG1–LG80 分类、全部乘法单元、单位元、逆元、结合律、JSON/Markdown 同步、$M_+$/$M_-$ 定义与同态、32 点群生成闭包、spglib 独立群签名、三类响应的零空间维数与逐操作等变性、机器接口、PBC 与 Selective-dynamics 拒绝边界。
 
-参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)、[0.2 迁移说明](docs/MIGRATION_0_2.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
+参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
 
 科研使用时请通过 [`CITATION.cff`](CITATION.cff) 引用所使用的准确版本；只有在对应发布或论文确实存在后，才会填写 DOI 或首选论文引用。
 
 ## 范围与后续
 
-目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。后续扩展会优先明确平移、旋转中心、容差和数据来源，再加入表示分解与不变量构造，避免把尚未验证的应用目标写成现有能力。
+目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。张量工具给出允许分量空间，不计算材料响应数值。
 
-`0.2.0` 仍是发布候选；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。正式稳定发布前仍需完成 32 个晶体学点群的固定 basis/setting 注册表。
+`0.3.0` 仍是发布候选；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。正式稳定发布前仍需用固定结构夹具核对点群识别，并明确非零平移与旋转中心的 affine Seitz 契约。

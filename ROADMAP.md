@@ -18,12 +18,20 @@
 - [x] Add a versioned derived-data schema, Python API and JSON CLI query.
 - [x] Verify direct complex-field action, cross products, orthogonality and representation homomorphisms.
 
+## 0.3.0 candidate — crystallographic registry and optical invariants
+
+- [x] Register all 32 crystallographic point groups with fixed settings, generators and closures.
+- [x] Cross-check group order and element signatures against spglib's Hall database.
+- [x] Solve spatial invariant bases for shift current, SHG and circular injection current.
+- [x] Publish versioned JSON/Schema artifacts, Python APIs, CLI queries and readable dimension tables.
+- [x] Verify every generated basis vector against every operation of every point group.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
 - [x] Define a versioned JSON Schema and compatibility policy.
-- [ ] Expand the registry toward all 32 crystallographic point groups with independent generator/order/closure tests.
-- [ ] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
+- [x] Expand the registry to all 32 crystallographic point groups with independent generator/order/closure tests.
+- [x] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
 - [ ] Cross-check structure classifications through a pinned spglib fixture suite.
 - [ ] Define affine Seitz operations before accepting nonzero translations or shifted rotation centers.
 

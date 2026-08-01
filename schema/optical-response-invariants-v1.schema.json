@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/optical-response-invariants-v1.schema.json",
+  "title": "Optical Response Invariants v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "point_group_registry_sha256",
+    "operation_catalog_sha256",
+    "generated_by",
+    "conventions",
+    "point_groups"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "point_group_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "operation_catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generated_by": {"type": "string", "minLength": 1},
+    "conventions": {
+      "type": "object",
+      "required": ["equivariance", "output", "symmetric_input", "antisymmetric_input", "scope"],
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "point_groups": {
+      "type": "array",
+      "minItems": 32,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": ["number", "hm_symbol", "schoenflies_symbol", "centrosymmetric", "responses"],
+        "properties": {
+          "number": {"type": "integer", "minimum": 1, "maximum": 32},
+          "hm_symbol": {"type": "string", "minLength": 1},
+          "schoenflies_symbol": {"type": "string", "minLength": 1},
+          "centrosymmetric": {"type": "boolean"},
+          "responses": {
+            "type": "object",
+            "required": ["shift_current", "shg", "circular_injection_current"],
+            "properties": {
+              "shift_current": {"$ref": "#/$defs/response"},
+              "shg": {"$ref": "#/$defs/response"},
+              "circular_injection_current": {"$ref": "#/$defs/response"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "required": ["response", "shape", "dimension", "output_basis", "input_basis", "equation", "basis"],
+      "properties": {
+        "response": {"enum": ["shift_current", "shg", "circular_injection_current"]},
+        "shape": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [{"const": 3}, {"enum": [3, 6]}]
+        },
+        "dimension": {"type": "integer", "minimum": 0, "maximum": 18},
+        "output_basis": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "input_basis": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 6,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "equation": {"type": "string", "minLength": 1},
+        "basis": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 6,
+              "items": {"type": "number"}
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

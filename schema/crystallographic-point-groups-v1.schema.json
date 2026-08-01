@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/crystallographic-point-groups-v1.schema.json",
+  "title": "Crystallographic Point Groups v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_catalog_schema_version",
+    "source_catalog_sha256",
+    "generated_by",
+    "conventions",
+    "point_groups"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_catalog_schema_version": {"const": 1},
+    "source_catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generated_by": {"type": "string", "minLength": 1},
+    "conventions": {
+      "type": "object",
+      "required": ["point_group_order", "setting", "operation_source"],
+      "properties": {
+        "point_group_order": {"type": "string", "minLength": 1},
+        "setting": {"type": "string", "minLength": 1},
+        "operation_source": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "point_groups": {
+      "type": "array",
+      "minItems": 32,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": [
+          "number",
+          "hm_symbol",
+          "schoenflies_symbol",
+          "aliases",
+          "crystal_system",
+          "host_family",
+          "order",
+          "generators",
+          "operations",
+          "centrosymmetric",
+          "polar",
+          "chiral"
+        ],
+        "properties": {
+          "number": {"type": "integer", "minimum": 1, "maximum": 32},
+          "hm_symbol": {"type": "string", "minLength": 1},
+          "schoenflies_symbol": {"type": "string", "minLength": 1},
+          "aliases": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "crystal_system": {
+            "enum": ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
+          },
+          "host_family": {"enum": ["cubic_Oh", "tetragonal_D4h", "hexagonal_D6h"]},
+          "order": {"type": "integer", "minimum": 1, "maximum": 48},
+          "generators": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "operations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 48,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "centrosymmetric": {"type": "boolean"},
+          "polar": {"type": "boolean"},
+          "chiral": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

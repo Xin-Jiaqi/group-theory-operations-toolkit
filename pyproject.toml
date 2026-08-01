@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "group-theory-operations-toolkit"
-version = "0.2.0"
+version = "0.3.0"
 description = "Validated crystallographic point-operation data and machine interfaces"
 authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
@@ -18,7 +18,7 @@ group-ops = "group_theory_operations.cli:main"
 
 [project.optional-dependencies]
 structure = ["materials-structure-core[io]>=0.0.2,<0.2"]
-test = ["build>=1.2,<2", "jsonschema[format]>=4.21,<5", "twine>=5,<7"]
+test = ["build>=1.2,<2", "jsonschema[format]>=4.21,<5", "spglib>=2.5,<3", "twine>=5,<7"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/group_theory_operations"]
@@ -26,5 +26,9 @@ packages = ["src/group_theory_operations"]
 [tool.hatch.build.targets.wheel.force-include]
 "data/group_operations.json" = "group_theory_operations/data/group_operations.json"
 "data/quadratic_field_representations.json" = "group_theory_operations/data/quadratic_field_representations.json"
+"data/crystallographic_point_groups.json" = "group_theory_operations/data/crystallographic_point_groups.json"
+"data/optical_response_invariants.json" = "group_theory_operations/data/optical_response_invariants.json"
 "schema/group-operations-v1.schema.json" = "group_theory_operations/schema/group-operations-v1.schema.json"
 "schema/quadratic-field-representations-v1.schema.json" = "group_theory_operations/schema/quadratic-field-representations-v1.schema.json"
+"schema/crystallographic-point-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-point-groups-v1.schema.json"
+"schema/optical-response-invariants-v1.schema.json" = "group_theory_operations/schema/optical-response-invariants-v1.schema.json"
