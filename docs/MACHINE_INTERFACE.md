@@ -8,12 +8,16 @@ from group_theory_operations import (
     operation_record,
     multiply_operations,
     apply_fractional_operation,
+    quadratic_field_representation,
+    load_quadratic_field_catalog,
 )
 
 database = load_database()
 rotation = operation_record(database, "4+_001", "tetragonal_D4h")
 product = multiply_operations(database, "tetragonal_D4h", "4+_001", "2_100")
 transformed = apply_fractional_operation(structure, rotation)
+fields = quadratic_field_representation(rotation.matrix_cartesian)
+all_fields = load_quadratic_field_catalog()
 ```
 
 `OperationRecord` is frozen and exposes explicit fractional and Cartesian matrices. The original JSON remains the canonical data source, while `validate_database` provides a reusable schema/group-consistency gate. The CLI supports JSON output for downstream scripts:
@@ -22,8 +26,27 @@ transformed = apply_fractional_operation(structure, rotation)
 group-ops list --json
 group-ops show '4^+_{001}' --family tetragonal_D4h --json
 group-ops multiply 4+_001 2_100 --family tetragonal_D4h --json
+group-ops field-representation m_100 --family tetragonal_D4h --json
 group-ops validate
 ```
+
+## Quadratic-field representations
+
+`quadratic_field_representation()` returns the two induced actions needed by
+second-order optical-response workflows. Its default symmetric basis is
+
+`(|Ex|², |Ey|², |Ez|², Ex Ey* + Ey Ex*, Ex Ez* + Ez Ex*, Ey Ez* + Ez Ey*)`.
+
+The antisymmetric basis is the real axial vector `h = i E × E*`, and therefore
+`matrix_antisymmetric = det(D) D`. The public functions derive both matrices
+from the Cartesian orthogonal matrix; callers must not apply this axial formula
+to the non-orthonormal fractional-coordinate representation.
+
+`data/quadratic_field_representations.json` is a generated, versioned
+all-operation view. It includes the source-catalog SHA-256 and follows
+`schema/quadratic-field-representations-v1.schema.json`. Regenerate it with
+`python scripts/generate_quadratic_field_representations.py`; the operation
+catalog remains the sole primary source.
 
 ## Structure-core boundary
 
@@ -56,4 +79,4 @@ is the intended independent structure-symmetry consumer/checker. This repository
 does not claim to replace symmetry inference or standardization.
 # Schema compatibility
 
-`schema/group-operations-v1.schema.json` describes the public JSON shape for `schema_version: 1`. Additive optional fields are backward compatible within schema v1. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. The JSON Schema checks shape and primitive types; `validate_database()` remains authoritative for group closure, basis conversion, inverse, and multiplication consistency.
+`schema/group-operations-v1.schema.json` describes the public operation JSON shape for `schema_version: 1`; `schema/quadratic-field-representations-v1.schema.json` independently versions the generated field view. Additive optional fields are backward compatible within each schema. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. JSON Schema checks shape and primitive types; scientific consistency remains covered by the Python validator and representation tests.

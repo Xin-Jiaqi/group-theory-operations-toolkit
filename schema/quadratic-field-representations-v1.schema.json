@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/quadratic-field-representations-v1.schema.json",
+  "title": "Quadratic Field Representations v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_catalog_schema_version",
+    "source_catalog_sha256",
+    "generated_by",
+    "conventions",
+    "families"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_catalog_schema_version": {"const": 1},
+    "source_catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generated_by": {"type": "string", "minLength": 1},
+    "conventions": {
+      "type": "object",
+      "required": [
+        "polar_action",
+        "symmetric_basis",
+        "symmetric_action",
+        "antisymmetric_basis",
+        "antisymmetric_action"
+      ],
+      "properties": {
+        "polar_action": {"type": "string", "minLength": 1},
+        "symmetric_basis": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "symmetric_action": {"type": "string", "minLength": 1},
+        "antisymmetric_basis": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "antisymmetric_action": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "families": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["parent_point_group", "operation_count", "operations"],
+        "properties": {
+          "parent_point_group": {"type": "string", "minLength": 1},
+          "operation_count": {"type": "integer", "minimum": 1},
+          "operations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "index",
+                "name",
+                "determinant",
+                "matrix_symmetric",
+                "matrix_antisymmetric"
+              ],
+              "properties": {
+                "index": {"type": "integer", "minimum": 0},
+                "name": {"type": "string", "minLength": 1},
+                "determinant": {"type": "number", "enum": [-1, 1]},
+                "matrix_symmetric": {"$ref": "#/$defs/matrix6"},
+                "matrix_antisymmetric": {"$ref": "#/$defs/matrix3"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "matrix3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {"type": "number"}
+      }
+    },
+    "matrix6": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "array",
+        "minItems": 6,
+        "maxItems": 6,
+        "items": {"type": "number"}
+      }
+    }
+  }
+}

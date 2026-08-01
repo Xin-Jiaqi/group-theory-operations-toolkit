@@ -10,11 +10,20 @@
 - [x] Reject incompatible PBC and Selective-dynamics transforms.
 - [x] Build and inspect wheel/sdist artifacts.
 
+## 0.2.0 candidate — quadratic-field representations
+
+- [x] Derive $M_+(R)=\operatorname{Sym}^2D(R)$ in the explicit complex-field basis.
+- [x] Derive $M_-(R)=\det[D(R)]D(R)$ for the axial-vector input space.
+- [x] Publish generated 6×6 and 3×3 matrices for all 88 family records.
+- [x] Add a versioned derived-data schema, Python API and JSON CLI query.
+- [x] Verify direct complex-field action, cross products, orthogonality and representation homomorphisms.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
 - [x] Define a versioned JSON Schema and compatibility policy.
 - [ ] Expand the registry toward all 32 crystallographic point groups with independent generator/order/closure tests.
+- [ ] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
 - [ ] Cross-check structure classifications through a pinned spglib fixture suite.
 - [ ] Define affine Seitz operations before accepting nonzero translations or shifted rotation centers.
 

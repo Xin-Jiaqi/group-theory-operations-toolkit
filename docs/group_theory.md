@@ -1,8 +1,8 @@
 # 点群操作与矩阵表示
 
-本文档统一整理立方晶系 $O_h$、正方晶系 $D_{4h}$ 与六角晶系 $D_{6h}$ 的点操作、三维表示矩阵，以及二次电场基底上的六维诱导表示。机器可读的唯一数据源是 `data/group_operations.json`；本文档用于公式推导、人工核对和后续理论工作。
+本文档统一整理立方晶系 $O_h$、正方晶系 $D_{4h}$ 与六角晶系 $D_{6h}$ 的点操作、三维表示矩阵和层群/点群操作集合。`data/group_operations.json` 是点操作的唯一数据源；二次场的 $M_+$、$M_-$ 全操作派生表见 [`quadratic_field_representations.md`](quadratic_field_representations.md) 和 `data/quadratic_field_representations.json`。
 
-## 1. 约定与六维诱导表示
+## 1. 约定与二次场诱导表示
 
 采用列向量约定
 $$
@@ -10,9 +10,15 @@ $$
 $$
 标准操作名在方向指标前使用下划线，例如 `2_001`、`4+_001`、`m_100`。历史数据中的 `2001`、`4+001`、`m100` 作为别名保存在统一数据文件的 `source_name` 字段中。
 
-电场六维基底固定为
+本文件原有的六维详表采用半归一化对称基底
 $$
-\mathbf E=\big((E^x)^2,(E^y)^2,(E^z)^2,E^xE^y,E^xE^z,E^yE^z\big)^T.
+\boldsymbol{\mathcal E}^{(1/2)}_+
+=\left(
+\lvert E^x\rvert^2,\lvert E^y\rvert^2,\lvert E^z\rvert^2,
+\frac{E^xE^{y*}+E^yE^{x*}}2,
+\frac{E^xE^{z*}+E^zE^{x*}}2,
+\frac{E^yE^{z*}+E^zE^{y*}}2
+\right)^T.
 $$
 
 对于任意点操作 $R$，若其在正交坐标系下的 $3\times 3$ 表示矩阵写为
@@ -40,9 +46,9 @@ E^z
 \end{pmatrix}.
 $$
 
-将 $\big((E^{x\prime})^2,(E^{y\prime})^2,(E^{z\prime})^2,E^{x\prime}E^{y\prime},E^{x\prime}E^{z\prime},E^{y\prime}E^{z\prime}\big)^T$ 在基底 $\mathbf E$ 上展开，可得任意 $R$ 在电场基底上的诱导表示矩阵
+将变换后的电场代入上述六个分量，可得本文件详表所用的
 $$
-M(R)=
+M(R)\equiv M_+^{(1/2)}(R)=
 \begin{pmatrix}
 R_{11}^2 & R_{12}^2 & R_{13}^2 & 2R_{11}R_{12} & 2R_{11}R_{13} & 2R_{12}R_{13}\\
 R_{21}^2 & R_{22}^2 & R_{23}^2 & 2R_{21}R_{22} & 2R_{21}R_{23} & 2R_{22}R_{23}\\
@@ -52,6 +58,22 @@ R_{11}R_{31} & R_{12}R_{32} & R_{13}R_{33} & R_{11}R_{32}+R_{12}R_{31} & R_{11}R
 R_{21}R_{31} & R_{22}R_{32} & R_{23}R_{33} & R_{21}R_{32}+R_{22}R_{31} & R_{21}R_{33}+R_{23}R_{31} & R_{22}R_{33}+R_{23}R_{32}
 \end{pmatrix}.
 $$
+
+理论章节常用不带 $1/2$ 的对称基底 $\boldsymbol{\mathcal E}_+$。令
+$$
+S=\operatorname{diag}(1,1,1,2,2,2),
+$$
+则两个约定严格等价：
+$$
+\boldsymbol{\mathcal E}_+=S\boldsymbol{\mathcal E}^{(1/2)}_+,
+\qquad
+M_+(R)=S M_+^{(1/2)}(R)S^{-1}.
+$$
+反对称基底取 $\mathbf h=i\mathbf E\times\mathbf E^*$，其诱导表示为
+$$
+M_-(R)=\det[D(R)]D(R).
+$$
+公开 API 默认使用不带 $1/2$ 的 $\boldsymbol{\mathcal E}_+$；全体 88 条记录及验证约定集中在二次场派生表中，避免从本文件的人工排版反向取数。
 
 ## 2. 立方晶系 $O_h$
 
