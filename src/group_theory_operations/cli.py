@@ -15,11 +15,11 @@ from .catalog import (
     get_operation,
     get_point_group,
     load_database,
-    matrix_for,
     multiply_operations,
     operation_record,
     validate_database,
 )
+from .representations import quadratic_field_representation
 from .structure import apply_fractional_operation
 
 
@@ -82,6 +82,42 @@ def _multiply(args: argparse.Namespace, database: dict) -> int:
     right = get_operation(database, args.right, args.family)["name"]
     result = multiply_operations(database, args.family, left, right)
     print(json.dumps({"family": args.family, "left": left, "right": right, "result": result}) if args.json else f"{left} * {right} = {result}")
+    return 0
+
+
+def _field(args: argparse.Namespace, database: dict) -> int:
+    matches = find_operations(database, args.name, args.family)
+    if not matches:
+        raise GroupDataError(f"operation {args.name!r} not found")
+    payload = []
+    for family, operation in matches:
+        representation = quadratic_field_representation(operation)
+        item = {
+            "family": family,
+            "index": operation["index"],
+            "name": operation["name"],
+            "determinant": representation.determinant,
+        }
+        if args.space in {"symmetric", "both"}:
+            item["matrix_symmetric"] = [
+                list(row) for row in representation.matrix_symmetric
+            ]
+        if args.space in {"antisymmetric", "both"}:
+            item["matrix_antisymmetric"] = [
+                list(row) for row in representation.matrix_antisymmetric
+            ]
+        payload.append(item)
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    for item in payload:
+        print(f"{item['family']} / {item['name']} / det(D)={item['determinant']:.12g}")
+        for key in ("matrix_symmetric", "matrix_antisymmetric"):
+            if key not in item:
+                continue
+            print(key)
+            for row in item[key]:
+                print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
     return 0
 
 
@@ -155,6 +191,17 @@ def build_parser() -> argparse.ArgumentParser:
     multiply_parser.add_argument("--family", required=True)
     multiply_parser.add_argument("--json", action="store_true")
     multiply_parser.set_defaults(handler=_multiply)
+
+    field_parser = subparsers.add_parser("field-representation")
+    field_parser.add_argument("name")
+    field_parser.add_argument("--family", required=True)
+    field_parser.add_argument(
+        "--space",
+        choices=("symmetric", "antisymmetric", "both"),
+        default="both",
+    )
+    field_parser.add_argument("--json", action="store_true")
+    field_parser.set_defaults(handler=_field)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)

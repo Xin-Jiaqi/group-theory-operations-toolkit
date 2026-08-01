@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import math
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,8 +10,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import group_tools
-from jsonschema import Draft202012Validator
+import group_tools  # noqa: E402
+from jsonschema import Draft202012Validator  # noqa: E402
 
 
 class MinimalStructureRecord:
