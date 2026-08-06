@@ -36,7 +36,7 @@ packages = ["src/group_theory_operations"]
 "schema/crystallographic-space-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-space-groups-v1.schema.json"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 check_untyped_defs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
