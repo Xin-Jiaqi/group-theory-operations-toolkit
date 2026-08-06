@@ -18,7 +18,7 @@ group-ops = "group_theory_operations.cli:main"
 
 [project.optional-dependencies]
 structure = ["materials-structure-core[io]>=0.0.2,<0.2"]
-test = ["build>=1.2,<2", "jsonschema[format]>=4.21,<5", "mypy>=1.10", "spglib>=2.5,<3", "twine>=5,<7"]
+test = ["ase>=3.23,<4", "build>=1.2,<2", "jsonschema[format]>=4.21,<5", "mypy>=1.10", "spglib>=2.5,<3", "twine>=5,<7"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/group_theory_operations"]
@@ -28,10 +28,12 @@ packages = ["src/group_theory_operations"]
 "data/quadratic_field_representations.json" = "group_theory_operations/data/quadratic_field_representations.json"
 "data/crystallographic_point_groups.json" = "group_theory_operations/data/crystallographic_point_groups.json"
 "data/optical_response_invariants.json" = "group_theory_operations/data/optical_response_invariants.json"
+"data/crystallographic_space_groups.json" = "group_theory_operations/data/crystallographic_space_groups.json"
 "schema/group-operations-v1.schema.json" = "group_theory_operations/schema/group-operations-v1.schema.json"
 "schema/quadratic-field-representations-v1.schema.json" = "group_theory_operations/schema/quadratic-field-representations-v1.schema.json"
 "schema/crystallographic-point-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-point-groups-v1.schema.json"
 "schema/optical-response-invariants-v1.schema.json" = "group_theory_operations/schema/optical-response-invariants-v1.schema.json"
+"schema/crystallographic-space-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-space-groups-v1.schema.json"
 
 [tool.mypy]
 python_version = "3.10"
@@ -39,3 +41,7 @@ check_untyped_defs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["materials_structure_core", "spglib"]
+ignore_missing_imports = true

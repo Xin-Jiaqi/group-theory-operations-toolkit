@@ -9,7 +9,7 @@
 仓库目前包含五个相互校验的数据集：
 
 | 数据集 | 母点群 | 基础操作 | 群目录 | 乘法表 |
-|---|---:|---:|---|---:|
+|---|---|---:|---|---:|
 | `cubic_Oh` | $O_h$ | 48 | $O_h$、$O$、$T_d$、$T_h$、$T$ | — |
 | `tetragonal_D4h` | $D_{4h}$ | 16 | LG1–LG64 | 16×16 |
 | `hexagonal_D6h` | $D_{6h}$ | 24 | LG65–LG80 | 24×24 |
@@ -17,6 +17,8 @@
 `data/group_operations.json` 是点操作的唯一事实源；`data/quadratic_field_representations.json` 是由它确定性生成的 $M_+$/$M_-$ 全操作机器表。`docs/group_theory.md` 汇总点操作、层群集合和乘法表，[`docs/quadratic_field_representations.md`](docs/quadratic_field_representations.md) 给出二次场推导及 88 个 $M_-(R)$。Python/CLI 负责查询，测试负责矩阵、群闭合、叉积恒等式、诱导表示同态和跨仓库结构契约。
 
 新增的 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json) 固定 32 个晶体学点群的标准序号、HM/Schoenflies 名称、设置、生成元和闭包操作；[`data/optical_response_invariants.json`](data/optical_response_invariants.json) 给出 shift current、SHG 与 circular injection current 的全部空间点群不变量基。两者均绑定源数据 SHA-256，并有独立 JSON Schema。
+
+新增的 [`data/crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖全部 230 个空间群：每个 ITA 序号的国际符号、Schoenflies、母点群、晶系、心型、symmorphic 判定，以及全部 530 个 Hall 设置各自的 Seitz 生成元 $(R\mid\mathbf t)$ 与操作数。数据由 spglib 数据库（BSD-3-Clause）生成，并经过 spglib、ASE 双源交叉验证与端到端回环验证；详见 [`docs/space_groups.md`](docs/space_groups.md)。
 
 ## 使用
 
@@ -46,6 +48,10 @@ group-ops field-representation m_100 \
 # 查询 32 点群注册表与允许张量基
 group-ops point-groups 4mm --json
 group-ops invariants 4mm shift_current --json
+
+# 查询 230 空间群（含 Seitz 生成元）
+group-ops space-groups 227
+group-ops space-groups 227 --json
 
 # 对结构施加点操作；文件 I/O 委托给 materials-structure-core
 group-ops apply-structure structure.vasp 3+_001 \
@@ -125,6 +131,6 @@ python3 -m unittest discover -s tests -v
 
 ## 范围与后续
 
-目前数据描述点操作的线性部分，不含非零平移的完整 Seitz 对 $(R\mid\mathbf t)$；结构变换默认围绕原点。张量工具给出允许分量空间，不计算材料响应数值。
+目前点操作数据描述操作的线性部分；结构变换默认围绕原点。空间群的 Seitz 对 $(R\mid\mathbf t)$（含非零平移）已由 [`crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖，但逐结构的平移/滑移操作应用于具体 POSCAR 的 affine Seitz 契约仍待固定。张量工具给出允许分量空间，不计算材料响应数值。
 
 `0.3.0` 仍是发布候选；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。正式稳定发布前仍需用固定结构夹具核对点群识别，并明确非零平移与旋转中心的 affine Seitz 契约。

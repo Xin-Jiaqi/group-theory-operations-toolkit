@@ -26,6 +26,14 @@
 - [x] Publish versioned JSON/Schema artifacts, Python APIs, CLI queries and readable dimension tables.
 - [x] Verify every generated basis vector against every operation of every point group.
 
+## 0.4.0 candidate — crystallographic space groups
+
+- [x] Register all 230 space groups with international/Schoenflies labels, parent point groups, crystal systems, centering and symmorphic flags.
+- [x] Cover every one of the 530 Hall settings with Seitz generators and operation counts.
+- [x] Round-trip-verify the primary setting of every space group through spglib identification.
+- [x] Cross-check labels, Hall symbols, and operation counts against spglib, and HM symbols against ASE.
+- [x] Fix the symmorphic flag by the lattice-aware fixed-point criterion (73 groups).
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
@@ -33,6 +41,6 @@
 - [x] Expand the registry to all 32 crystallographic point groups with independent generator/order/closure tests.
 - [x] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
 - [ ] Cross-check structure classifications through a pinned spglib fixture suite.
-- [ ] Define affine Seitz operations before accepting nonzero translations or shifted rotation centers.
+- [ ] Define affine Seitz operations on concrete structures (origin choice, Wyckoff placement) before accepting them for structure transforms.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.

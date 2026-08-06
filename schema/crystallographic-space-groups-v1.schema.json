@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/crystallographic-space-groups-v1.schema.json",
+  "title": "Crystallographic Space Groups v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source",
+    "generated_by",
+    "point_group_registry_sha256",
+    "conventions",
+    "space_groups"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source": {
+      "type": "object",
+      "required": ["name", "version", "license"],
+      "properties": {
+        "name": {"const": "spglib"},
+        "version": {"type": "string", "minLength": 1},
+        "license": {"const": "BSD-3-Clause"},
+        "note": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "generated_by": {"type": "string", "minLength": 1},
+    "point_group_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "conventions": {
+      "type": "object",
+      "required": ["seitz", "primary", "generators", "symmorphic"],
+      "properties": {
+        "seitz": {"type": "string", "minLength": 1},
+        "primary": {"type": "string", "minLength": 1},
+        "generators": {"type": "string", "minLength": 1},
+        "symmorphic": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "space_groups": {
+      "type": "array",
+      "minItems": 230,
+      "maxItems": 230,
+      "items": {
+        "type": "object",
+        "required": [
+          "ita_number",
+          "international_short",
+          "international_full",
+          "schoenflies",
+          "point_group_number",
+          "point_group_hm",
+          "point_group_schoenflies",
+          "crystal_system",
+          "centering",
+          "symmorphic",
+          "primary_hall_number",
+          "hall_settings"
+        ],
+        "properties": {
+          "ita_number": {"type": "integer", "minimum": 1, "maximum": 230},
+          "international_short": {"type": "string", "minLength": 1},
+          "international_full": {"type": "string", "minLength": 1},
+          "schoenflies": {"type": "string", "minLength": 1},
+          "point_group_number": {"type": "integer", "minimum": 1, "maximum": 32},
+          "point_group_hm": {"type": "string", "minLength": 1},
+          "point_group_schoenflies": {"type": "string", "minLength": 1},
+          "crystal_system": {
+            "enum": [
+              "triclinic",
+              "monoclinic",
+              "orthorhombic",
+              "tetragonal",
+              "trigonal",
+              "hexagonal",
+              "cubic"
+            ]
+          },
+          "centering": {"enum": ["P", "A", "B", "C", "F", "I", "R"]},
+          "symmorphic": {"type": "boolean"},
+          "primary_hall_number": {"type": "integer", "minimum": 1, "maximum": 530},
+          "hall_settings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "hall_number",
+                "hall_symbol",
+                "choice",
+                "centering",
+                "symmorphic",
+                "operation_count",
+                "generators"
+              ],
+              "properties": {
+                "hall_number": {"type": "integer", "minimum": 1, "maximum": 530},
+                "hall_symbol": {"type": "string", "minLength": 1},
+                "choice": {"type": "string"},
+                "centering": {"enum": ["P", "A", "B", "C", "F", "I", "R"]},
+                "symmorphic": {"type": "boolean"},
+                "operation_count": {"type": "integer", "minimum": 1, "maximum": 192},
+                "generators": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "required": ["rotation", "translation"],
+                    "properties": {
+                      "rotation": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "array",
+                          "minItems": 3,
+                          "maxItems": 3,
+                          "items": {"type": "integer"}
+                        }
+                      },
+                      "translation": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {"type": "number"}
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -26,6 +26,11 @@ from .point_groups import (
     iter_crystallographic_point_groups,
     point_group_operations,
 )
+from .space_groups import (
+    get_crystallographic_space_group,
+    iter_crystallographic_space_groups,
+    load_space_group_registry,
+)
 from .invariants import RESPONSE_SPECS, response_tensor_basis
 from .structure import apply_fractional_operation
 
@@ -155,6 +160,31 @@ def _point_groups(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _space_groups(args: argparse.Namespace, database: dict) -> int:
+    if args.ita is None:
+        records = list(iter_crystallographic_space_groups())
+        payload: dict[str, Any] | list[dict[str, Any]] = [record.to_dict() for record in records]
+    else:
+        record = get_crystallographic_space_group(args.ita)
+        payload = record.to_dict()
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    records = (
+        list(iter_crystallographic_space_groups())
+        if args.ita is None
+        else [get_crystallographic_space_group(args.ita)]
+    )
+    for record in records:
+        print(
+            f"{record.ita_number:3d} {record.international_short:8s} "
+            f"{record.schoenflies:7s} {record.crystal_system:12s} "
+            f"center={record.centering} point={record.point_group_hm:5s} "
+            f"{'symmorphic' if record.symmorphic else 'non-symmorphic'}"
+        )
+    return 0
+
+
 def _invariants(args: argparse.Namespace, database: dict) -> int:
     result = response_tensor_basis(args.point_group, args.response, database=database)
     payload = {
@@ -181,13 +211,14 @@ def _validate(_: argparse.Namespace, database: dict) -> int:
     errors = validate_database(database)
     if errors:
         raise GroupDataError("\n".join(errors))
+    load_space_group_registry()
     print("catalog valid")
     return 0
 
 
 def _apply(args: argparse.Namespace, database: dict) -> int:
     try:
-        from materials_structure_core import (  # type: ignore[import-not-found]
+        from materials_structure_core import (
             StructureIOError,
             read_structure,
             write_structure,
@@ -263,6 +294,11 @@ def build_parser() -> argparse.ArgumentParser:
     point_groups_parser.add_argument("name", nargs="?")
     point_groups_parser.add_argument("--json", action="store_true")
     point_groups_parser.set_defaults(handler=_point_groups)
+
+    space_groups_parser = subparsers.add_parser("space-groups")
+    space_groups_parser.add_argument("ita", type=int, nargs="?")
+    space_groups_parser.add_argument("--json", action="store_true")
+    space_groups_parser.set_defaults(handler=_space_groups)
 
     invariants_parser = subparsers.add_parser("invariants")
     invariants_parser.add_argument("point_group")
