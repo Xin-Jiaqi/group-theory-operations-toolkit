@@ -458,7 +458,9 @@ def validate_database(database: Any) -> tuple[str, ...]:
                         or group_order != len(referenced_operations)
                     ):
                         errors.append(f"{context}: order must equal the operation count")
-                    pairs = ((entry.get("operation_indices", []), entry.get("operations", [])),)
+                    pairs: tuple[tuple[list[Any], list[Any]], ...] = (
+                        (entry.get("operation_indices", []), entry.get("operations", [])),
+                    )
                 else:
                     layer_number = entry.get("LG")
                     if type(layer_number) is not int or not 1 <= layer_number <= 80:

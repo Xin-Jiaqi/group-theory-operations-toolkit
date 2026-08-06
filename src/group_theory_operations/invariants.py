@@ -260,6 +260,7 @@ def response_tensor_basis(
         registry=source_registry,
     )
     output_representations = [operation.matrix_cartesian for operation in operations]
+    input_representations: list[tuple[tuple[float, ...], ...]]
     if specification["input_space"] == "symmetric":
         input_representations = [
             quadratic_field_representation(operation.matrix_cartesian).matrix_symmetric

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 from . import __version__
 
@@ -130,7 +131,7 @@ def _field(args: argparse.Namespace, database: dict) -> int:
 def _point_groups(args: argparse.Namespace, database: dict) -> int:
     if args.name is None:
         records = list(iter_crystallographic_point_groups())
-        payload = [record.to_dict() for record in records]
+        payload: dict[str, Any] | list[dict[str, Any]] = [record.to_dict() for record in records]
     else:
         record = get_crystallographic_point_group(args.name)
         payload = record.to_dict()
@@ -186,7 +187,7 @@ def _validate(_: argparse.Namespace, database: dict) -> int:
 
 def _apply(args: argparse.Namespace, database: dict) -> int:
     try:
-        from materials_structure_core import (
+        from materials_structure_core import (  # type: ignore[import-not-found]
             StructureIOError,
             read_structure,
             write_structure,
