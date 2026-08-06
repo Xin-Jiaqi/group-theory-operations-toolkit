@@ -49,7 +49,7 @@ The registry is machine-generated from the spglib database (BSD-3-Clause)
 by `scripts/generate_crystallographic_space_groups.py`, which itself fails
 unless the ITA crystal-system counts, the 73 symmorphic count, and the
 32-point-group coverage hold.  `tests/test_space_groups.py` re-verifies the
-published file from five directions:
+published file from several independent directions:
 
 1. structural invariants (counts, coverage, uniqueness, spot checks);
 2. spglib cross-check (every stored label, Hall symbol, and operation
@@ -58,7 +58,12 @@ published file from five directions:
    operation count for every one of the 530 settings);
 4. ASE cross-check (HM symbols and operation-count divisibility against
    ASE's independent database; skipped when ASE is not installed);
-5. end-to-end round trip (three generic positions per space group are
+5. gemmi cross-check (crystal system, operation count, and the symmorphic
+   flag against gemmi's independent tables, which agree on all 230 groups;
+   skipped when gemmi is not installed);
+6. Wikipedia fixture (crystal system per ITA number transcribed from the
+   Wikipedia list of space groups, agreeing on all 230);
+7. end-to-end round trip (three generic positions per space group are
    identified by spglib as the same ITA number).
 
 ## Scope notes

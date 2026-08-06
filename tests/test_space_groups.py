@@ -43,6 +43,11 @@ try:
 except ImportError:  # pragma: no cover
     AseSpacegroup = None
 
+try:
+    import gemmi
+except ImportError:  # pragma: no cover
+    gemmi = None
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "crystallographic_space_groups.json"
 POINT_GROUP_PATH = ROOT / "data" / "crystallographic_point_groups.json"
@@ -432,6 +437,87 @@ class SpaceGroupSchemaTests(unittest.TestCase):
 
         expected = hashlib.sha256(POINT_GROUP_PATH.read_bytes()).hexdigest()
         self.assertEqual(data["point_group_registry_sha256"], expected)
+
+
+class SpaceGroupWikipediaFixtureTests(unittest.TestCase):
+    """Crystal systems transcribed from the Wikipedia list of space groups.
+
+    The fixture was generated on 2026-08-06 from
+    https://en.wikipedia.org/wiki/List_of_space_groups (section headings
+    assign each ITA number to one of the seven crystal systems).
+    """
+
+    def test_crystal_systems_agree_with_wikipedia(self) -> None:
+        fixture = json.loads(
+            (ROOT / "tests" / "fixtures" / "wikipedia_crystal_systems.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        expected = fixture["crystal_systems"]
+        self.assertEqual(len(expected), 230)
+        for record in iter_crystallographic_space_groups():
+            self.assertEqual(
+                expected[str(record.ita_number)],
+                record.crystal_system,
+                f"SG {record.ita_number}",
+            )
+
+
+@unittest.skipUnless(gemmi is not None, "gemmi not installed")
+class SpaceGroupGemmiCrossCheckTests(unittest.TestCase):
+    """Cross-check against gemmi's independent space-group tables (BSD-3).
+
+    gemmi's notation differs in three cosmetic ways, so only the invariants
+    that are insensitive to notation are compared: the crystal system, the
+    operation count of the reference setting, and the symmorphic flag.
+    """
+
+    def test_crystal_systems_agree_with_gemmi(self) -> None:
+        for record in iter_crystallographic_space_groups():
+            sg = gemmi.find_spacegroup_by_number(record.ita_number)
+            self.assertIsNotNone(sg, f"SG {record.ita_number}")
+            gemmi_system = str(sg.crystal_system()).split(".")[-1].lower()
+            self.assertEqual(
+                gemmi_system, record.crystal_system, f"SG {record.ita_number}"
+            )
+
+    def test_operation_counts_agree_with_gemmi(self) -> None:
+        for record in iter_crystallographic_space_groups():
+            sg = gemmi.find_spacegroup_by_number(record.ita_number)
+            setting = next(
+                s
+                for s in record.hall_settings
+                if s.hall_number == record.primary_hall_number
+            )
+            self.assertEqual(
+                len(sg.operations()),
+                setting.operation_count,
+                f"SG {record.ita_number}",
+            )
+
+    def test_symmorphic_flags_agree_with_gemmi(self) -> None:
+        for record in iter_crystallographic_space_groups():
+            sg = gemmi.find_spacegroup_by_number(record.ita_number)
+            self.assertEqual(
+                bool(sg.is_symmorphic()),
+                record.symmorphic,
+                f"SG {record.ita_number}",
+            )
+
+    def test_centrosymmetric_flags_agree_with_point_group_registry(self) -> None:
+        # gemmi's centrosymmetry must match the parent point group registry.
+        point_registry = json.loads(POINT_GROUP_PATH.read_text(encoding="utf-8"))
+        centrosymmetric = {
+            entry["number"]: entry["centrosymmetric"]
+            for entry in point_registry["point_groups"]
+        }
+        for record in iter_crystallographic_space_groups():
+            sg = gemmi.find_spacegroup_by_number(record.ita_number)
+            self.assertEqual(
+                bool(sg.is_centrosymmetric()),
+                centrosymmetric[record.point_group_number],
+                f"SG {record.ita_number}",
+            )
 
 
 if __name__ == "__main__":
