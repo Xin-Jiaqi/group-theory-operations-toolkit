@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import unittest
 from pathlib import Path
 
@@ -11,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import group_tools  # noqa: E402
+import group_theory_operations  # noqa: E402
 from jsonschema import Draft202012Validator  # noqa: E402
 
 
@@ -68,6 +70,15 @@ class RepositoryDataTests(unittest.TestCase):
         self.assertEqual(len(families["tetragonal_D4h"]["layer_groups"]), 64)
         self.assertEqual(len(families["hexagonal_D6h"]["operations"]), 24)
         self.assertEqual(len(families["hexagonal_D6h"]["layer_groups"]), 16)
+
+    def test_release_version_and_numpy_dependency_are_consistent(self):
+        pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+        citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+        version = re.search(r'^version = "([^"]+)"$', pyproject, re.MULTILINE)
+        self.assertIsNotNone(version)
+        self.assertEqual(version.group(1), group_theory_operations.__version__)
+        self.assertIn(f"version: {group_theory_operations.__version__}", citation)
+        self.assertRegex(pyproject, r'dependencies = \[[^\]]*"numpy>=1\.24,<3"')
 
     def test_public_validator_accepts_canonical_catalog(self):
         self.assertEqual(group_tools.validate_database(self.database), ())

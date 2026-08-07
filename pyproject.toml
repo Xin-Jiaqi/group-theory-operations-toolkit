@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "group-theory-operations-toolkit"
-version = "0.3.0"
+version = "0.4.0"
 description = "Validated crystallographic point-operation data and machine interfaces"
 authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
 license = "BSD-3-Clause"
 requires-python = ">=3.10"
 classifiers = ["License :: OSI Approved :: BSD License"]
-dependencies = []
+dependencies = ["numpy>=1.24,<3"]
 
 [project.scripts]
 group-ops = "group_theory_operations.cli:main"
@@ -29,11 +29,13 @@ packages = ["src/group_theory_operations"]
 "data/crystallographic_point_groups.json" = "group_theory_operations/data/crystallographic_point_groups.json"
 "data/optical_response_invariants.json" = "group_theory_operations/data/optical_response_invariants.json"
 "data/crystallographic_space_groups.json" = "group_theory_operations/data/crystallographic_space_groups.json"
+"data/crystallographic_layer_groups.json" = "group_theory_operations/data/crystallographic_layer_groups.json"
 "schema/group-operations-v1.schema.json" = "group_theory_operations/schema/group-operations-v1.schema.json"
 "schema/quadratic-field-representations-v1.schema.json" = "group_theory_operations/schema/quadratic-field-representations-v1.schema.json"
 "schema/crystallographic-point-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-point-groups-v1.schema.json"
 "schema/optical-response-invariants-v1.schema.json" = "group_theory_operations/schema/optical-response-invariants-v1.schema.json"
 "schema/crystallographic-space-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-space-groups-v1.schema.json"
+"schema/crystallographic-layer-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-layer-groups-v1.schema.json"
 
 [tool.mypy]
 python_version = "3.12"

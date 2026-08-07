@@ -40,11 +40,20 @@ from .invariants import (
     load_optical_response_catalog,
     response_tensor_basis,
 )
+from .layer_groups import (
+    CrystallographicLayerGroup,
+    LayerHallSetting,
+    get_crystallographic_layer_group,
+    iter_crystallographic_layer_groups,
+    load_layer_group_registry,
+)
 
 __all__ = [
     "GroupDataError",
     "CrystallographicPointGroup",
+    "CrystallographicLayerGroup",
     "InvariantTensorBasis",
+    "LayerHallSetting",
     "OperationRecord",
     "QuadraticFieldRepresentation",
     "antisymmetric_field_matrix",
@@ -55,13 +64,16 @@ __all__ = [
     "family_data",
     "find_operations",
     "get_crystallographic_point_group",
+    "get_crystallographic_layer_group",
     "get_layer_group",
     "get_operation",
     "get_point_group",
     "iter_operations",
     "iter_crystallographic_point_groups",
+    "iter_crystallographic_layer_groups",
     "load_database",
     "load_optical_response_catalog",
+    "load_layer_group_registry",
     "load_point_group_registry",
     "load_quadratic_field_catalog",
     "load_schema",
@@ -76,4 +88,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
