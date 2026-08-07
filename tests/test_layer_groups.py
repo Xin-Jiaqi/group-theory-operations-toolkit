@@ -139,6 +139,40 @@ class LayerGroupRegistryTests(unittest.TestCase):
                     self.assertTrue(multiply(operation, candidate).is_identity())
                     self.assertTrue(multiply(candidate, operation).is_identity())
 
+    def test_standard_rotation_sets_match_legacy_layer_catalog(self) -> None:
+        legacy_data = json.loads(POINT_OPERATION_PATH.read_text(encoding="utf-8"))
+        legacy_rotations: dict[int, set[tuple[int, ...]]] = {}
+        for family in legacy_data["families"].values():
+            by_index = {
+                operation["index"]: operation for operation in family["operations"]
+            }
+            for layer_group in family["layer_groups"]:
+                indices = layer_group["R+_indices"] + layer_group["R-_indices"]
+                legacy_rotations[layer_group["LG"]] = {
+                    tuple(
+                        int(round(float(value)))
+                        for row in by_index[index]["matrix_fractional"]
+                        for value in row
+                    )
+                    for index in indices
+                }
+
+        self.assertEqual(set(legacy_rotations), set(range(1, 81)))
+        for record in self.records:
+            standard = next(setting for setting in record.hall_settings if setting.standard)
+            generators = [
+                SeitzOp.from_dict(generator) for generator in standard.generators
+            ]
+            generated_rotations = {
+                tuple(int(value) for value in operation.rotation.ravel())
+                for operation in closure(generators)
+            }
+            self.assertEqual(
+                generated_rotations,
+                legacy_rotations[record.number],
+                f"LG{record.number} rotation set disagrees with legacy catalog",
+            )
+
 
 @unittest.skipUnless(_spglib is not None, "spglib not installed")
 class LayerGroupSpglibCrossCheckTests(unittest.TestCase):

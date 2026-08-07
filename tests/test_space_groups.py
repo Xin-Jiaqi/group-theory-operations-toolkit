@@ -124,6 +124,13 @@ class SeitzAlgebraTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unimodular"):
             SeitzOp(np.diag([2, 1, 1]), np.zeros(3))
 
+    def test_closure_accepts_one_shot_iterables(self) -> None:
+        quarter_turn = SeitzOp(
+            np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), np.zeros(3)
+        )
+        generated = closure(operation for operation in (quarter_turn,))
+        self.assertEqual(len(generated), 4)
+
 
 def _lattice_for(crystal_system: str) -> np.ndarray:
     if crystal_system == "cubic":

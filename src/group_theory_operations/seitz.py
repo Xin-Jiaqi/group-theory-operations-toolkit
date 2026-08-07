@@ -112,12 +112,15 @@ def closure(generators: Iterable[SeitzOp]) -> list[SeitzOp]:
     loop grows without bound, so an internal membership cap guards against
     unbounded growth.
     """
+    # Materialize one-shot iterables because every discovered member must be
+    # multiplied by the complete generator set.
+    generator_set = tuple(generators)
     identity = SeitzOp.identity()
     members: list[SeitzOp] = [identity]
     worklist = [identity]
     while worklist:
         current = worklist.pop()
-        for generator in generators:
+        for generator in generator_set:
             product = multiply(current, generator)
             if not any(equivalent(product, member) for member in members):
                 members.append(product)
