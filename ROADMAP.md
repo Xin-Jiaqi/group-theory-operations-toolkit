@@ -48,7 +48,14 @@
 - [x] Generate type-I, gray, and black-white operation sets from the validated 32-point-group embeddings.
 - [x] Verify all colored groups algebraically and cross-check their complete classification against spglib's 1651 magnetic space groups.
 - [x] Add Python and CLI access to magnetic operations and real tensor maps with explicit input/output time parity.
-- [ ] Add frequency-domain antiunitary contracts for shift current, SHG, and circular injection current only after frequency permutation and complex-conjugation conventions are fixed.
+
+## 0.6.0 — magnetic nonlinear-optical sectors
+
+- [x] Separate normal/magnetic shift and injection current sectors by polarization and magnetic-domain character.
+- [x] Add i-type/c-type SHG bases for all 122 magnetic point groups.
+- [x] Add a complex antiunitary map solver with explicit conjugation and caller-defined right actions for frequency-channel permutations.
+- [x] Regression-test gray, $PT$, and published $\bar3'm'$ selection rules.
+- [ ] Add response-specific causal identities between positive- and negative-frequency susceptibilities only after the damping and Fourier conventions are selected by the consuming model.
 
 ## Stable-release gates
 

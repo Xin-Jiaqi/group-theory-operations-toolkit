@@ -44,15 +44,21 @@ from .magnetic_point_groups import (
     magnetic_point_group_operations,
 )
 from .invariants import (
+    AntiunitaryEquivariantMapBasis,
     InvariantTensorBasis,
+    MAGNETIC_RESPONSE_SPECS,
     MagneticInvariantTensorBasis,
+    MagneticResponseTensorBasis,
     TENSOR_SPACE_BASES,
+    antiunitary_equivariant_map_basis,
+    canonical_magnetic_response_name,
     canonical_response_name,
     canonical_tensor_space,
     canonical_time_parity,
     equivariant_map_basis,
     load_optical_response_catalog,
     magnetic_equivariant_map_basis,
+    magnetic_response_tensor_basis,
     magnetic_tensor_basis,
     response_tensor_basis,
 )
@@ -65,13 +71,16 @@ from .layer_groups import (
 )
 
 __all__ = [
+    "AntiunitaryEquivariantMapBasis",
     "GroupDataError",
     "CrystallographicPointGroup",
     "CrystallographicLayerGroup",
     "InvariantTensorBasis",
     "LayerHallSetting",
     "MAGNETIC_CATEGORIES",
+    "MAGNETIC_RESPONSE_SPECS",
     "MagneticInvariantTensorBasis",
+    "MagneticResponseTensorBasis",
     "MagneticPointGroup",
     "MagneticPointOperation",
     "OperationRecord",
@@ -79,8 +88,10 @@ __all__ = [
     "ResolvedMagneticPointOperation",
     "TENSOR_SPACE_BASES",
     "antisymmetric_field_matrix",
+    "antiunitary_equivariant_map_basis",
     "apply_fractional_operation",
     "canonical_name",
+    "canonical_magnetic_response_name",
     "canonical_response_name",
     "canonical_tensor_space",
     "canonical_time_parity",
@@ -107,6 +118,7 @@ __all__ = [
     "matrix_for",
     "magnetic_equivariant_map_basis",
     "magnetic_point_group_operations",
+    "magnetic_response_tensor_basis",
     "magnetic_tensor_basis",
     "multiply_operations",
     "operation_record",
@@ -118,4 +130,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
