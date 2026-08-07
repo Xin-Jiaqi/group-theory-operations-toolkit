@@ -15,7 +15,12 @@ from .point_groups import (
     load_point_group_registry,
     point_group_operations,
 )
-from .representations import quadratic_field_representation
+from .magnetic_point_groups import (
+    get_magnetic_point_group,
+    load_magnetic_point_group_registry,
+    magnetic_point_group_operations,
+)
+from .representations import determinant3, quadratic_field_representation
 
 
 Matrix = tuple[tuple[float, ...], ...]
@@ -23,6 +28,28 @@ Matrix = tuple[tuple[float, ...], ...]
 POLAR_BASIS = ("x", "y", "z")
 SYMMETRIC_FIELD_BASIS = ("xx", "yy", "zz", "xy", "xz", "yz")
 ANTISYMMETRIC_FIELD_BASIS = ("h_x", "h_y", "h_z")
+
+TENSOR_SPACE_BASES = {
+    "scalar": ("1",),
+    "pseudoscalar": ("p",),
+    "polar_vector": POLAR_BASIS,
+    "axial_vector": ("a_x", "a_y", "a_z"),
+    "symmetric_quadratic": SYMMETRIC_FIELD_BASIS,
+    "antisymmetric_quadratic": ANTISYMMETRIC_FIELD_BASIS,
+}
+
+_TENSOR_SPACE_ALIASES = {
+    "scalar": "scalar",
+    "pseudoscalar": "pseudoscalar",
+    "polar": "polar_vector",
+    "polar_vector": "polar_vector",
+    "axial": "axial_vector",
+    "axial_vector": "axial_vector",
+    "symmetric": "symmetric_quadratic",
+    "symmetric_quadratic": "symmetric_quadratic",
+    "antisymmetric": "antisymmetric_quadratic",
+    "antisymmetric_quadratic": "antisymmetric_quadratic",
+}
 
 RESPONSE_SPECS = {
     "shift_current": {
@@ -237,6 +264,209 @@ class InvariantTensorBasis:
                 for matrix in self.basis
             ],
         }
+
+
+@dataclass(frozen=True, slots=True)
+class MagneticInvariantTensorBasis:
+    """A real tensor-map basis with explicit spatial and temporal parities.
+
+    This representation applies to static or otherwise real response objects.
+    Frequency-domain antiunitary constraints may additionally exchange
+    frequencies and complex-conjugate coefficients, so they must be formulated
+    separately rather than inferred from temporal parity alone.
+    """
+
+    magnetic_point_group_number: int
+    magnetic_number: str
+    magnetic_point_group: str
+    category: str
+    output_space: str
+    input_space: str
+    output_time_parity: str
+    input_time_parity: str
+    output_basis: tuple[str, ...]
+    input_basis: tuple[str, ...]
+    basis: tuple[Matrix, ...]
+
+    @property
+    def dimension(self) -> int:
+        return len(self.basis)
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return len(self.output_basis), len(self.input_basis)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "magnetic_point_group_number": self.magnetic_point_group_number,
+            "magnetic_number": self.magnetic_number,
+            "magnetic_point_group": self.magnetic_point_group,
+            "category": self.category,
+            "output_space": self.output_space,
+            "input_space": self.input_space,
+            "output_time_parity": self.output_time_parity,
+            "input_time_parity": self.input_time_parity,
+            "shape": list(self.shape),
+            "dimension": self.dimension,
+            "output_basis": list(self.output_basis),
+            "input_basis": list(self.input_basis),
+            "basis": [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in self.basis
+            ],
+        }
+
+
+def canonical_tensor_space(value: str) -> str:
+    """Normalize a supported real tensor representation name."""
+
+    if not isinstance(value, str):
+        raise GroupDataError("tensor space must be a string")
+    key = value.strip().lower().replace("-", "_").replace(" ", "_")
+    try:
+        return _TENSOR_SPACE_ALIASES[key]
+    except KeyError as exc:
+        choices = ", ".join(TENSOR_SPACE_BASES)
+        raise GroupDataError(f"unknown tensor space {value!r}; choices: {choices}") from exc
+
+
+def canonical_time_parity(value: str | int) -> str:
+    """Normalize temporal parity to ``even`` or ``odd``."""
+
+    if type(value) is bool:
+        raise GroupDataError("time parity must be 'even' (+1) or 'odd' (-1)")
+    if value in (1, "+1", "+", "even"):
+        return "even"
+    if value in (-1, "-1", "-", "odd"):
+        return "odd"
+    raise GroupDataError("time parity must be 'even' (+1) or 'odd' (-1)")
+
+
+def _scale_matrix(matrix: Matrix, factor: float) -> Matrix:
+    return tuple(tuple(factor * value for value in row) for row in matrix)
+
+
+def _spatial_representation(matrix: Sequence[Sequence[Any]], space: str) -> Matrix:
+    resolved = _matrix(matrix, square=True)
+    if len(resolved) != 3:
+        raise ValueError("spatial point-operation matrices must be 3x3")
+    if space == "scalar":
+        return ((1.0,),)
+    determinant = determinant3(resolved)
+    if space == "pseudoscalar":
+        return ((determinant,),)
+    if space == "polar_vector":
+        return resolved
+    fields = quadratic_field_representation(resolved)
+    if space == "axial_vector":
+        return fields.matrix_antisymmetric
+    if space == "symmetric_quadratic":
+        return fields.matrix_symmetric
+    if space == "antisymmetric_quadratic":
+        return fields.matrix_antisymmetric
+    raise AssertionError(f"unhandled tensor space {space}")
+
+
+def magnetic_equivariant_map_basis(
+    output_spatial_representations: Sequence[Sequence[Sequence[Any]]],
+    input_spatial_representations: Sequence[Sequence[Sequence[Any]]],
+    time_reversals: Sequence[bool],
+    *,
+    output_time_parity: str | int = "even",
+    input_time_parity: str | int = "even",
+    tolerance: float = 1e-10,
+) -> tuple[Matrix, ...]:
+    r"""Solve magnetic equivariance with explicit temporal parity.
+
+    For operation :math:`(R,\theta)`, a time-odd object gains a factor
+    :math:`(-1)^\theta`; a time-even object does not.  Spatial polar/axial
+    behavior must already be represented by the supplied matrices.
+    """
+
+    if (
+        len(output_spatial_representations) != len(time_reversals)
+        or len(input_spatial_representations) != len(time_reversals)
+        or not time_reversals
+        or any(type(value) is not bool for value in time_reversals)
+    ):
+        raise ValueError("representations and boolean time-reversal labels must align")
+    output_parity = canonical_time_parity(output_time_parity)
+    input_parity = canonical_time_parity(input_time_parity)
+    outputs = tuple(
+        _scale_matrix(_matrix(matrix, square=True), -1.0)
+        if time_reversal and output_parity == "odd"
+        else _matrix(matrix, square=True)
+        for matrix, time_reversal in zip(
+            output_spatial_representations, time_reversals, strict=True
+        )
+    )
+    inputs = tuple(
+        _scale_matrix(_matrix(matrix, square=True), -1.0)
+        if time_reversal and input_parity == "odd"
+        else _matrix(matrix, square=True)
+        for matrix, time_reversal in zip(
+            input_spatial_representations, time_reversals, strict=True
+        )
+    )
+    return equivariant_map_basis(outputs, inputs, tolerance=tolerance)
+
+
+def magnetic_tensor_basis(
+    magnetic_point_group: str | int,
+    output_space: str,
+    input_space: str,
+    *,
+    output_time_parity: str | int = "even",
+    input_time_parity: str | int = "even",
+    database: Mapping[str, Any] | None = None,
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-10,
+) -> MagneticInvariantTensorBasis:
+    """Return a real magnetic tensor-map basis for one magnetic point group."""
+
+    source_database = load_database() if database is None else database
+    source_registry = (
+        load_magnetic_point_group_registry() if registry is None else registry
+    )
+    group = get_magnetic_point_group(magnetic_point_group, source_registry)
+    output_name = canonical_tensor_space(output_space)
+    input_name = canonical_tensor_space(input_space)
+    output_parity = canonical_time_parity(output_time_parity)
+    input_parity = canonical_time_parity(input_time_parity)
+    operations = magnetic_point_group_operations(
+        group.number,
+        database=source_database,
+        registry=source_registry,
+    )
+    output_representations = [
+        _spatial_representation(operation.spatial.matrix_cartesian, output_name)
+        for operation in operations
+    ]
+    input_representations = [
+        _spatial_representation(operation.spatial.matrix_cartesian, input_name)
+        for operation in operations
+    ]
+    basis = magnetic_equivariant_map_basis(
+        output_representations,
+        input_representations,
+        [operation.time_reversal for operation in operations],
+        output_time_parity=output_parity,
+        input_time_parity=input_parity,
+        tolerance=tolerance,
+    )
+    return MagneticInvariantTensorBasis(
+        magnetic_point_group_number=group.number,
+        magnetic_number=group.magnetic_number,
+        magnetic_point_group=group.hm_symbol,
+        category=group.category,
+        output_space=output_name,
+        input_space=input_name,
+        output_time_parity=output_parity,
+        input_time_parity=input_parity,
+        output_basis=TENSOR_SPACE_BASES[output_name],
+        input_basis=TENSOR_SPACE_BASES[input_name],
+        basis=basis,
+    )
 
 
 def response_tensor_basis(

@@ -26,6 +26,13 @@ from .point_groups import (
     iter_crystallographic_point_groups,
     point_group_operations,
 )
+from .magnetic_point_groups import (
+    MAGNETIC_CATEGORIES,
+    get_magnetic_point_group,
+    iter_magnetic_point_groups,
+    load_magnetic_point_group_registry,
+    magnetic_point_group_operations,
+)
 from .space_groups import (
     get_crystallographic_space_group,
     iter_crystallographic_space_groups,
@@ -36,7 +43,12 @@ from .layer_groups import (
     iter_crystallographic_layer_groups,
     load_layer_group_registry,
 )
-from .invariants import RESPONSE_SPECS, response_tensor_basis
+from .invariants import (
+    RESPONSE_SPECS,
+    TENSOR_SPACE_BASES,
+    magnetic_tensor_basis,
+    response_tensor_basis,
+)
 from .structure import apply_fractional_operation
 
 
@@ -165,6 +177,55 @@ def _point_groups(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _magnetic_point_groups(args: argparse.Namespace, database: dict) -> int:
+    if args.identifier is None:
+        records = [
+            record
+            for record in iter_magnetic_point_groups()
+            if args.category is None or record.category == args.category
+        ]
+        payload: dict[str, Any] | list[dict[str, Any]] = [
+            record.to_dict() for record in records
+        ]
+    else:
+        record = get_magnetic_point_group(args.identifier)
+        if args.category is not None and record.category != args.category:
+            raise GroupDataError(
+                f"magnetic point group {record.hm_symbol} is {record.category}, not {args.category}"
+            )
+        payload = record.to_dict()
+        payload["operation_records"] = [
+            {
+                "name": operation.name,
+                "label": operation.label,
+                "time_reversal": operation.time_reversal,
+                "matrix_cartesian": [list(row) for row in operation.spatial.matrix_cartesian],
+            }
+            for operation in magnetic_point_group_operations(
+                record.number, database=database
+            )
+        ]
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    records = (
+        [
+            record
+            for record in iter_magnetic_point_groups()
+            if args.category is None or record.category == args.category
+        ]
+        if args.identifier is None
+        else [get_magnetic_point_group(args.identifier)]
+    )
+    for record in records:
+        print(
+            f"{record.magnetic_number:9s} {record.hm_symbol:12s} "
+            f"{record.category:21s} order={record.order:2d} "
+            f"parent={record.parent_point_group_hm}"
+        )
+    return 0
+
+
 def _space_groups(args: argparse.Namespace, database: dict) -> int:
     if args.ita is None:
         records = list(iter_crystallographic_space_groups())
@@ -239,12 +300,38 @@ def _invariants(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _magnetic_invariants(args: argparse.Namespace, database: dict) -> int:
+    result = magnetic_tensor_basis(
+        args.magnetic_point_group,
+        args.output_space,
+        args.input_space,
+        output_time_parity=args.output_time,
+        input_time_parity=args.input_time,
+        database=database,
+    )
+    if args.json:
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"{result.magnetic_point_group} ({result.magnetic_number}) / "
+        f"{result.output_space}[T-{result.output_time_parity}] <- "
+        f"{result.input_space}[T-{result.input_time_parity}] / "
+        f"shape={result.shape[0]}x{result.shape[1]} / dimension={result.dimension}"
+    )
+    for index, matrix in enumerate(result.basis, start=1):
+        print(f"basis[{index}]")
+        for row in matrix:
+            print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
+    return 0
+
+
 def _validate(_: argparse.Namespace, database: dict) -> int:
     errors = validate_database(database)
     if errors:
         raise GroupDataError("\n".join(errors))
     load_space_group_registry()
     load_layer_group_registry()
+    load_magnetic_point_group_registry()
     print("catalog valid")
     return 0
 
@@ -328,6 +415,12 @@ def build_parser() -> argparse.ArgumentParser:
     point_groups_parser.add_argument("--json", action="store_true")
     point_groups_parser.set_defaults(handler=_point_groups)
 
+    magnetic_point_groups_parser = subparsers.add_parser("magnetic-point-groups")
+    magnetic_point_groups_parser.add_argument("identifier", nargs="?")
+    magnetic_point_groups_parser.add_argument("--category", choices=MAGNETIC_CATEGORIES)
+    magnetic_point_groups_parser.add_argument("--json", action="store_true")
+    magnetic_point_groups_parser.set_defaults(handler=_magnetic_point_groups)
+
     space_groups_parser = subparsers.add_parser("space-groups")
     space_groups_parser.add_argument("ita", type=int, nargs="?")
     space_groups_parser.add_argument("--json", action="store_true")
@@ -343,6 +436,15 @@ def build_parser() -> argparse.ArgumentParser:
     invariants_parser.add_argument("response", choices=tuple(RESPONSE_SPECS))
     invariants_parser.add_argument("--json", action="store_true")
     invariants_parser.set_defaults(handler=_invariants)
+
+    magnetic_invariants_parser = subparsers.add_parser("magnetic-invariants")
+    magnetic_invariants_parser.add_argument("magnetic_point_group")
+    magnetic_invariants_parser.add_argument("output_space", choices=tuple(TENSOR_SPACE_BASES))
+    magnetic_invariants_parser.add_argument("input_space", choices=tuple(TENSOR_SPACE_BASES))
+    magnetic_invariants_parser.add_argument("--output-time", choices=("even", "odd"), default="even")
+    magnetic_invariants_parser.add_argument("--input-time", choices=("even", "odd"), default="even")
+    magnetic_invariants_parser.add_argument("--json", action="store_true")
+    magnetic_invariants_parser.set_defaults(handler=_magnetic_invariants)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)

@@ -6,7 +6,7 @@
 
 ## 内容
 
-仓库目前包含六个相互校验的机器数据集。下面三项是基础点操作族；另外三项分别是 32 个点群与光学响应、230 个空间群、80 个层群的完整注册表。
+仓库目前把基础点操作、二次场表示、32 个晶体学点群、122 个磁点群、230 个空间群、80 个层群及张量不变量统一为相互校验的机器数据。下面三项是基础点操作族。
 
 | 数据集 | 母点群 | 基础操作 | 群目录 | 乘法表 |
 |---|---|---:|---|---:|
@@ -21,6 +21,8 @@
 新增的 [`data/crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖全部 230 个空间群：每个 ITA 序号的国际符号、Schoenflies、母点群、晶系、心型、symmorphic 判定，以及全部 530 个 Hall 设置各自的 Seitz 生成元 $(R\mid\mathbf t)$ 与操作数。数据由 spglib 数据库（BSD-3-Clause）生成，并经过 spglib、ASE 双源交叉验证与端到端回环验证；详见 [`docs/space_groups.md`](docs/space_groups.md)。
 
 [`data/crystallographic_layer_groups.json`](data/crystallographic_layer_groups.json) 覆盖 LG1–LG80 及全部 116 个 layer Hall 设置，保存标准/备选符号、母点群、晶系、心型、Seitz 生成元和操作数，并与原有层群点操作分类交叉校验。它由仓库内固定的 spglib v2.5.0 BSD-3-Clause 源表确定性生成；读取已生成数据只依赖 NumPy，不依赖 spglib。
+
+[`data/magnetic_point_groups.json`](data/magnetic_point_groups.json) 覆盖标准编号的 122 个磁点群：32 个 type I、32 个灰群和 58 个黑白群。空间矩阵由现有 32 点群生成，时间反演标签由指数 2 子群构造，并对照 spglib 的 1651 个磁空间群逐类核验。
 
 ## 使用
 
@@ -55,6 +57,11 @@ group-ops field-representation m_100 \
 group-ops point-groups 4mm --json
 group-ops invariants 4mm shift_current --json
 
+# 查询磁点群及带显式时间奇偶性的实张量映射
+group-ops magnetic-point-groups "6'/m'mm'" --json
+group-ops magnetic-invariants "2'" axial_vector scalar \
+  --output-time odd --input-time even --json
+
 # 查询 230 空间群（含 Seitz 生成元）
 group-ops space-groups 227
 group-ops space-groups 227 --json
@@ -73,6 +80,8 @@ group-ops validate
 矩阵采用列向量约定 $\mathbf r'=D(R)\mathbf r$。操作名统一写成 `2_001`、`4+_001`、`m_100`；程序也接受 `2001`、`4+001`、`m100` 和 `4^+_{001}` 等旧写法。六角晶系同时保存晶格分数坐标矩阵、精确根式笛卡尔矩阵和数值笛卡尔矩阵。对称二次场默认基底为 $(|E_x|^2,|E_y|^2,|E_z|^2,E_xE_y^*+E_yE_x^*,E_xE_z^*+E_zE_x^*,E_yE_z^*+E_zE_y^*)$；反对称基底为 $\mathbf h=i\mathbf E\times\mathbf E^*$，因此 $M_-(R)=\det[D(R)]D(R)$。
 
 不变量求解器使用 $D(R)T_+=T_+M_+(R)$ 与 $D(R)T_-=T_-M_-(R)$。shift current/SHG 的基矩阵为 3×6；circular injection current 为 3×3。它们只表示空间点群选择定则，不替代时间反演、频率、单位、共振或微观机制分析。
+
+磁点群操作写为 $(R,\theta)$，其中 `time_reversal=true` 表示 $R$ 与时间反演复合。通用磁张量接口分别声明输入和输出的空间类型与时间奇偶性，适用于静态或实响应对象。频域 shift current、SHG 和 circular injection current 还涉及复共轭与频率置换，因此不会被自动简化为一个时间正负号条件。
 
 ## 32 点群与响应维数
 
@@ -129,7 +138,7 @@ group-ops validate
 python3 -m unittest discover -s tests -v
 ```
 
-当前测试覆盖矩阵正交性、非正交分数坐标中的 Seitz 逆运算、群闭合性、坐标作用、LG1–LG80 与全部 116 个 layer Hall 设置、全部乘法单元、JSON/Markdown 同步、$M_+$/$M_-$ 定义与同态、32 点群生成闭包、230 空间群、三类响应的零空间维数与逐操作等变性、机器接口、PBC 与 Selective-dynamics 拒绝边界。
+当前测试覆盖矩阵正交性、非正交分数坐标中的 Seitz 逆运算、群闭合性、LG1–LG80 与全部 116 个 layer Hall 设置、全部乘法单元、$M_+$/$M_-$ 同态、32 点群、122 磁点群、230 空间群、张量零空间、机器接口及结构变换边界；磁点群分类另与 spglib 的 1651 个磁空间群数据库交叉核验。
 
 参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
 
@@ -139,4 +148,4 @@ python3 -m unittest discover -s tests -v
 
 目前点操作数据描述操作的线性部分；结构变换默认围绕原点。空间群的 Seitz 对 $(R\mid\mathbf t)$（含非零平移）已由 [`crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖，但逐结构的平移/滑移操作应用于具体 POSCAR 的 affine Seitz 契约仍待固定。张量工具给出允许分量空间，不计算材料响应数值。
 
-当前版本为 `0.4.1`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。
+当前版本为 `0.5.0`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。
