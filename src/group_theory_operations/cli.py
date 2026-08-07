@@ -44,9 +44,11 @@ from .layer_groups import (
     load_layer_group_registry,
 )
 from .invariants import (
+    MAGNETIC_RESPONSE_SPECS,
     RESPONSE_SPECS,
     TENSOR_SPACE_BASES,
     magnetic_tensor_basis,
+    magnetic_response_tensor_basis,
     response_tensor_basis,
 )
 from .structure import apply_fractional_operation
@@ -325,6 +327,27 @@ def _magnetic_invariants(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _magnetic_responses(args: argparse.Namespace, database: dict) -> int:
+    result = magnetic_response_tensor_basis(
+        args.magnetic_point_group,
+        args.response,
+        database=database,
+    )
+    if args.json:
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"{result.magnetic_point_group} ({result.magnetic_number}) / "
+        f"{result.response}[T-{result.time_character}] / "
+        f"shape={result.shape[0]}x{result.shape[1]} / dimension={result.dimension}"
+    )
+    for index, matrix in enumerate(result.basis, start=1):
+        print(f"basis[{index}]")
+        for row in matrix:
+            print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
+    return 0
+
+
 def _validate(_: argparse.Namespace, database: dict) -> int:
     errors = validate_database(database)
     if errors:
@@ -445,6 +468,14 @@ def build_parser() -> argparse.ArgumentParser:
     magnetic_invariants_parser.add_argument("--input-time", choices=("even", "odd"), default="even")
     magnetic_invariants_parser.add_argument("--json", action="store_true")
     magnetic_invariants_parser.set_defaults(handler=_magnetic_invariants)
+
+    magnetic_responses_parser = subparsers.add_parser("magnetic-responses")
+    magnetic_responses_parser.add_argument("magnetic_point_group")
+    magnetic_responses_parser.add_argument(
+        "response", choices=tuple(MAGNETIC_RESPONSE_SPECS)
+    )
+    magnetic_responses_parser.add_argument("--json", action="store_true")
+    magnetic_responses_parser.set_defaults(handler=_magnetic_responses)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)

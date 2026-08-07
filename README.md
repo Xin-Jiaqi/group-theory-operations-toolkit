@@ -24,6 +24,8 @@
 
 [`data/magnetic_point_groups.json`](data/magnetic_point_groups.json) 覆盖标准编号的 122 个磁点群：32 个 type I、32 个灰群和 58 个黑白群。空间矩阵由现有 32 点群生成，时间反演标签由指数 2 子群构造，并对照 spglib 的 1651 个磁空间群逐类核验。
 
+磁性非线性光学接口进一步把响应拆为 6 个物理扇区：normal/magnetic shift current、normal/magnetic injection current，以及 i-type/c-type SHG。程序为全部 122 个磁点群按需求解 732 组允许张量基；定义依据公开论文中的偏振分解与时间反演分类，并用灰群、$PT$ 群及 $\bar3'm'$ 的已发表结论作回归测试。另有通用复矩阵接口，显式求解 $A_g\overline T=cTB_g$，可把频率通道交换直接编码进 $B_g$。
+
 ## 使用
 
 核心查询工具需要 Python 3.10 或更高版本；NumPy 是唯一的核心运行时依赖。
@@ -62,6 +64,10 @@ group-ops magnetic-point-groups "6'/m'mm'" --json
 group-ops magnetic-invariants "2'" axial_vector scalar \
   --output-time odd --input-time even --json
 
+# 查询磁性非线性光学扇区（74 即磁点群 -3'm'）
+group-ops magnetic-responses 74 shg_odd --json
+group-ops magnetic-responses 3.3.7 magnetic_injection_current --json
+
 # 查询 230 空间群（含 Seitz 生成元）
 group-ops space-groups 227
 group-ops space-groups 227 --json
@@ -81,7 +87,7 @@ group-ops validate
 
 不变量求解器使用 $D(R)T_+=T_+M_+(R)$ 与 $D(R)T_-=T_-M_-(R)$。shift current/SHG 的基矩阵为 3×6；circular injection current 为 3×3。它们只表示空间点群选择定则，不替代时间反演、频率、单位、共振或微观机制分析。
 
-磁点群操作写为 $(R,\theta)$，其中 `time_reversal=true` 表示 $R$ 与时间反演复合。通用磁张量接口分别声明输入和输出的空间类型与时间奇偶性，适用于静态或实响应对象。频域 shift current、SHG 和 circular injection current 还涉及复共轭与频率置换，因此不会被自动简化为一个时间正负号条件。
+磁点群操作写为 $(R,\theta)$，其中 `time_reversal=true` 表示 $R$ 与时间反演复合。`magnetic-invariants` 分别声明输入和输出的空间类型与时间奇偶性，适用于静态或实响应对象；`magnetic-responses` 使用论文中的 i-type/c-type 磁畴反演特征。对于需要在同一个模型内约束复系数的频域问题，Python 接口 `antiunitary_equivariant_map_basis` 将实部、虚部分开求解，并允许调用方在输入表示中显式加入频率置换；它不会在未声明因果、耗散与负频约定时擅自把 SHG 约化成实张量。
 
 ## 32 点群与响应维数
 
@@ -138,7 +144,9 @@ group-ops validate
 python3 -m unittest discover -s tests -v
 ```
 
-当前测试覆盖矩阵正交性、非正交分数坐标中的 Seitz 逆运算、群闭合性、LG1–LG80 与全部 116 个 layer Hall 设置、全部乘法单元、$M_+$/$M_-$ 同态、32 点群、122 磁点群、230 空间群、张量零空间、机器接口及结构变换边界；磁点群分类另与 spglib 的 1651 个磁空间群数据库交叉核验。
+当前测试覆盖矩阵正交性、非正交分数坐标中的 Seitz 逆运算、群闭合性、LG1–LG80 与全部 116 个 layer Hall 设置、全部乘法单元、$M_+$/$M_-$ 同态、32 点群、122 磁点群、230 空间群、732 组磁性光学扇区、反幺正复矩阵零空间、机器接口及结构变换边界；磁点群分类另与 spglib 的 1651 个磁空间群数据库交叉核验。
+
+磁性光学约定主要对照 [Gao et al., *npj Computational Materials* **7**, 10 (2021)](https://doi.org/10.1038/s41524-020-00462-9) 的四类直流光电流分解，以及 [Xiao et al., *npj Quantum Materials* **8**, 62 (2023)](https://doi.org/10.1038/s41535-023-00594-3) 的 122 磁点群 SHG i-type/c-type 分类。
 
 参见[机器接口与跨仓库契约](docs/MACHINE_INTERFACE.md)和[发布路线图](ROADMAP.md)。POSCAR/CIF 语法不再由本仓库手写解析，而由 `materials-structure-core` 的维护型后端统一负责。
 
@@ -148,4 +156,4 @@ python3 -m unittest discover -s tests -v
 
 目前点操作数据描述操作的线性部分；结构变换默认围绕原点。空间群的 Seitz 对 $(R\mid\mathbf t)$（含非零平移）已由 [`crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖，但逐结构的平移/滑移操作应用于具体 POSCAR 的 affine Seitz 契约仍待固定。张量工具给出允许分量空间，不计算材料响应数值。
 
-当前版本为 `0.5.0`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。
+当前版本为 `0.6.0`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。

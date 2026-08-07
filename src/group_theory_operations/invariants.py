@@ -72,6 +72,63 @@ RESPONSE_SPECS = {
     },
 }
 
+MAGNETIC_RESPONSE_SPECS = {
+    "normal_shift_current": {
+        "family": "shift_current",
+        "sector": "normal",
+        "tensor_type": "i_type",
+        "time_character": "even",
+        "input_space": "symmetric_quadratic",
+        "equation": "J_NSC^a = 2 sigma_NSC^{a;bc} Re(E^b E^{c*})",
+        "reference": "https://doi.org/10.1038/s41524-020-00462-9",
+    },
+    "magnetic_shift_current": {
+        "family": "shift_current",
+        "sector": "magnetic",
+        "tensor_type": "c_type",
+        "time_character": "odd",
+        "input_space": "antisymmetric_quadratic",
+        "equation": "J_MSC^a = 2 sigma_MSC^{a;j} h_j; h = i E x E*",
+        "reference": "https://doi.org/10.1038/s41524-020-00462-9",
+    },
+    "normal_injection_current": {
+        "family": "injection_current",
+        "sector": "normal",
+        "tensor_type": "i_type",
+        "time_character": "even",
+        "input_space": "antisymmetric_quadratic",
+        "equation": "dJ_NIC^a/dt = 2 eta_NIC^{a;j} h_j; h = i E x E*",
+        "reference": "https://doi.org/10.1038/s41524-020-00462-9",
+    },
+    "magnetic_injection_current": {
+        "family": "injection_current",
+        "sector": "magnetic",
+        "tensor_type": "c_type",
+        "time_character": "odd",
+        "input_space": "symmetric_quadratic",
+        "equation": "dJ_MIC^a/dt = 2 eta_MIC^{a;bc} Re(E^b E^{c*})",
+        "reference": "https://doi.org/10.1038/s41524-020-00462-9",
+    },
+    "shg_even": {
+        "family": "shg",
+        "sector": "i_type",
+        "tensor_type": "i_type",
+        "time_character": "even",
+        "input_space": "symmetric_quadratic",
+        "equation": "P_even^a(2omega) = chi_even^{a;bc} E^b(omega) E^c(omega)",
+        "reference": "https://doi.org/10.1038/s41535-023-00594-3",
+    },
+    "shg_odd": {
+        "family": "shg",
+        "sector": "c_type",
+        "tensor_type": "c_type",
+        "time_character": "odd",
+        "input_space": "symmetric_quadratic",
+        "equation": "P_odd^a(2omega) = chi_odd^{a;bc} E^b(omega) E^c(omega)",
+        "reference": "https://doi.org/10.1038/s41535-023-00594-3",
+    },
+}
+
 _RESPONSE_ALIASES = {
     "shift": "shift_current",
     "shiftcurrent": "shift_current",
@@ -82,6 +139,27 @@ _RESPONSE_ALIASES = {
     "circularinjectioncurrent": "circular_injection_current",
     "cpge": "circular_injection_current",
     "circular_injection_current": "circular_injection_current",
+}
+
+_MAGNETIC_RESPONSE_ALIASES = {
+    "nsc": "normal_shift_current",
+    "normal_shift": "normal_shift_current",
+    "normal_shift_current": "normal_shift_current",
+    "msc": "magnetic_shift_current",
+    "magnetic_shift": "magnetic_shift_current",
+    "magnetic_shift_current": "magnetic_shift_current",
+    "nic": "normal_injection_current",
+    "normal_injection": "normal_injection_current",
+    "normal_injection_current": "normal_injection_current",
+    "mic": "magnetic_injection_current",
+    "magnetic_injection": "magnetic_injection_current",
+    "magnetic_injection_current": "magnetic_injection_current",
+    "shg_even": "shg_even",
+    "shg_i": "shg_even",
+    "shg_i_type": "shg_even",
+    "shg_odd": "shg_odd",
+    "shg_c": "shg_odd",
+    "shg_c_type": "shg_odd",
 }
 
 
@@ -97,6 +175,21 @@ def canonical_response_name(value: str) -> str:
             return _RESPONSE_ALIASES[candidate]
     choices = ", ".join(RESPONSE_SPECS)
     raise GroupDataError(f"unknown response {value!r}; choices: {choices}")
+
+
+def canonical_magnetic_response_name(value: str) -> str:
+    """Normalize one magnetic nonlinear-optical response sector."""
+
+    if not isinstance(value, str):
+        raise GroupDataError("magnetic response name must be a string")
+    key = value.strip().lower().replace("-", "_").replace(" ", "_")
+    try:
+        return _MAGNETIC_RESPONSE_ALIASES[key]
+    except KeyError as exc:
+        choices = ", ".join(MAGNETIC_RESPONSE_SPECS)
+        raise GroupDataError(
+            f"unknown magnetic response {value!r}; choices: {choices}"
+        ) from exc
 
 
 def _matrix(values: Sequence[Sequence[Any]], *, square: bool = False) -> Matrix:
@@ -317,6 +410,100 @@ class MagneticInvariantTensorBasis:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class AntiunitaryEquivariantMapBasis:
+    r"""Real-parameter basis for a complex map with antiunitary constraints.
+
+    The convention is :math:`A_g\overline{T}=cT B_g` for antiunitary
+    operations and :math:`A_gT=T B_g` for unitary operations.  The caller may
+    include a frequency-channel permutation directly in :math:`B_g`.
+    """
+
+    antiunitary_character: str
+    real_basis: tuple[Matrix, ...]
+    imaginary_basis: tuple[Matrix, ...]
+
+    @property
+    def real_dimension(self) -> int:
+        return len(self.real_basis)
+
+    @property
+    def imaginary_dimension(self) -> int:
+        return len(self.imaginary_basis)
+
+    @property
+    def dimension(self) -> int:
+        return self.real_dimension + self.imaginary_dimension
+
+    def to_dict(self) -> dict[str, Any]:
+        def serialize(basis: tuple[Matrix, ...]) -> list[list[list[int | float]]]:
+            return [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in basis
+            ]
+
+        return {
+            "relation": "A_g conjugate(T) = c T B_g for antiunitary g; A_g T = T B_g otherwise",
+            "antiunitary_character": self.antiunitary_character,
+            "dimension": self.dimension,
+            "real_dimension": self.real_dimension,
+            "imaginary_dimension": self.imaginary_dimension,
+            "real_basis": serialize(self.real_basis),
+            "imaginary_basis": serialize(self.imaginary_basis),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class MagneticResponseTensorBasis:
+    """Allowed real coefficient tensors for one magnetic optical sector."""
+
+    magnetic_point_group_number: int
+    magnetic_number: str
+    magnetic_point_group: str
+    category: str
+    response: str
+    family: str
+    sector: str
+    tensor_type: str
+    time_character: str
+    output_basis: tuple[str, ...]
+    input_basis: tuple[str, ...]
+    equation: str
+    reference: str
+    basis: tuple[Matrix, ...]
+
+    @property
+    def dimension(self) -> int:
+        return len(self.basis)
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return len(self.output_basis), len(self.input_basis)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "magnetic_point_group_number": self.magnetic_point_group_number,
+            "magnetic_number": self.magnetic_number,
+            "magnetic_point_group": self.magnetic_point_group,
+            "category": self.category,
+            "response": self.response,
+            "family": self.family,
+            "sector": self.sector,
+            "tensor_type": self.tensor_type,
+            "time_character": self.time_character,
+            "shape": list(self.shape),
+            "output_basis": list(self.output_basis),
+            "input_basis": list(self.input_basis),
+            "equation": self.equation,
+            "reference": self.reference,
+            "dimension": self.dimension,
+            "basis": [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in self.basis
+            ],
+        }
+
+
 def canonical_tensor_space(value: str) -> str:
     """Normalize a supported real tensor representation name."""
 
@@ -411,6 +598,53 @@ def magnetic_equivariant_map_basis(
     return equivariant_map_basis(outputs, inputs, tolerance=tolerance)
 
 
+def antiunitary_equivariant_map_basis(
+    output_representations: Sequence[Sequence[Sequence[Any]]],
+    input_representations: Sequence[Sequence[Sequence[Any]]],
+    antiunitary: Sequence[bool],
+    *,
+    antiunitary_character: str | int = "even",
+    tolerance: float = 1e-10,
+) -> AntiunitaryEquivariantMapBasis:
+    r"""Solve a complex equivariant-map problem with conjugating operations.
+
+    For unitary ``g`` the constraint is ``A_g T = T B_g``.  For antiunitary
+    ``g`` it is ``A_g conjugate(T) = c T B_g``, where ``c`` is ``+1`` for an
+    even and ``-1`` for an odd coefficient.  Representations must be real; a
+    frequency exchange or other right action can be included in ``B_g``.
+
+    The result separates real matrices ``X`` from imaginary matrices ``iY``.
+    Coefficients multiplying every returned basis matrix are real.
+    """
+
+    if (
+        len(output_representations) != len(antiunitary)
+        or len(input_representations) != len(antiunitary)
+        or not antiunitary
+        or any(type(value) is not bool for value in antiunitary)
+    ):
+        raise ValueError("representations and boolean antiunitary labels must align")
+    character = canonical_time_parity(antiunitary_character)
+    sign = 1.0 if character == "even" else -1.0
+    outputs = tuple(_matrix(matrix, square=True) for matrix in output_representations)
+    inputs = tuple(_matrix(matrix, square=True) for matrix in input_representations)
+    real_inputs = tuple(
+        _scale_matrix(matrix, sign) if conjugating else matrix
+        for matrix, conjugating in zip(inputs, antiunitary, strict=True)
+    )
+    imaginary_inputs = tuple(
+        _scale_matrix(matrix, -sign) if conjugating else matrix
+        for matrix, conjugating in zip(inputs, antiunitary, strict=True)
+    )
+    return AntiunitaryEquivariantMapBasis(
+        antiunitary_character=character,
+        real_basis=equivariant_map_basis(outputs, real_inputs, tolerance=tolerance),
+        imaginary_basis=equivariant_map_basis(
+            outputs, imaginary_inputs, tolerance=tolerance
+        ),
+    )
+
+
 def magnetic_tensor_basis(
     magnetic_point_group: str | int,
     output_space: str,
@@ -465,6 +699,73 @@ def magnetic_tensor_basis(
         input_time_parity=input_parity,
         output_basis=TENSOR_SPACE_BASES[output_name],
         input_basis=TENSOR_SPACE_BASES[input_name],
+        basis=basis,
+    )
+
+
+def magnetic_response_tensor_basis(
+    magnetic_point_group: str | int,
+    response: str,
+    *,
+    database: Mapping[str, Any] | None = None,
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-10,
+) -> MagneticResponseTensorBasis:
+    """Return the allowed basis for one named magnetic optical sector.
+
+    This implements the i-type/c-type magnetic-domain character used in
+    magnetic point-group tensor classification.  It does not impose a causal
+    fixed-frequency relation between positive- and negative-frequency complex
+    susceptibilities; use :func:`antiunitary_equivariant_map_basis` when that
+    conjugating relation is part of the model.
+    """
+
+    source_database = load_database() if database is None else database
+    source_registry = (
+        load_magnetic_point_group_registry() if registry is None else registry
+    )
+    group = get_magnetic_point_group(magnetic_point_group, source_registry)
+    response_name = canonical_magnetic_response_name(response)
+    specification = MAGNETIC_RESPONSE_SPECS[response_name]
+    input_space = str(specification["input_space"])
+    time_character = str(specification["time_character"])
+    operations = magnetic_point_group_operations(
+        group.number,
+        database=source_database,
+        registry=source_registry,
+    )
+    output_representations = [
+        _spatial_representation(operation.spatial.matrix_cartesian, "polar_vector")
+        for operation in operations
+    ]
+    input_representations = [
+        _spatial_representation(operation.spatial.matrix_cartesian, input_space)
+        for operation in operations
+    ]
+    # With an even output declaration, the input temporal parity is exactly
+    # the i-type (+1) or c-type (-1) character of the coefficient tensor.
+    basis = magnetic_equivariant_map_basis(
+        output_representations,
+        input_representations,
+        [operation.time_reversal for operation in operations],
+        output_time_parity="even",
+        input_time_parity=time_character,
+        tolerance=tolerance,
+    )
+    return MagneticResponseTensorBasis(
+        magnetic_point_group_number=group.number,
+        magnetic_number=group.magnetic_number,
+        magnetic_point_group=group.hm_symbol,
+        category=group.category,
+        response=response_name,
+        family=str(specification["family"]),
+        sector=str(specification["sector"]),
+        tensor_type=str(specification["tensor_type"]),
+        time_character=time_character,
+        output_basis=POLAR_BASIS,
+        input_basis=TENSOR_SPACE_BASES[input_space],
+        equation=str(specification["equation"]),
+        reference=str(specification["reference"]),
         basis=basis,
     )
 
