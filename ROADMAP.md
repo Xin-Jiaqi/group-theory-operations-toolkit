@@ -42,6 +42,14 @@
 - [x] Accept reusable collections and one-shot iterators in Seitz closure.
 - [x] Cross-check the standard rotation set of every LG1–LG80 entry against the legacy point-operation catalog.
 
+## 0.5.0 — magnetic point groups and time-parity tensors
+
+- [x] Register all 122 magnetic point groups with standard three-part numbers and traditional Hermann–Mauguin symbols.
+- [x] Generate type-I, gray, and black-white operation sets from the validated 32-point-group embeddings.
+- [x] Verify all colored groups algebraically and cross-check their complete classification against spglib's 1651 magnetic space groups.
+- [x] Add Python and CLI access to magnetic operations and real tensor maps with explicit input/output time parity.
+- [ ] Add frequency-domain antiunitary contracts for shift current, SHG, and circular injection current only after frequency permutation and complex-conjugation conventions are fixed.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
