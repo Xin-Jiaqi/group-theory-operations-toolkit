@@ -40,4 +40,13 @@ jobs:
           python -m pip install --no-deps --force-reinstall dist/*.whl
           cd /tmp
           group-ops validate
+          group-ops layer-groups 80 --json > /dev/null
           python -c "from group_theory_operations import load_database; assert not __import__('group_theory_operations').validate_database(load_database())"
+      - name: Verify declared runtime dependencies in isolation
+        run: |
+          python -m venv /tmp/group-ops-clean
+          /tmp/group-ops-clean/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/group-ops-clean/bin/group-ops --version
+          /tmp/group-ops-clean/bin/group-ops validate
+          /tmp/group-ops-clean/bin/group-ops layer-groups p4/nmm --json > /dev/null

@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/crystallographic-layer-groups-v1.schema.json",
+  "title": "Crystallographic Layer Groups Registry v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source",
+    "generated_by",
+    "source_metadata_sha256",
+    "point_operation_catalog_sha256",
+    "conventions",
+    "layer_groups"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source": {
+      "type": "object",
+      "required": ["name", "metadata_version", "operations_version", "license", "url"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "metadata_version": {"type": "string", "minLength": 1},
+        "operations_version": {"type": "string", "minLength": 1},
+        "license": {"const": "BSD-3-Clause"},
+        "url": {"type": "string", "format": "uri"}
+      },
+      "additionalProperties": false
+    },
+    "generated_by": {"type": "string", "minLength": 1},
+    "source_metadata_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "point_operation_catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "conventions": {"type": "object"},
+    "layer_groups": {
+      "type": "array",
+      "minItems": 80,
+      "maxItems": 80,
+      "items": {"$ref": "#/$defs/layerGroup"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "rotation": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {"type": "integer"}
+      }
+    },
+    "translation": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "number"}
+    },
+    "generator": {
+      "type": "object",
+      "required": ["rotation", "translation"],
+      "properties": {
+        "rotation": {"$ref": "#/$defs/rotation"},
+        "translation": {"$ref": "#/$defs/translation"}
+      },
+      "additionalProperties": false
+    },
+    "hallSetting": {
+      "type": "object",
+      "required": [
+        "layer_hall_number",
+        "setting_number",
+        "choice",
+        "standard",
+        "hall_symbol",
+        "international",
+        "international_full",
+        "international_short",
+        "centering",
+        "operation_count",
+        "generators"
+      ],
+      "properties": {
+        "layer_hall_number": {"type": "integer", "minimum": 1, "maximum": 116},
+        "setting_number": {"type": "integer", "minimum": 1},
+        "choice": {"type": "string"},
+        "standard": {"type": "boolean"},
+        "hall_symbol": {"type": "string", "minLength": 1},
+        "international": {"type": "string", "minLength": 1},
+        "international_full": {"type": "string", "minLength": 1},
+        "international_short": {"type": "string", "minLength": 1},
+        "centering": {"enum": ["P", "C"]},
+        "operation_count": {"type": "integer", "minimum": 1, "maximum": 24},
+        "generators": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {"$ref": "#/$defs/generator"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "layerGroup": {
+      "type": "object",
+      "required": [
+        "number",
+        "international_short",
+        "international_full",
+        "schoenflies",
+        "point_group_number",
+        "point_group_hm",
+        "point_group_schoenflies",
+        "crystal_system",
+        "centering",
+        "primary_layer_hall_number",
+        "hall_settings"
+      ],
+      "properties": {
+        "number": {"type": "integer", "minimum": 1, "maximum": 80},
+        "international_short": {"type": "string", "minLength": 1},
+        "international_full": {"type": "string", "minLength": 1},
+        "schoenflies": {"type": "string", "minLength": 1},
+        "point_group_number": {"type": "integer", "minimum": 1, "maximum": 27},
+        "point_group_hm": {"type": "string", "minLength": 1},
+        "point_group_schoenflies": {"type": "string", "minLength": 1},
+        "point_group_embedding": {"type": "string", "minLength": 1},
+        "crystal_system": {
+          "enum": ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal"]
+        },
+        "centering": {"enum": ["P", "C"]},
+        "primary_layer_hall_number": {"type": "integer", "minimum": 1, "maximum": 116},
+        "hall_settings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/hallSetting"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -26,13 +26,16 @@
 - [x] Publish versioned JSON/Schema artifacts, Python APIs, CLI queries and readable dimension tables.
 - [x] Verify every generated basis vector against every operation of every point group.
 
-## 0.4.0 candidate — crystallographic space groups
+## 0.4.0 — crystallographic space and layer groups
 
 - [x] Register all 230 space groups with international/Schoenflies labels, parent point groups, crystal systems, centering and symmorphic flags.
 - [x] Cover every one of the 530 Hall settings with Seitz generators and operation counts.
 - [x] Round-trip-verify the primary setting of every space group through spglib identification.
 - [x] Cross-check labels, Hall symbols, and operation counts against spglib, and HM symbols against ASE.
 - [x] Fix the symmorphic flag by the lattice-aware fixed-point criterion (73 groups).
+- [x] Register all 80 layer groups and all 116 layer Hall settings with Seitz generators.
+- [x] Cross-link every layer group to the existing axial point-group catalog and verify every generated operation against spglib.
+- [x] Fix Seitz inversion for non-orthogonal fractional-coordinate bases and declare NumPy as a core runtime dependency.
 
 ## Stable-release gates
 

@@ -31,6 +31,11 @@ from .space_groups import (
     iter_crystallographic_space_groups,
     load_space_group_registry,
 )
+from .layer_groups import (
+    get_crystallographic_layer_group,
+    iter_crystallographic_layer_groups,
+    load_layer_group_registry,
+)
 from .invariants import RESPONSE_SPECS, response_tensor_basis
 from .structure import apply_fractional_operation
 
@@ -185,6 +190,33 @@ def _space_groups(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _layer_groups(args: argparse.Namespace, database: dict) -> int:
+    if args.identifier is None:
+        records = list(iter_crystallographic_layer_groups())
+        payload: dict[str, Any] | list[dict[str, Any]] = [
+            record.to_dict() for record in records
+        ]
+    else:
+        record = get_crystallographic_layer_group(args.identifier)
+        payload = record.to_dict()
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    records = (
+        list(iter_crystallographic_layer_groups())
+        if args.identifier is None
+        else [get_crystallographic_layer_group(args.identifier)]
+    )
+    for record in records:
+        print(
+            f"{record.number:2d} {record.international_short:9s} "
+            f"{record.schoenflies:7s} {record.crystal_system:12s} "
+            f"center={record.centering} point={record.point_group_hm:5s} "
+            f"settings={len(record.hall_settings)}"
+        )
+    return 0
+
+
 def _invariants(args: argparse.Namespace, database: dict) -> int:
     result = response_tensor_basis(args.point_group, args.response, database=database)
     payload = {
@@ -212,6 +244,7 @@ def _validate(_: argparse.Namespace, database: dict) -> int:
     if errors:
         raise GroupDataError("\n".join(errors))
     load_space_group_registry()
+    load_layer_group_registry()
     print("catalog valid")
     return 0
 
@@ -299,6 +332,11 @@ def build_parser() -> argparse.ArgumentParser:
     space_groups_parser.add_argument("ita", type=int, nargs="?")
     space_groups_parser.add_argument("--json", action="store_true")
     space_groups_parser.set_defaults(handler=_space_groups)
+
+    layer_groups_parser = subparsers.add_parser("layer-groups")
+    layer_groups_parser.add_argument("identifier", nargs="?")
+    layer_groups_parser.add_argument("--json", action="store_true")
+    layer_groups_parser.set_defaults(handler=_layer_groups)
 
     invariants_parser = subparsers.add_parser("invariants")
     invariants_parser.add_argument("point_group")

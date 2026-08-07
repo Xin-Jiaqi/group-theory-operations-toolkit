@@ -33,16 +33,22 @@ class SeitzOp:
     translation: np.ndarray
 
     def __post_init__(self) -> None:
-        if self.rotation.shape != (3, 3):
+        rotation = np.asarray(self.rotation)
+        translation = np.asarray(self.translation, dtype=np.float64)
+        if rotation.shape != (3, 3):
             raise ValueError("rotation must be a 3x3 matrix")
-        if self.translation.shape != (3,):
+        if translation.shape != (3,):
             raise ValueError("translation must be a length-3 vector")
-        if not np.all(np.equal(np.rint(self.rotation), self.rotation)):
+        if not np.all(np.equal(np.rint(rotation), rotation)):
             raise ValueError("rotation must contain exact integers")
-        normalized = self.translation % 1.0
+        rotation = np.asarray(rotation, dtype=np.int64)
+        determinant = int(round(float(np.linalg.det(rotation))))
+        if determinant not in {-1, 1}:
+            raise ValueError("rotation must be unimodular (determinant +1 or -1)")
+        normalized = translation % 1.0
         normalized[np.abs(normalized) < _TRANSLATION_TOLERANCE] = 0.0
         normalized[np.abs(normalized - 1.0) < _TRANSLATION_TOLERANCE] = 0.0
-        object.__setattr__(self, "rotation", np.asarray(self.rotation, dtype=np.int64))
+        object.__setattr__(self, "rotation", rotation)
         object.__setattr__(self, "translation", normalized)
 
     def apply(self, position: np.ndarray) -> np.ndarray:
@@ -58,7 +64,7 @@ class SeitzOp:
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> SeitzOp:
         return cls(
-            rotation=np.asarray(value["rotation"], dtype=np.int64),
+            rotation=np.asarray(value["rotation"]),
             translation=np.asarray(value["translation"], dtype=np.float64),
         )
 
@@ -81,7 +87,12 @@ def multiply(left: SeitzOp, right: SeitzOp) -> SeitzOp:
 
 
 def inverse(operation: SeitzOp) -> SeitzOp:
-    rotation = operation.rotation.T
+    # Fractional-coordinate rotations preserve the lattice metric, not the
+    # Euclidean coordinate metric.  In a non-orthogonal basis (for example a
+    # hexagonal conventional cell), R.T is therefore not generally R^-1.
+    rotation = np.rint(np.linalg.inv(operation.rotation)).astype(np.int64)
+    if not np.array_equal(operation.rotation @ rotation, np.eye(3, dtype=np.int64)):
+        raise ValueError("rotation has no exact integer inverse")
     translation = -rotation @ operation.translation
     return SeitzOp(rotation=rotation, translation=translation)
 

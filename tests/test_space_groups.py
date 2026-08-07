@@ -26,7 +26,7 @@ from pathlib import Path
 
 import numpy as np
 
-from group_theory_operations.seitz import SeitzOp, closure, equivalent
+from group_theory_operations.seitz import SeitzOp, closure, equivalent, inverse, multiply
 from group_theory_operations.space_groups import (
     get_crystallographic_space_group,
     iter_crystallographic_space_groups,
@@ -102,6 +102,27 @@ GENERIC_POSITIONS = (
     np.array([0.154, 0.304, 0.424]),
     np.array([0.234, 0.391, 0.439]),
 )
+
+
+class SeitzAlgebraTests(unittest.TestCase):
+    def test_inverse_in_nonorthogonal_fractional_basis(self) -> None:
+        rotation = np.array([[0, -1, 0], [1, -1, 0], [0, 0, 1]])
+        operation = SeitzOp(rotation, np.array([1 / 3, 2 / 3, 0.0]))
+        candidate = inverse(operation)
+        self.assertTrue(multiply(operation, candidate).is_identity())
+        self.assertTrue(multiply(candidate, operation).is_identity())
+        self.assertTrue(equivalent(inverse(candidate), operation))
+
+    def test_seitz_rotation_must_be_exact_and_unimodular(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exact integers"):
+            SeitzOp.from_dict(
+                {
+                    "rotation": [[1, 0.5, 0], [0, 1, 0], [0, 0, 1]],
+                    "translation": [0, 0, 0],
+                }
+            )
+        with self.assertRaisesRegex(ValueError, "unimodular"):
+            SeitzOp(np.diag([2, 1, 1]), np.zeros(3))
 
 
 def _lattice_for(crystal_system: str) -> np.ndarray:
