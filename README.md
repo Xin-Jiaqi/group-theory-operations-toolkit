@@ -139,4 +139,4 @@ python3 -m unittest discover -s tests -v
 
 目前点操作数据描述操作的线性部分；结构变换默认围绕原点。空间群的 Seitz 对 $(R\mid\mathbf t)$（含非零平移）已由 [`crystallographic_space_groups.json`](data/crystallographic_space_groups.json) 覆盖，但逐结构的平移/滑移操作应用于具体 POSCAR 的 affine Seitz 契约仍待固定。张量工具给出允许分量空间，不计算材料响应数值。
 
-当前版本为 `0.4.0`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。
+当前版本为 `0.4.1`；代码、JSON 数据和文档均采用 [BSD 3-Clause License](LICENSE)。在接受含平移的操作直接变换具体结构前，仍需固定原点选择、Wyckoff 位置和结构级 affine Seitz 契约。

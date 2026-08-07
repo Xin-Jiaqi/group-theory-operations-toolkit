@@ -37,6 +37,11 @@
 - [x] Cross-link every layer group to the existing axial point-group catalog and verify every generated operation against spglib.
 - [x] Fix Seitz inversion for non-orthogonal fractional-coordinate bases and declare NumPy as a core runtime dependency.
 
+## 0.4.1 — closure and layer cross-check maintenance
+
+- [x] Accept reusable collections and one-shot iterators in Seitz closure.
+- [x] Cross-check the standard rotation set of every LG1–LG80 entry against the legacy point-operation catalog.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
