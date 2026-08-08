@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from .catalog import GroupDataError, OperationRecord
+from .seitz import SeitzOp
 
 
 def _vector(matrix: tuple[tuple[float, ...], ...], vector: tuple[float, ...]) -> list[float]:
@@ -68,6 +69,44 @@ def apply_fractional_operation(
     component-wise Selective dynamics are rejected rather than approximated.
     """
 
+    return _apply_affine_fractional_operation(
+        structure,
+        matrix=operation.matrix_fractional,
+        translation=(0.0, 0.0, 0.0),
+        operation_name=operation.name,
+        wrap=wrap,
+    )
+
+
+def _apply_seitz_operation(
+    structure: Any,
+    operation: SeitzOp,
+    *,
+    wrap: bool = True,
+) -> Any:
+    """Apply ``f' = R f + t`` without exposing a stable structure API yet."""
+
+    matrix = tuple(
+        tuple(float(value) for value in row) for row in operation.rotation
+    )
+    translation = tuple(float(value) for value in operation.translation)
+    return _apply_affine_fractional_operation(
+        structure,
+        matrix=matrix,
+        translation=translation,
+        operation_name="Seitz operation",
+        wrap=wrap,
+    )
+
+
+def _apply_affine_fractional_operation(
+    structure: Any,
+    *,
+    matrix: tuple[tuple[float, ...], ...],
+    translation: tuple[float, ...],
+    operation_name: str,
+    wrap: bool,
+) -> Any:
     required = (
         "fractional_coordinates",
         "lattice",
@@ -80,12 +119,11 @@ def apply_fractional_operation(
     )
     if any(not hasattr(structure, attribute) for attribute in required):
         raise TypeError("structure does not implement the StructureRecord contract")
-    matrix = operation.matrix_fractional
     lattice = tuple(tuple(float(value) for value in row) for row in structure.lattice)
     if not _preserves_lattice_metric(lattice, matrix):
         raise GroupDataError(
-            f"{operation.name} is incompatible with the structure lattice metric; "
-            "the catalog operation is only physical in its documented family basis"
+            f"{operation_name} is incompatible with the structure lattice metric; "
+            "the fractional rotation requires a compatible lattice basis"
         )
 
     transformed_pbc: list[bool] = []
@@ -93,21 +131,25 @@ def apply_fractional_operation(
         dependencies = {bool(structure.pbc[j]) for j, value in enumerate(row) if not _is_zero(value)}
         if len(dependencies) != 1:
             raise GroupDataError(
-                f"{operation.name} mixes periodic and non-periodic coordinate directions"
+                f"{operation_name} mixes periodic and non-periodic coordinate directions"
             )
         transformed_pbc.append(dependencies.pop())
     if tuple(transformed_pbc) != tuple(structure.pbc):
-        raise GroupDataError(f"{operation.name} changes the declared PBC axis semantics")
+        raise GroupDataError(
+            f"{operation_name} changes the declared PBC axis semantics"
+        )
 
-    fractional = [
-        _vector(matrix, tuple(float(value) for value in coordinate))
-        for coordinate in structure.fractional_coordinates
-    ]
+    fractional = []
+    for coordinate in structure.fractional_coordinates:
+        rotated = _vector(matrix, tuple(float(value) for value in coordinate))
+        fractional.append(
+            [rotated[index] + translation[index] for index in range(3)]
+        )
     dynamics = structure.selective_dynamics
     if dynamics is not None:
         if not _is_signed_permutation(matrix):
             raise GroupDataError(
-                f"{operation.name} cannot exactly map component-wise Selective dynamics"
+                f"{operation_name} cannot exactly map component-wise Selective dynamics"
             )
         dynamics = [
             tuple(

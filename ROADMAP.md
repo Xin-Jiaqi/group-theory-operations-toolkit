@@ -84,4 +84,11 @@
 - [x] Cross-check real-structure classifications in all seven crystal systems through fixtures pinned to spglib v2.5.0 source files and hashes.
 - [ ] Define affine Seitz operations on concrete structures (origin choice, Wyckoff placement) before accepting them for structure transforms.
 
+## 0.9.0 candidate — affine symmetry on concrete structures
+
+- [x] Fix the coordinate convention as $\mathbf{x}_{\mathrm{new}}=P\mathbf{x}_{\mathrm{old}}+\mathbf{p}$ and transform $(W\mid\mathbf{w})$ consistently under basis and origin changes.
+- [x] Implement an internal $\mathbf{x}'=W\mathbf{x}+\mathbf{w}$ structure action with lattice-metric, PBC and Selective-dynamics guards.
+- [ ] Verify species-aware structure automorphisms and Wyckoff/equivalent-atom orbits on the pinned real-structure fixtures.
+- [ ] Expose a typed structure-symmetry context only after input/standard setting conversions are end-to-end verified.
+
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
