@@ -101,6 +101,49 @@ def _apply_seitz_operation(
     )
 
 
+def _transform_fractional_coordinates(
+    coordinates: Any,
+    transformation_matrix: Any,
+    origin_shift: Any,
+    *,
+    wrap: bool = True,
+) -> tuple[tuple[float, float, float], ...]:
+    """Transform points by ``x_new = P x_old + p``.
+
+    This internal helper fixes the same modern spglib/ITA convention used by
+    :func:`transform_seitz_coordinates`.  It intentionally transforms only
+    coordinate representations; idealization and Cartesian rigid rotations
+    of a standardized structure are separate operations.
+    """
+
+    points = np.asarray(coordinates, dtype=np.float64)
+    matrix = np.asarray(transformation_matrix, dtype=np.float64)
+    shift = np.asarray(origin_shift, dtype=np.float64)
+    if points.ndim != 2 or points.shape[1:] != (3,):
+        raise ValueError("coordinates must have shape (n, 3)")
+    if matrix.shape != (3, 3):
+        raise ValueError("transformation_matrix must be a 3x3 matrix")
+    if shift.shape != (3,):
+        raise ValueError("origin_shift must be a length-3 vector")
+    if not (
+        np.all(np.isfinite(points))
+        and np.all(np.isfinite(matrix))
+        and np.all(np.isfinite(shift))
+    ):
+        raise ValueError("coordinate transformation must contain finite values")
+    if abs(float(np.linalg.det(matrix))) < 1.0e-12:
+        raise ValueError("transformation_matrix must be invertible")
+    transformed = points @ matrix.T + shift
+    if wrap:
+        transformed %= 1.0
+        transformed[np.abs(transformed) < 1.0e-12] = 0.0
+        transformed[np.abs(transformed - 1.0) < 1.0e-12] = 0.0
+    return tuple(
+        (float(row[0]), float(row[1]), float(row[2]))
+        for row in transformed
+    )
+
+
 def _apply_affine_fractional_operation(
     structure: Any,
     *,

@@ -89,6 +89,7 @@
 - [x] Fix the coordinate convention as $\mathbf{x}_{\mathrm{new}}=P\mathbf{x}_{\mathrm{old}}+\mathbf{p}$ and transform $(W\mid\mathbf{w})$ consistently under basis and origin changes.
 - [x] Implement an internal $\mathbf{x}'=W\mathbf{x}+\mathbf{w}$ structure action with lattice-metric, PBC and Selective-dynamics guards.
 - [x] Verify species-aware structure automorphisms and Wyckoff/equivalent-atom orbits on the pinned real-structure fixtures.
+- [x] Round-trip input and standardized settings through lattice, site and Seitz-operation conversions, including nonzero origin shifts and supercell quotient multiplicities.
 - [ ] Expose a typed structure-symmetry context only after input/standard setting conversions are end-to-end verified.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
