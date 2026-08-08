@@ -97,6 +97,57 @@ def inverse(operation: SeitzOp) -> SeitzOp:
     return SeitzOp(rotation=rotation, translation=translation)
 
 
+def transform_seitz_coordinates(
+    operation: SeitzOp,
+    transformation_matrix: np.ndarray,
+    origin_shift: np.ndarray,
+) -> SeitzOp:
+    """Express an operation in coordinates ``x_new = P x_old + p``.
+
+    ``transformation_matrix`` is :math:`P` and ``origin_shift`` is
+    :math:`p`.  This follows the modern spglib/ITA change-of-basis convention.
+    For ``operation = (W | w)``, the returned operation is
+
+    ``(P W P^-1 | P w + (I - P W P^-1) p)``.
+
+    The transformed rotation must remain an exact integer fractional-coordinate
+    matrix.  A transformation that does not preserve such a lattice basis is
+    rejected instead of being rounded into a different operation.
+    """
+
+    matrix = np.asarray(transformation_matrix, dtype=np.float64)
+    shift = np.asarray(origin_shift, dtype=np.float64)
+    if matrix.shape != (3, 3):
+        raise ValueError("transformation_matrix must be a 3x3 matrix")
+    if shift.shape != (3,):
+        raise ValueError("origin_shift must be a length-3 vector")
+    if not np.all(np.isfinite(matrix)) or not np.all(np.isfinite(shift)):
+        raise ValueError("coordinate transformation must contain finite values")
+    try:
+        matrix_inverse = np.linalg.inv(matrix)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError("transformation_matrix must be invertible") from exc
+
+    transformed_rotation = matrix @ operation.rotation @ matrix_inverse
+    rounded_rotation = np.rint(transformed_rotation)
+    if not np.allclose(
+        transformed_rotation,
+        rounded_rotation,
+        atol=_TRANSLATION_TOLERANCE,
+        rtol=0.0,
+    ):
+        raise ValueError(
+            "coordinate transformation does not preserve an integer "
+            "fractional rotation"
+        )
+    rotation = rounded_rotation.astype(np.int64)
+    translation = (
+        matrix @ operation.translation
+        + (np.eye(3, dtype=np.float64) - rotation) @ shift
+    )
+    return SeitzOp(rotation=rotation, translation=translation)
+
+
 def equivalent(left: SeitzOp, right: SeitzOp) -> bool:
     if not np.array_equal(left.rotation, right.rotation):
         return False
