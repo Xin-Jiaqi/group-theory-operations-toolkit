@@ -16,6 +16,7 @@
 | 层群 | 80 | 116 个 layer Hall 设置、符号、母点群与 Seitz 生成元 |
 | 磁性层群 | 528 | OG 编号、I–IV 型、点余群操作、反平移和对应磁空间群 |
 | 响应求解 | 按需 | shift current、injection current、SHG 与通用时间奇偶张量 |
+| 堆叠铁电 | 按需 | 层群极化类型、旋转左陪集、等价界面、双层切换与递归多层判据 |
 
 主要机器数据位于 [`data/`](data)，对应 JSON Schema 位于 [`schema/`](schema)。[`data/group_operations.json`](data/group_operations.json) 是基础点操作的事实源；常用入口包括 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json)、[`data/optical_response_invariants.json`](data/optical_response_invariants.json) 和 [`data/magnetic_layer_groups.json`](data/magnetic_layer_groups.json)。其他表由版本化脚本确定性生成并绑定来源文件或上游数据的 SHA-256。
 
@@ -42,6 +43,10 @@ group-ops magnetic-point-groups "6'/m'mm'" --json
 group-ops magnetic-layer-groups 80.9.528 --json
 group-ops magnetic-layer-groups --type IV
 
+# 双层/多层堆叠铁电
+group-ops layer-polarity LG68 --json
+group-ops stacking-rotations -1 --lattice rP --json
+
 # 非线性光学允许张量基
 group-ops invariants 4mm shift_current --json
 group-ops magnetic-responses 74 shg_odd --json
@@ -62,6 +67,25 @@ group = get_magnetic_layer_group("6.5.25")
 basis = magnetic_layer_response_tensor_basis(group.og_number, "shg_odd")
 print(group.point_operations)
 print(basis.dimension, basis.basis)
+```
+
+堆叠接口直接复用层群与点操作注册表。例如：
+
+```python
+from group_theory_operations import (
+    equivalent_interface_orbit,
+    layer_group_polarization,
+    point_group_operations,
+    preserved_recursive_stacking_operations,
+)
+
+print(layer_group_polarization(68).polar_type)  # NP
+d6h = point_group_operations("6/mmm")
+print(equivalent_interface_orbit((1 / 3, 2 / 3), d6h))  # AB/BA
+abc = preserved_recursive_stacking_operations(
+    d6h, (1 / 3, 2 / 3), (2 / 3, 1 / 3)
+)
+print([operation.name for operation in abc])
 ```
 
 ## 约定
@@ -85,6 +109,8 @@ python3 -m unittest discover -s tests -v
 
 测试覆盖矩阵、逆运算、乘法表、群闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群及六类磁性光学响应。空间/层群数据与固定版本的 spglib 数据交叉验证；磁性层群的编号、类型、操作标记和磁空间群对应关系分别依据 D. B. Litvin 的 *Magnetic Group Tables, Part 3* 与 [Zhang et al., Phys. Rev. B **107**, 075405 (2023)](https://doi.org/10.1103/PhysRevB.107.075405)，并再次对照 spglib 的磁空间群数据库。外部原始出版物不收入仓库，只保存可复现派生表、正式链接与校验值。
 
+堆叠铁电内核依据 [Ji et al., Phys. Rev. Lett. **130**, 146801 (2023)](https://doi.org/10.1103/PhysRevLett.130.146801)、[Xin et al., Phys. Rev. B **111**, 224102 (2025)](https://doi.org/10.1103/PhysRevB.111.224102) 以及 [Xin et al., Phys. Rev. B **113**, 075310 (2026)](https://doi.org/10.1103/9tt5-qm26)。它判断对称性允许的极化、取向类、界面等价关系和递归多层保留操作，不替代界面能量、势垒、极化大小或动力学计算。
+
 磁性光学扇区约定对照 [Gao et al., npj Computational Materials **7**, 10 (2021)](https://doi.org/10.1038/s41524-020-00462-9) 和 [Xiao et al., npj Quantum Materials **8**, 62 (2023)](https://doi.org/10.1038/s41535-023-00594-3)。更细的接口说明见 [`docs/MACHINE_INTERFACE.md`](docs/MACHINE_INTERFACE.md)。
 
-当前版本为 `0.7.0`，采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的版本。
+当前版本为 `0.8.0`，采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的版本，并引用实际使用的理论来源。

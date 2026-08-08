@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from .catalog import GroupDataError
+from .seitz import SeitzOp, closure
 
 
 _CRYSTAL_SYSTEM_COUNTS = {
@@ -300,3 +301,41 @@ def get_crystallographic_layer_group(
     else:
         raise GroupDataError("layer-group identifier must be a number or symbol")
     raise GroupDataError(f"layer group {identifier!r} not found")
+
+
+def layer_group_operations(
+    identifier: int | str,
+    *,
+    layer_hall_number: int | None = None,
+    registry: Mapping[str, Any] | None = None,
+) -> tuple[SeitzOp, ...]:
+    """Return the complete Seitz-operation closure for one layer-group setting.
+
+    The standard setting is used unless ``layer_hall_number`` selects one of the
+    alternative settings registered for the same layer group.
+    """
+
+    group = get_crystallographic_layer_group(identifier, registry)
+    if layer_hall_number is None:
+        setting = next(item for item in group.hall_settings if item.standard)
+    else:
+        matches = [
+            item
+            for item in group.hall_settings
+            if item.layer_hall_number == layer_hall_number
+        ]
+        if len(matches) != 1:
+            raise GroupDataError(
+                f"layer Hall setting {layer_hall_number!r} does not belong to "
+                f"LG{group.number}"
+            )
+        setting = matches[0]
+    operations = tuple(
+        closure(SeitzOp.from_dict(generator) for generator in setting.generators)
+    )
+    if len(operations) != setting.operation_count:
+        raise GroupDataError(
+            f"LG{group.number} layer Hall {setting.layer_hall_number} closes to "
+            f"{len(operations)} operations, expected {setting.operation_count}"
+        )
+    return operations

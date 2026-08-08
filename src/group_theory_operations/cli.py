@@ -49,6 +49,11 @@ from .layer_groups import (
     iter_crystallographic_layer_groups,
     load_layer_group_registry,
 )
+from .stacking import (
+    BRAVAIS_LATTICE_POINT_GROUPS,
+    layer_group_polarization,
+    stacking_rotation_cosets,
+)
 from .invariants import (
     MAGNETIC_RESPONSE_SPECS,
     RESPONSE_SPECS,
@@ -285,6 +290,53 @@ def _layer_groups(args: argparse.Namespace, database: dict) -> int:
             f"center={record.centering} point={record.point_group_hm:5s} "
             f"settings={len(record.hall_settings)}"
         )
+    return 0
+
+
+def _layer_polarity(args: argparse.Namespace, database: dict) -> int:
+    del database
+    group = get_crystallographic_layer_group(args.identifier)
+    result = layer_group_polarization(
+        group.number, layer_hall_number=args.layer_hall_number
+    )
+    payload = {
+        "layer_group_number": group.number,
+        "layer_group": group.international_short,
+        **result.to_dict(),
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(
+            f"LG{group.number} {group.international_short} / "
+            f"{result.polar_type} / dimension={result.dimension}"
+        )
+    return 0
+
+
+def _stacking_rotations(args: argparse.Namespace, database: dict) -> int:
+    del database
+    cosets = stacking_rotation_cosets(args.point_group, args.lattice)
+    payload = {
+        "monolayer_point_group": args.point_group,
+        "bravais_lattice": args.lattice,
+        "bravais_point_group": BRAVAIS_LATTICE_POINT_GROUPS[args.lattice],
+        "rotation_class_count": len(cosets),
+        "left_cosets": [coset.to_dict() for coset in cosets],
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(
+            f"{args.point_group} in {args.lattice} "
+            f"({payload['bravais_point_group']}) / "
+            f"rotation classes={len(cosets)}"
+        )
+        for index, coset in enumerate(cosets, start=1):
+            print(
+                f"C{index}: order={len(coset.members)} "
+                f"representative={coset.representative}"
+            )
     return 0
 
 
@@ -553,6 +605,22 @@ def build_parser() -> argparse.ArgumentParser:
     layer_groups_parser.add_argument("identifier", nargs="?")
     layer_groups_parser.add_argument("--json", action="store_true")
     layer_groups_parser.set_defaults(handler=_layer_groups)
+
+    layer_polarity_parser = subparsers.add_parser("layer-polarity")
+    layer_polarity_parser.add_argument("identifier")
+    layer_polarity_parser.add_argument("--layer-hall-number", type=int)
+    layer_polarity_parser.add_argument("--json", action="store_true")
+    layer_polarity_parser.set_defaults(handler=_layer_polarity)
+
+    stacking_rotations_parser = subparsers.add_parser("stacking-rotations")
+    stacking_rotations_parser.add_argument("point_group")
+    stacking_rotations_parser.add_argument(
+        "--lattice",
+        choices=tuple(BRAVAIS_LATTICE_POINT_GROUPS),
+        required=True,
+    )
+    stacking_rotations_parser.add_argument("--json", action="store_true")
+    stacking_rotations_parser.set_defaults(handler=_stacking_rotations)
 
     magnetic_layer_groups_parser = subparsers.add_parser("magnetic-layer-groups")
     magnetic_layer_groups_parser.add_argument("identifier", nargs="?")
