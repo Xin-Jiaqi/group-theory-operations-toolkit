@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论数据工具。它把晶体学与磁性群注册表、点操作矩阵、群乘法、光场二次表示和允许张量基放在同一套可验证的机器接口中，可直接查阅，也可作为高通量筛选与材料工作流的底层依赖。
 
-当前版本为 **0.8.0**。仓库回答四类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系。
+当前版本为 **0.9.0**。仓库回答五类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入胞与标准 Hall setting 怎样对应。
 
 ## 科学能力
 
@@ -14,6 +14,7 @@
 |---|---:|---|
 | 点操作代数 | 88 个基础记录 | 查询 $O_h$、$D_{4h}$、$D_{6h}$ 中的分数/笛卡尔矩阵、逆操作与乘法表 |
 | 晶体学群 | 32 点群、230 空间群、80 层群 | 固定标准 setting、生成元与 Seitz 闭包，连接三维周期晶体和二维周期层状体系 |
+| 结构对称上下文 | 三维周期结构、7 晶系真实 fixture | 识别空间群与 Hall setting，返回输入胞/标准胞操作、等价原子、Wyckoff 位置及基变换和原点移动 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 $(R,\theta)$ 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | 二次光场与响应 | 88 个 $M_\pm(R)$；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 堆叠铁电 | 80 层群与五类二维 Bravais 晶格 | 判断单层极化类型、双层取向类、等价界面、极化切换和递归多层保留对称性 |
@@ -79,6 +80,7 @@ Python 接口返回带类型的不可变记录：
 
 ```python
 from group_theory_operations import (
+    classify_structure_symmetry,
     equivalent_interface_orbit,
     layer_group_polarization,
     magnetic_layer_response_tensor_basis,
@@ -88,9 +90,21 @@ from group_theory_operations import (
 print(layer_group_polarization(68).polar_type)  # NP
 print(magnetic_layer_response_tensor_basis("6.5.25", "shg_odd").dimension)
 print(equivalent_interface_orbit((1 / 3, 2 / 3), point_group_operations("6/mmm")))
+
+# structure 实现 StructureRecord 合同；spglib 只负责数值识别，
+# 返回结果还会经过本仓库的 Hall 操作、位点轨道和 setting 转换核验。
+context = classify_structure_symmetry(structure)
+print(context.space_group.ita_number, context.hall_setting.hall_number)
+print(len(context.input_operations), len(context.standard_operations))
 ```
 
-POSCAR/CIF 读写由可选依赖 `materials-structure-core[io]` 提供；本仓库只负责经过约定检查的对称操作：
+结构读写和分类使用可选依赖 `materials-structure-core[io]` 与 spglib：
+
+```bash
+python -m pip install -e '.[structure]'
+```
+
+本仓库在外部识别结果之上核对物种感知的一一位点映射、等价原子轨道、标准 Hall 操作和仿射坐标约定；也可继续直接对 POSCAR/CIF 应用已注册操作：
 
 ```bash
 group-ops apply-structure structure.vasp 3+_001 \
@@ -110,12 +124,13 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.6.0** | 加入六个磁性非线性光学扇区与复反幺正映射求解器 | 区分 NSC/NIC 与 MSC/MIC，并把 SHG 分为时间偶 i-type 和时间奇 c-type；以灰群、$PT$ 群和 $\bar3'm'$ 规则回归测试 |
 | **0.7.0** | 注册全部 528 个磁性层群及六类响应基 | 把磁性张量筛选扩展到二维周期体系；保存有限磁点余群、I–IV 型、母层群、对应磁空间群和 type-IV 反平移 |
 | **0.8.0** | 加入双层与多层堆叠铁电对称性内核 | 从 80 层群导出 IP/OP/CP/NP；用左陪集处理取向，用 $R^\pm$ 处理等价界面与极化切换，并实现递归多层判据；复现 BN AB/BA、graphene ABC/$D_{3d}$ 与 ABA/$D_{3h}$ 基准 |
+| **0.9.0** | 加入真实结构的类型化对称上下文 | 将 spglib 数值识别接入仓库 Hall 注册表；同时返回输入胞与标准 setting 操作、物种感知位点置换、等价原子、Wyckoff/site-symmetry、$P,p$ 和理想化标准结构；验证非零原点移动、超胞操作折叠与中心化标准胞展开 |
 
 完整开发门槛与后续边界见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是机器接口和科学能力的演进，不代表已经计算任何具体材料的响应强度。
 
 ## 理论来源与文献要点
 
-1. **晶体学注册表。** 空间群和层群的 Hall setting、Seitz 操作与标识基于固定版本的 [spglib](https://spglib.readthedocs.io/) 数据库；层群元数据固定为 v2.5.0，并保留许可证、来源 URL 与校验值。spglib 在本仓库中是独立的数据与结构识别基准，不是本工具对称性推导的替代品。
+1. **晶体学注册表与结构识别。** 空间群和层群的 Hall setting、Seitz 操作与标识基于固定版本的 [spglib](https://spglib.readthedocs.io/) 数据库；层群元数据固定为 v2.5.0，并保留许可证、来源 URL 与校验值。0.9.0 采用[现代 spglib/ITA 坐标约定](https://spglib.readthedocs.io/en/v2.5.0/definition.html) $\mathbf x_s=P\mathbf x+\mathbf p$，并把基变换与标准胞理想化中的笛卡尔刚体旋转分开处理。spglib 负责数值识别；本仓库独立核验识别结果是否与已注册 Hall 操作、结构自同构和原子轨道一致。
 
 2. **磁性层群。** D. B. Litvin, *Magnetic Group Tables, Part 3: Magnetic Layer Groups* 提供 OG 符号、磁点群和操作表；Z. Zhang *et al.*, [“Encyclopedia of emergent particles in 528 magnetic layer groups and 394 magnetic rod groups,” *Phys. Rev. B* **107**, 075405 (2023)](https://doi.org/10.1103/PhysRevB.107.075405) 提供 528 个磁性层群的类型及其与磁空间群的系统对应。仓库还利用 spglib 磁空间群数据库进行第三方交叉核验。
 
@@ -133,6 +148,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 
 - 乘法表使用“行操作 × 列操作”，即 $D(\text{left})D(\text{right})$，右操作先作用。
 - 分数坐标矩阵只用于相应晶格基；轴矢量公式 $M_-(R)=\det(D)D$ 由正交笛卡尔矩阵导出。
+- 结构标准化使用 $\mathbf x_s=P\mathbf x+\mathbf p$。输入超胞可有多个操作折叠为同一标准操作，原胞输入也可在中心化标准胞中展开出更多操作；两套操作均显式保留，不能仅凭操作数判断识别错误。
 - 磁性层群接口面向 $q=0$ 均匀张量，保存有限磁点余群。普通平移不进入均匀张量约束；type-IV 反平移单独保留，不能把该接口误作完整的仿射磁性层群作用。
 - 输出是对称性允许空间，不包含材料数值、单位、共振、耗散、频率置换、界面能量或切换动力学。
 
@@ -140,6 +156,6 @@ group-ops apply-structure structure.vasp 3+_001 \
 python3 -m unittest discover -s tests -v
 ```
 
-测试覆盖矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 点群、122 磁点群、230 空间群、80 层群、528 磁性层群、六类磁性光学响应及堆叠铁电基准。结构分类另以 spglib v2.5.0 官方测试库中的七个真实晶体 fixture 覆盖全部七个晶系；每个源文件均固定提交与 SHA-256，并核对空间群、Hall setting、点群、输入胞与标准 setting 操作数、Wyckoff 字母和等价原子轨道。外部论文原文与截图不收入仓库；仓库只保存可复现派生数据、正式链接、许可信息和校验值。
+测试覆盖矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 点群、122 磁点群、230 空间群、80 层群、528 磁性层群、六类磁性光学响应及堆叠铁电基准。结构分类另以 spglib v2.5.0 官方测试库中的七个真实晶体 fixture 覆盖全部七个晶系；每个源文件均固定提交与 SHA-256，并核对空间群、Hall setting、点群、输入胞与标准 setting 操作数、Wyckoff 字母、等价原子轨道、非零原点移动及输入/标准胞转换。另以 NaCl 原胞验证 F-centered 标准胞的操作与位点展开。外部论文原文与截图不收入仓库；仓库只保存可复现派生数据、正式链接、许可信息和校验值。
 
 本项目采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的软件版本，并同时引用与你调用的理论模块对应的上述原始文献。
