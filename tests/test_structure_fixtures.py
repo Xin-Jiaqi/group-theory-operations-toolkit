@@ -10,8 +10,17 @@ import unittest
 import numpy as np
 
 from group_theory_operations.space_groups import get_crystallographic_space_group
-from group_theory_operations.seitz import SeitzOp
-from group_theory_operations.structure import _seitz_site_mapping, _site_orbits
+from group_theory_operations.seitz import (
+    SeitzOp,
+    closure,
+    equivalent,
+    transform_seitz_coordinates,
+)
+from group_theory_operations.structure import (
+    _seitz_site_mapping,
+    _site_orbits,
+    _transform_fractional_coordinates,
+)
 
 try:
     import spglib
@@ -85,6 +94,47 @@ def _partition(labels) -> set[frozenset[int]]:
     for index, label in enumerate(labels):
         groups.setdefault(int(label), set()).add(index)
     return {frozenset(indices) for indices in groups.values()}
+
+
+def _unique_operations(operations) -> tuple[SeitzOp, ...]:
+    unique: list[SeitzOp] = []
+    for operation in operations:
+        if not any(equivalent(operation, known) for known in unique):
+            unique.append(operation)
+    return tuple(unique)
+
+
+def _same_operation_set(left, right) -> bool:
+    left_unique = _unique_operations(left)
+    right_unique = _unique_operations(right)
+    return len(left_unique) == len(right_unique) and all(
+        any(equivalent(operation, candidate) for candidate in right_unique)
+        for operation in left_unique
+    )
+
+
+def _maximum_same_type_periodic_distance(
+    source_positions,
+    source_types,
+    target_positions,
+    target_types,
+    lattice,
+) -> float:
+    target_positions = np.asarray(target_positions, dtype=np.float64)
+    target_types = np.asarray(target_types)
+    lattice = np.asarray(lattice, dtype=np.float64)
+    maximum = 0.0
+    for position, type_number in zip(source_positions, source_types):
+        candidates = target_positions[target_types == type_number]
+        if not len(candidates):
+            return math.inf
+        difference = np.asarray(position) - candidates
+        difference -= np.rint(difference)
+        maximum = max(
+            maximum,
+            float(np.min(np.linalg.norm(difference @ lattice, axis=1))),
+        )
+    return maximum
 
 
 class RealStructureFixtureContractTests(unittest.TestCase):
@@ -231,3 +281,147 @@ class RealStructureClassificationTests(unittest.TestCase):
                         if label == orbit
                     }
                     self.assertEqual(len(letters), 1)
+
+    def test_input_to_standard_setting_round_trips_end_to_end(self) -> None:
+        fixture = _load_fixture()
+        settings = fixture["classification"]
+        basis_change = np.array(
+            [[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]
+        )
+        shifted_origin = np.array([0.137, 0.271, 0.419])
+
+        for item in fixture["structures"]:
+            with self.subTest(item=item["id"], coordinates="source"):
+                self._assert_standard_setting_round_trip(
+                    item,
+                    np.asarray(item["lattice"], dtype=np.float64),
+                    np.asarray(item["fractional_coordinates"], dtype=np.float64),
+                    settings,
+                )
+
+            transformed_lattice = (
+                np.linalg.inv(basis_change).T
+                @ np.asarray(item["lattice"], dtype=np.float64)
+            )
+            transformed_positions = _transform_fractional_coordinates(
+                item["fractional_coordinates"],
+                basis_change,
+                shifted_origin,
+            )
+            with self.subTest(item=item["id"], coordinates="changed-basis-origin"):
+                dataset = self._assert_standard_setting_round_trip(
+                    item,
+                    transformed_lattice,
+                    np.asarray(transformed_positions),
+                    settings,
+                )
+                if dataset.number != 1:
+                    self.assertGreater(
+                        float(np.max(np.abs(dataset.origin_shift))),
+                        1.0e-3,
+                    )
+
+    def _assert_standard_setting_round_trip(
+        self,
+        item,
+        lattice,
+        positions,
+        settings,
+    ):
+        type_numbers = np.asarray(_type_numbers(item["species"]))
+        dataset = spglib.get_symmetry_dataset(
+            (lattice, positions, type_numbers),
+            symprec=settings["symprec"],
+            angle_tolerance=settings["angle_tolerance"],
+        )
+        self.assertIsNotNone(dataset)
+        assert dataset is not None
+        self.assertEqual(dataset.number, item["expected"]["ita_number"])
+        self.assertEqual(dataset.hall_number, item["expected"]["hall_number"])
+
+        matrix = np.asarray(dataset.transformation_matrix, dtype=np.float64)
+        shift = np.asarray(dataset.origin_shift, dtype=np.float64)
+        rotation = np.asarray(dataset.std_rotation_matrix, dtype=np.float64)
+        np.testing.assert_allclose(rotation @ rotation.T, np.eye(3), atol=1.0e-12)
+        predicted_standard_lattice = np.linalg.inv(matrix).T @ lattice @ rotation.T
+        np.testing.assert_allclose(
+            predicted_standard_lattice,
+            dataset.std_lattice,
+            atol=10.0 * settings["symprec"],
+            rtol=1.0e-10,
+        )
+
+        unwrapped_standardized_positions = _transform_fractional_coordinates(
+            positions,
+            matrix,
+            shift,
+            wrap=False,
+        )
+        inverse_matrix = np.linalg.inv(matrix)
+        restored_positions = _transform_fractional_coordinates(
+            unwrapped_standardized_positions,
+            inverse_matrix,
+            -inverse_matrix @ shift,
+            wrap=False,
+        )
+        np.testing.assert_allclose(restored_positions, positions, atol=1.0e-12)
+        standardized_positions = _transform_fractional_coordinates(
+            positions,
+            matrix,
+            shift,
+        )
+
+        tolerance = 10.0 * settings["symprec"]
+        self.assertLessEqual(
+            _maximum_same_type_periodic_distance(
+                standardized_positions,
+                type_numbers,
+                dataset.std_positions,
+                dataset.std_types,
+                dataset.std_lattice,
+            ),
+            tolerance,
+        )
+        self.assertLessEqual(
+            _maximum_same_type_periodic_distance(
+                dataset.std_positions,
+                dataset.std_types,
+                standardized_positions,
+                type_numbers,
+                dataset.std_lattice,
+            ),
+            tolerance,
+        )
+
+        transformed_operations = _unique_operations(
+            transform_seitz_coordinates(
+                SeitzOp(operation, translation),
+                matrix,
+                shift,
+            )
+            for operation, translation in zip(
+                dataset.rotations,
+                dataset.translations,
+            )
+        )
+        record = get_crystallographic_space_group(dataset.number)
+        hall_setting = next(
+            setting
+            for setting in record.hall_settings
+            if setting.hall_number == dataset.hall_number
+        )
+        registry_operations = tuple(
+            closure(
+                SeitzOp.from_dict(generator)
+                for generator in hall_setting.generators
+            )
+        )
+        self.assertTrue(
+            _same_operation_set(transformed_operations, registry_operations)
+        )
+        self.assertAlmostEqual(
+            len(dataset.rotations) / len(transformed_operations),
+            abs(float(np.linalg.det(matrix))),
+            places=8,
+        )
+        return dataset

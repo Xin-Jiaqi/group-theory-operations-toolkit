@@ -18,6 +18,7 @@ from group_theory_operations.structure import (
     _apply_seitz_operation,
     _seitz_site_mapping,
     _site_orbits,
+    _transform_fractional_coordinates,
 )
 
 
@@ -140,6 +141,51 @@ class SeitzCoordinateConventionTests(unittest.TestCase):
                 self.left,
                 np.diag([2.0, 1.0, 1.0]),
                 np.zeros(3),
+            )
+
+    def test_point_coordinates_follow_the_same_change_of_basis(self) -> None:
+        points = np.array([[0.2, 0.3, 0.4], [0.9, 0.1, 0.7]])
+        transformed = _transform_fractional_coordinates(
+            points,
+            self.transformation,
+            self.origin_shift,
+        )
+        expected = (
+            points @ self.transformation.T + self.origin_shift
+        ) % 1.0
+        np.testing.assert_allclose(transformed, expected, atol=1.0e-12)
+
+        inverse_matrix = np.linalg.inv(self.transformation)
+        inverse_shift = -inverse_matrix @ self.origin_shift
+        restored = _transform_fractional_coordinates(
+            transformed,
+            inverse_matrix,
+            inverse_shift,
+        )
+        difference = np.asarray(restored) - points
+        difference -= np.rint(difference)
+        np.testing.assert_allclose(difference, 0.0, atol=1.0e-12)
+
+    def test_invalid_point_coordinate_transformations_are_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, r"shape \(n, 3\)"):
+            _transform_fractional_coordinates(
+                [0.0, 0.0, 0.0], np.eye(3), np.zeros(3)
+            )
+        with self.assertRaisesRegex(ValueError, "3x3"):
+            _transform_fractional_coordinates(
+                [[0.0, 0.0, 0.0]], np.eye(2), np.zeros(3)
+            )
+        with self.assertRaisesRegex(ValueError, "length-3"):
+            _transform_fractional_coordinates(
+                [[0.0, 0.0, 0.0]], np.eye(3), np.zeros(2)
+            )
+        with self.assertRaisesRegex(ValueError, "finite"):
+            _transform_fractional_coordinates(
+                [[np.nan, 0.0, 0.0]], np.eye(3), np.zeros(3)
+            )
+        with self.assertRaisesRegex(ValueError, "invertible"):
+            _transform_fractional_coordinates(
+                [[0.0, 0.0, 0.0]], np.zeros((3, 3)), np.zeros(3)
             )
 
 
