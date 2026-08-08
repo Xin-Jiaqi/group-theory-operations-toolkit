@@ -33,6 +33,12 @@ from .magnetic_point_groups import (
     load_magnetic_point_group_registry,
     magnetic_point_group_operations,
 )
+from .magnetic_layer_groups import (
+    MAGNETIC_LAYER_TYPES,
+    get_magnetic_layer_group,
+    iter_magnetic_layer_groups,
+    load_magnetic_layer_group_registry,
+)
 from .space_groups import (
     get_crystallographic_space_group,
     iter_crystallographic_space_groups,
@@ -47,6 +53,8 @@ from .invariants import (
     MAGNETIC_RESPONSE_SPECS,
     RESPONSE_SPECS,
     TENSOR_SPACE_BASES,
+    magnetic_layer_response_tensor_basis,
+    magnetic_layer_tensor_basis,
     magnetic_tensor_basis,
     magnetic_response_tensor_basis,
     response_tensor_basis,
@@ -280,6 +288,51 @@ def _layer_groups(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _magnetic_layer_groups(args: argparse.Namespace, database: dict) -> int:
+    del database
+    if args.identifier is None:
+        records = [
+            record
+            for record in iter_magnetic_layer_groups()
+            if args.type is None or record.magnetic_type == args.type
+        ]
+        payload: dict[str, Any] | list[dict[str, Any]] = [
+            record.to_dict() for record in records
+        ]
+    else:
+        record = get_magnetic_layer_group(args.identifier)
+        if args.type is not None and record.magnetic_type != args.type:
+            raise GroupDataError(
+                f"magnetic layer group {record.og_number} is type "
+                f"{record.magnetic_type}, not {args.type}"
+            )
+        payload = record.to_dict()
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    records = (
+        [
+            record
+            for record in iter_magnetic_layer_groups()
+            if args.type is None or record.magnetic_type == args.type
+        ]
+        if args.identifier is None
+        else [get_magnetic_layer_group(args.identifier)]
+    )
+    for record in records:
+        anti = (
+            "-"
+            if record.anti_translation_fractional is None
+            else ",".join(f"{value:g}" for value in record.anti_translation_fractional)
+        )
+        print(
+            f"{record.og_number:10s} {record.litvin_og_symbol_ascii:18s} "
+            f"type={record.magnetic_type:3s} parent=LG{record.parent_layer_group_number:02d} "
+            f"point={record.magnetic_point_group_symbol:10s} anti-t={anti}"
+        )
+    return 0
+
+
 def _invariants(args: argparse.Namespace, database: dict) -> int:
     result = response_tensor_basis(args.point_group, args.response, database=database)
     payload = {
@@ -348,6 +401,52 @@ def _magnetic_responses(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _magnetic_layer_invariants(args: argparse.Namespace, database: dict) -> int:
+    del database
+    result = magnetic_layer_tensor_basis(
+        args.magnetic_layer_group,
+        args.output_space,
+        args.input_space,
+        output_time_parity=args.output_time,
+        input_time_parity=args.input_time,
+    )
+    if args.json:
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"{result.magnetic_layer_group} ({result.og_number}) / "
+        f"{result.output_space}[T-{result.output_time_parity}] <- "
+        f"{result.input_space}[T-{result.input_time_parity}] / "
+        f"shape={result.shape[0]}x{result.shape[1]} / dimension={result.dimension}"
+    )
+    for index, matrix in enumerate(result.basis, start=1):
+        print(f"basis[{index}]")
+        for row in matrix:
+            print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
+    return 0
+
+
+def _magnetic_layer_responses(args: argparse.Namespace, database: dict) -> int:
+    del database
+    result = magnetic_layer_response_tensor_basis(
+        args.magnetic_layer_group,
+        args.response,
+    )
+    if args.json:
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"{result.magnetic_layer_group} ({result.og_number}) / "
+        f"{result.response}[T-{result.time_character}] / "
+        f"shape={result.shape[0]}x{result.shape[1]} / dimension={result.dimension}"
+    )
+    for index, matrix in enumerate(result.basis, start=1):
+        print(f"basis[{index}]")
+        for row in matrix:
+            print("[" + ", ".join(f"{value:.12g}" for value in row) + "]")
+    return 0
+
+
 def _validate(_: argparse.Namespace, database: dict) -> int:
     errors = validate_database(database)
     if errors:
@@ -355,6 +454,7 @@ def _validate(_: argparse.Namespace, database: dict) -> int:
     load_space_group_registry()
     load_layer_group_registry()
     load_magnetic_point_group_registry()
+    load_magnetic_layer_group_registry()
     print("catalog valid")
     return 0
 
@@ -454,6 +554,12 @@ def build_parser() -> argparse.ArgumentParser:
     layer_groups_parser.add_argument("--json", action="store_true")
     layer_groups_parser.set_defaults(handler=_layer_groups)
 
+    magnetic_layer_groups_parser = subparsers.add_parser("magnetic-layer-groups")
+    magnetic_layer_groups_parser.add_argument("identifier", nargs="?")
+    magnetic_layer_groups_parser.add_argument("--type", choices=MAGNETIC_LAYER_TYPES)
+    magnetic_layer_groups_parser.add_argument("--json", action="store_true")
+    magnetic_layer_groups_parser.set_defaults(handler=_magnetic_layer_groups)
+
     invariants_parser = subparsers.add_parser("invariants")
     invariants_parser.add_argument("point_group")
     invariants_parser.add_argument("response", choices=tuple(RESPONSE_SPECS))
@@ -476,6 +582,39 @@ def build_parser() -> argparse.ArgumentParser:
     )
     magnetic_responses_parser.add_argument("--json", action="store_true")
     magnetic_responses_parser.set_defaults(handler=_magnetic_responses)
+
+    magnetic_layer_invariants_parser = subparsers.add_parser(
+        "magnetic-layer-invariants"
+    )
+    magnetic_layer_invariants_parser.add_argument("magnetic_layer_group")
+    magnetic_layer_invariants_parser.add_argument(
+        "output_space", choices=tuple(TENSOR_SPACE_BASES)
+    )
+    magnetic_layer_invariants_parser.add_argument(
+        "input_space", choices=tuple(TENSOR_SPACE_BASES)
+    )
+    magnetic_layer_invariants_parser.add_argument(
+        "--output-time", choices=("even", "odd"), default="even"
+    )
+    magnetic_layer_invariants_parser.add_argument(
+        "--input-time", choices=("even", "odd"), default="even"
+    )
+    magnetic_layer_invariants_parser.add_argument("--json", action="store_true")
+    magnetic_layer_invariants_parser.set_defaults(
+        handler=_magnetic_layer_invariants
+    )
+
+    magnetic_layer_responses_parser = subparsers.add_parser(
+        "magnetic-layer-responses"
+    )
+    magnetic_layer_responses_parser.add_argument("magnetic_layer_group")
+    magnetic_layer_responses_parser.add_argument(
+        "response", choices=tuple(MAGNETIC_RESPONSE_SPECS)
+    )
+    magnetic_layer_responses_parser.add_argument("--json", action="store_true")
+    magnetic_layer_responses_parser.set_defaults(
+        handler=_magnetic_layer_responses
+    )
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)
