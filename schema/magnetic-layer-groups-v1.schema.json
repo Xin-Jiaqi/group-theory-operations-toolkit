@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/magnetic-layer-groups-v1.schema.json",
+  "title": "Magnetic Layer-Group Point Co-Groups v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "registry_version",
+    "scope",
+    "source",
+    "source_table_sha256",
+    "point_operation_catalog_sha256",
+    "layer_group_registry_sha256",
+    "magnetic_layer_groups"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "registry_version": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object",
+      "required": ["classification_and_operation_labels", "magnetic_space_group_correspondence"],
+      "properties": {
+        "classification_and_operation_labels": {"$ref": "#/$defs/source"},
+        "magnetic_space_group_correspondence": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": false
+    },
+    "source_table_sha256": {"$ref": "#/$defs/hash"},
+    "point_operation_catalog_sha256": {"$ref": "#/$defs/hash"},
+    "layer_group_registry_sha256": {"$ref": "#/$defs/hash"},
+    "magnetic_layer_groups": {
+      "type": "array",
+      "minItems": 528,
+      "maxItems": 528,
+      "items": {"$ref": "#/$defs/group"}
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "matrix": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {"type": "number"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["citation", "url"],
+      "properties": {
+        "citation": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "supplement_sha256": {"$ref": "#/$defs/hash"}
+      },
+      "anyOf": [
+        {"required": ["sha256"]},
+        {"required": ["supplement_sha256"]}
+      ],
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "required": ["name", "label", "time_reversal", "matrix_fractional", "matrix_cartesian"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "time_reversal": {"type": "boolean"},
+        "matrix_fractional": {"$ref": "#/$defs/matrix"},
+        "matrix_cartesian": {"$ref": "#/$defs/matrix"}
+      },
+      "additionalProperties": false
+    },
+    "msg": {
+      "type": "object",
+      "required": ["bns_number", "uni_number", "og_number", "basis_transform_key", "basis_transform"],
+      "properties": {
+        "bns_number": {"type": "string", "pattern": "^[1-9][0-9]*\\.[1-9][0-9]*$"},
+        "uni_number": {"type": "integer", "minimum": 1, "maximum": 1651},
+        "og_number": {"type": "string", "pattern": "^[1-9][0-9]*\\.[1-9][0-9]*\\.[1-9][0-9]*$"},
+        "basis_transform_key": {"enum": ["I", "P1", "P2", "P3", "P4", "P5"]},
+        "basis_transform": {"$ref": "#/$defs/matrix"}
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "required": [
+        "global_number", "og_number", "family_number", "magnetic_type",
+        "litvin_og_symbol_ascii", "magnetic_point_group_symbol",
+        "parent_layer_group_number", "parent_layer_group_symbol", "crystal_system",
+        "host_family", "point_operation_count", "unitary_subgroup_order",
+        "anti_translation_fractional", "corresponding_magnetic_space_group",
+        "source_pdf_page", "point_operations"
+      ],
+      "properties": {
+        "global_number": {"type": "integer", "minimum": 1, "maximum": 528},
+        "og_number": {"type": "string", "pattern": "^[1-9][0-9]*\\.[1-9][0-9]*\\.[1-9][0-9]*$"},
+        "family_number": {"type": "integer", "minimum": 1},
+        "magnetic_type": {"enum": ["I", "II", "III", "IV"]},
+        "litvin_og_symbol_ascii": {"type": "string", "minLength": 1},
+        "magnetic_point_group_symbol": {"type": "string", "minLength": 1},
+        "parent_layer_group_number": {"type": "integer", "minimum": 1, "maximum": 80},
+        "parent_layer_group_symbol": {"type": "string", "minLength": 1},
+        "crystal_system": {"enum": ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal"]},
+        "host_family": {"enum": ["tetragonal_D4h", "hexagonal_D6h"]},
+        "point_operation_count": {"type": "integer", "minimum": 1, "maximum": 48},
+        "unitary_subgroup_order": {"type": "integer", "minimum": 1, "maximum": 24},
+        "anti_translation_fractional": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
+          ]
+        },
+        "corresponding_magnetic_space_group": {"$ref": "#/$defs/msg"},
+        "source_pdf_page": {"type": "integer", "minimum": 1},
+        "point_operations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 48,
+          "items": {"$ref": "#/$defs/operation"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

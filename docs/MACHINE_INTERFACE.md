@@ -1,6 +1,6 @@
 # Machine interface and integration contract
 
-## Stable surface for the 0.1 candidate
+## Stable public surface
 
 ```python
 from group_theory_operations import (
@@ -15,6 +15,10 @@ from group_theory_operations import (
     point_group_operations,
     response_tensor_basis,
     load_optical_response_catalog,
+    load_magnetic_layer_group_registry,
+    get_magnetic_layer_group,
+    magnetic_layer_tensor_basis,
+    magnetic_layer_response_tensor_basis,
 )
 
 database = load_database()
@@ -28,6 +32,18 @@ point_group = get_crystallographic_point_group("4mm")
 operations = point_group_operations(point_group.number)
 shift_basis = response_tensor_basis("4mm", "shift_current")
 all_invariants = load_optical_response_catalog()
+magnetic_layers = load_magnetic_layer_group_registry()
+magnetic_layer = get_magnetic_layer_group("6.5.25", magnetic_layers)
+odd_map = magnetic_layer_tensor_basis(
+    magnetic_layer.og_number,
+    "polar_vector",
+    "symmetric_quadratic",
+    input_time_parity="odd",
+    registry=magnetic_layers,
+)
+shg_odd = magnetic_layer_response_tensor_basis(
+    magnetic_layer.og_number, "shg_odd", registry=magnetic_layers
+)
 ```
 
 `OperationRecord` is frozen and exposes explicit fractional and Cartesian matrices. The original JSON remains the canonical data source, while `validate_database` provides a reusable schema/group-consistency gate. The CLI supports JSON output for downstream scripts:
@@ -39,6 +55,8 @@ group-ops multiply 4+_001 2_100 --family tetragonal_D4h --json
 group-ops field-representation m_100 --family tetragonal_D4h --json
 group-ops point-groups 4mm --json
 group-ops invariants 4mm shift_current --json
+group-ops magnetic-layer-groups 6.5.25 --json
+group-ops magnetic-layer-responses 6.5.25 shg_odd --json
 group-ops validate
 ```
 
@@ -80,6 +98,22 @@ both registry and operation-catalog SHA-256 values. Regenerate the point-group
 registry first, then the invariant catalog. Tests verify the closure and every
 basis vector under every registered operation.
 
+## Magnetic layer groups
+
+`data/magnetic_layer_groups.json` registers all 528 magnetic layer groups by
+global number, three-part OG number, type I–IV, parent layer group and
+corresponding magnetic space group. Each record contains an explicit finite
+magnetic point co-group `(R, time_reversal)` in both fractional and Cartesian
+coordinates. Type-IV anti-translations are retained separately; ordinary
+translations are intentionally omitted because this interface targets
+homogeneous (`q=0`) tensor constraints, not affine action on atomic sites.
+
+`magnetic_layer_tensor_basis()` handles arbitrary declared spatial spaces and
+time parities. `magnetic_layer_response_tensor_basis()` provides the six named
+shift-current, injection-current and SHG sectors. Exact affine magnetic-layer
+operations require a future schema that also fixes origin and translation
+conventions.
+
 ## Structure-core boundary
 
 `apply_fractional_operation` implements the column-vector rule $f' = Df$ about the origin and keeps the lattice fixed. It accepts the public `materials-structure-core` `StructureRecord` contract. The bridge preserves site order and supported site flags.
@@ -111,4 +145,4 @@ is the intended independent structure-symmetry consumer/checker. This repository
 does not claim to replace symmetry inference or standardization.
 # Schema compatibility
 
-`schema/group-operations-v1.schema.json` describes the primary operation JSON. The quadratic-field, crystallographic-point-group and optical-invariant artifacts each have an independent v1 schema. Additive optional fields are backward compatible within each schema. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. JSON Schema checks shape and primitive types; scientific consistency remains covered by closure, spglib-signature, representation and equivariance tests.
+`schema/group-operations-v1.schema.json` describes the primary operation JSON. The quadratic-field, crystallographic-point-group, magnetic-layer-group and optical-invariant artifacts each have an independent v1 schema. Additive optional fields are backward compatible within each schema. Removing or renaming a field, changing matrix or multiplication semantics, or changing a stable operation name requires a new schema version and a migration note. JSON Schema checks shape and primitive types; scientific consistency remains covered by closure, spglib-signature, representation and equivariance tests.

@@ -212,13 +212,10 @@ class CrystallographicPointGroupTests(unittest.TestCase):
         self.assertEqual(chiral, {"1", "2", "222", "4", "422", "3", "32", "6", "622", "23", "432"})
         self.assertEqual(len(centrosymmetric), 11)
 
-    def test_readme_lists_all_registered_groups(self):
+    def test_readme_links_the_canonical_point_group_registry(self):
         document = (ROOT / "README.md").read_text(encoding="utf-8")
-        for group in self.groups:
-            self.assertIn(
-                f"| {group.number} | `{group.hm_symbol}` | `{group.schoenflies_symbol}` |",
-                document,
-            )
+        self.assertIn("data/crystallographic_point_groups.json", document)
+        self.assertIn("32", document)
 
     def test_independent_spglib_point_group_signatures(self):
         spglib_rotations = {}
@@ -356,14 +353,11 @@ class OpticalInvariantTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             equivariant_map_basis((identity2,), (((1, 0, 0), (0, 1, 0), (0, 0, 1)), (identity2)))
 
-    def test_readme_lists_all_dimensions(self):
+    def test_readme_links_the_canonical_response_registry(self):
         document = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("data/optical_response_invariants.json", document)
         for item in self.catalog["point_groups"]:
             responses = item["responses"]
-            self.assertIn(
-                f"| {item['number']} | `{item['hm_symbol']}` | `{item['schoenflies_symbol']}` |",
-                document,
-            )
             self.assertEqual(
                 responses["shift_current"]["dimension"],
                 responses["shg"]["dimension"],

@@ -57,6 +57,15 @@
 - [x] Regression-test gray, $PT$, and published $\bar3'm'$ selection rules.
 - [ ] Add response-specific causal identities between positive- and negative-frequency susceptibilities only after the damping and Fourier conventions are selected by the consuming model.
 
+## 0.7.0 — all 528 magnetic layer groups
+
+- [x] Register all 528 magnetic layer groups with OG numbering and type I–IV classification.
+- [x] Store finite magnetic point-co-group operations and preserve every type-IV anti-translation separately.
+- [x] Link every record to its parent layer group and corresponding magnetic space group.
+- [x] Cross-check numbering and correspondence against two independent published tables and spglib.
+- [x] Solve the six magnetic nonlinear-optical sectors for every magnetic layer group.
+- [x] Add versioned JSON/Schema artifacts, deterministic extraction/generation scripts, typed Python APIs and CLI queries.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.

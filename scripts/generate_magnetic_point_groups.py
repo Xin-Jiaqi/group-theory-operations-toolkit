@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Generate the canonical registry of the 122 magnetic point groups.
 
-The standard numbering and Hermann--Mauguin symbols follow the Bilbao
-Crystallographic Server MPOINT table.  Spatial operations are not copied from
-that table: they are generated from the toolkit's validated 32 crystallographic
-point-group embeddings.  Type-III groups are constructed from an index-two
-unitary subgroup, encoded by the time-reversal parity of the parent generators.
+The standard three-part numbering and Hermann--Mauguin symbols are frozen in
+the versioned table below. Spatial operations are generated from the toolkit's
+validated 32 crystallographic point-group embeddings. Type-III groups are
+constructed from an index-two unitary subgroup, encoded by the time-reversal
+parity of the parent generators.
 """
 
 from __future__ import annotations

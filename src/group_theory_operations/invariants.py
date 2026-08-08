@@ -20,6 +20,10 @@ from .magnetic_point_groups import (
     load_magnetic_point_group_registry,
     magnetic_point_group_operations,
 )
+from .magnetic_layer_groups import (
+    get_magnetic_layer_group,
+    load_magnetic_layer_group_registry,
+)
 from .representations import determinant3, quadratic_field_representation
 
 
@@ -411,6 +415,51 @@ class MagneticInvariantTensorBasis:
 
 
 @dataclass(frozen=True, slots=True)
+class MagneticLayerInvariantTensorBasis:
+    """A real tensor-map basis constrained by one magnetic layer group."""
+
+    magnetic_layer_group_number: int
+    og_number: str
+    magnetic_layer_group: str
+    magnetic_type: str
+    output_space: str
+    input_space: str
+    output_time_parity: str
+    input_time_parity: str
+    output_basis: tuple[str, ...]
+    input_basis: tuple[str, ...]
+    basis: tuple[Matrix, ...]
+
+    @property
+    def dimension(self) -> int:
+        return len(self.basis)
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return len(self.output_basis), len(self.input_basis)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "magnetic_layer_group_number": self.magnetic_layer_group_number,
+            "og_number": self.og_number,
+            "magnetic_layer_group": self.magnetic_layer_group,
+            "magnetic_type": self.magnetic_type,
+            "output_space": self.output_space,
+            "input_space": self.input_space,
+            "output_time_parity": self.output_time_parity,
+            "input_time_parity": self.input_time_parity,
+            "shape": list(self.shape),
+            "dimension": self.dimension,
+            "output_basis": list(self.output_basis),
+            "input_basis": list(self.input_basis),
+            "basis": [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in self.basis
+            ],
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class AntiunitaryEquivariantMapBasis:
     r"""Real-parameter basis for a complex map with antiunitary constraints.
 
@@ -486,6 +535,57 @@ class MagneticResponseTensorBasis:
             "magnetic_number": self.magnetic_number,
             "magnetic_point_group": self.magnetic_point_group,
             "category": self.category,
+            "response": self.response,
+            "family": self.family,
+            "sector": self.sector,
+            "tensor_type": self.tensor_type,
+            "time_character": self.time_character,
+            "shape": list(self.shape),
+            "output_basis": list(self.output_basis),
+            "input_basis": list(self.input_basis),
+            "equation": self.equation,
+            "reference": self.reference,
+            "dimension": self.dimension,
+            "basis": [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in self.basis
+            ],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class MagneticLayerResponseTensorBasis:
+    """Allowed optical-response tensors for one magnetic layer group."""
+
+    magnetic_layer_group_number: int
+    og_number: str
+    magnetic_layer_group: str
+    magnetic_type: str
+    response: str
+    family: str
+    sector: str
+    tensor_type: str
+    time_character: str
+    output_basis: tuple[str, ...]
+    input_basis: tuple[str, ...]
+    equation: str
+    reference: str
+    basis: tuple[Matrix, ...]
+
+    @property
+    def dimension(self) -> int:
+        return len(self.basis)
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return len(self.output_basis), len(self.input_basis)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "magnetic_layer_group_number": self.magnetic_layer_group_number,
+            "og_number": self.og_number,
+            "magnetic_layer_group": self.magnetic_layer_group,
+            "magnetic_type": self.magnetic_type,
             "response": self.response,
             "family": self.family,
             "sector": self.sector,
@@ -757,6 +857,108 @@ def magnetic_response_tensor_basis(
         magnetic_number=group.magnetic_number,
         magnetic_point_group=group.hm_symbol,
         category=group.category,
+        response=response_name,
+        family=str(specification["family"]),
+        sector=str(specification["sector"]),
+        tensor_type=str(specification["tensor_type"]),
+        time_character=time_character,
+        output_basis=POLAR_BASIS,
+        input_basis=TENSOR_SPACE_BASES[input_space],
+        equation=str(specification["equation"]),
+        reference=str(specification["reference"]),
+        basis=basis,
+    )
+
+
+def magnetic_layer_tensor_basis(
+    magnetic_layer_group: str | int,
+    output_space: str,
+    input_space: str,
+    *,
+    output_time_parity: str | int = "even",
+    input_time_parity: str | int = "even",
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-10,
+) -> MagneticLayerInvariantTensorBasis:
+    """Return a homogeneous tensor-map basis for one magnetic layer group."""
+
+    source_registry = (
+        load_magnetic_layer_group_registry() if registry is None else registry
+    )
+    group = get_magnetic_layer_group(magnetic_layer_group, source_registry)
+    output_name = canonical_tensor_space(output_space)
+    input_name = canonical_tensor_space(input_space)
+    output_parity = canonical_time_parity(output_time_parity)
+    input_parity = canonical_time_parity(input_time_parity)
+    output_representations = [
+        _spatial_representation(operation.matrix_cartesian, output_name)
+        for operation in group.point_operations
+    ]
+    input_representations = [
+        _spatial_representation(operation.matrix_cartesian, input_name)
+        for operation in group.point_operations
+    ]
+    basis = magnetic_equivariant_map_basis(
+        output_representations,
+        input_representations,
+        [operation.time_reversal for operation in group.point_operations],
+        output_time_parity=output_parity,
+        input_time_parity=input_parity,
+        tolerance=tolerance,
+    )
+    return MagneticLayerInvariantTensorBasis(
+        magnetic_layer_group_number=group.global_number,
+        og_number=group.og_number,
+        magnetic_layer_group=group.litvin_og_symbol_ascii,
+        magnetic_type=group.magnetic_type,
+        output_space=output_name,
+        input_space=input_name,
+        output_time_parity=output_parity,
+        input_time_parity=input_parity,
+        output_basis=TENSOR_SPACE_BASES[output_name],
+        input_basis=TENSOR_SPACE_BASES[input_name],
+        basis=basis,
+    )
+
+
+def magnetic_layer_response_tensor_basis(
+    magnetic_layer_group: str | int,
+    response: str,
+    *,
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-10,
+) -> MagneticLayerResponseTensorBasis:
+    """Return one named magnetic optical sector for a magnetic layer group."""
+
+    source_registry = (
+        load_magnetic_layer_group_registry() if registry is None else registry
+    )
+    group = get_magnetic_layer_group(magnetic_layer_group, source_registry)
+    response_name = canonical_magnetic_response_name(response)
+    specification = MAGNETIC_RESPONSE_SPECS[response_name]
+    input_space = str(specification["input_space"])
+    time_character = str(specification["time_character"])
+    output_representations = [
+        _spatial_representation(operation.matrix_cartesian, "polar_vector")
+        for operation in group.point_operations
+    ]
+    input_representations = [
+        _spatial_representation(operation.matrix_cartesian, input_space)
+        for operation in group.point_operations
+    ]
+    basis = magnetic_equivariant_map_basis(
+        output_representations,
+        input_representations,
+        [operation.time_reversal for operation in group.point_operations],
+        output_time_parity="even",
+        input_time_parity=time_character,
+        tolerance=tolerance,
+    )
+    return MagneticLayerResponseTensorBasis(
+        magnetic_layer_group_number=group.global_number,
+        og_number=group.og_number,
+        magnetic_layer_group=group.litvin_og_symbol_ascii,
+        magnetic_type=group.magnetic_type,
         response=response_name,
         family=str(specification["family"]),
         sector=str(specification["sector"]),

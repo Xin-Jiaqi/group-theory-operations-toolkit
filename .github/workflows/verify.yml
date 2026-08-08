@@ -41,6 +41,8 @@ jobs:
           cd /tmp
           group-ops validate
           group-ops layer-groups 80 --json > /dev/null
+          group-ops magnetic-layer-groups 80.9.528 --json > /dev/null
+          group-ops magnetic-layer-responses 6.5.25 shg_odd --json > /dev/null
           python -c "from group_theory_operations import load_database; assert not __import__('group_theory_operations').validate_database(load_database())"
       - name: Verify declared runtime dependencies in isolation
         run: |
@@ -50,3 +52,4 @@ jobs:
           /tmp/group-ops-clean/bin/group-ops --version
           /tmp/group-ops-clean/bin/group-ops validate
           /tmp/group-ops-clean/bin/group-ops layer-groups p4/nmm --json > /dev/null
+          /tmp/group-ops-clean/bin/group-ops magnetic-layer-groups MLG528 --json > /dev/null
