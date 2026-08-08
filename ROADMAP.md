@@ -81,7 +81,7 @@
 - [x] Define a versioned JSON Schema and compatibility policy.
 - [x] Expand the registry to all 32 crystallographic point groups with independent generator/order/closure tests.
 - [x] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
-- [ ] Cross-check structure classifications through a pinned spglib fixture suite.
+- [x] Cross-check real-structure classifications in all seven crystal systems through fixtures pinned to spglib v2.5.0 source files and hashes.
 - [ ] Define affine Seitz operations on concrete structures (origin choice, Wyckoff placement) before accepting them for structure transforms.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
