@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
+
 from .catalog import GroupDataError, OperationRecord
 from .seitz import SeitzOp
 
@@ -167,3 +169,120 @@ def _apply_affine_fractional_operation(
         length_unit=structure.length_unit,
     )
     return result.wrapped() if wrap else result
+
+
+def _seitz_site_mapping(
+    structure: Any,
+    operation: SeitzOp,
+    *,
+    tolerance: float = 1.0e-5,
+) -> tuple[int, ...] | None:
+    """Return the same-species site permutation induced by ``operation``.
+
+    Periodic images are compared with the full Cartesian lattice metric.
+    ``None`` means that the geometrically valid operation does not map the
+    decorated structure onto itself.  A perfect bipartite matching is used so
+    that several sites inside the tolerance cannot collapse onto one target.
+    """
+
+    if not np.isfinite(tolerance) or tolerance <= 0.0:
+        raise ValueError("tolerance must be a positive finite length")
+    required = ("fractional_coordinates", "lattice", "species", "pbc")
+    if any(not hasattr(structure, attribute) for attribute in required):
+        raise TypeError("structure does not implement the StructureRecord contract")
+
+    species = tuple(structure.species)
+    lattice = np.asarray(structure.lattice, dtype=np.float64)
+    coordinates = np.asarray(structure.fractional_coordinates, dtype=np.float64)
+    pbc = tuple(bool(value) for value in structure.pbc)
+    if lattice.shape != (3, 3):
+        raise GroupDataError("structure lattice must be a 3x3 matrix")
+    if coordinates.shape != (len(species), 3) or not species:
+        raise GroupDataError(
+            "structure needs matching non-empty species and fractional coordinates"
+        )
+    if len(pbc) != 3:
+        raise GroupDataError("structure pbc must contain three axis flags")
+    if not np.all(np.isfinite(lattice)) or not np.all(np.isfinite(coordinates)):
+        raise GroupDataError("structure lattice and coordinates must be finite")
+
+    transformed = _apply_seitz_operation(structure, operation, wrap=False)
+    images = np.asarray(transformed.fractional_coordinates, dtype=np.float64)
+    candidates: list[list[int]] = []
+    for source_index, image in enumerate(images):
+        distances: list[tuple[float, int]] = []
+        for target_index, target in enumerate(coordinates):
+            if species[source_index] != species[target_index]:
+                continue
+            difference = image - target
+            for axis, periodic in enumerate(pbc):
+                if periodic:
+                    difference[axis] -= np.rint(difference[axis])
+            distance = float(np.linalg.norm(difference @ lattice))
+            if distance <= tolerance:
+                distances.append((distance, target_index))
+        candidates.append([target for _, target in sorted(distances)])
+    if any(not options for options in candidates):
+        return None
+
+    target_to_source: list[int | None] = [None] * len(species)
+    source_to_target = [-1] * len(species)
+
+    def augment(source: int, visited: set[int]) -> bool:
+        for target in candidates[source]:
+            if target in visited:
+                continue
+            visited.add(target)
+            previous = target_to_source[target]
+            if previous is None or augment(previous, visited):
+                target_to_source[target] = source
+                source_to_target[source] = target
+                return True
+        return False
+
+    for source in range(len(species)):
+        if not augment(source, set()):
+            return None
+    return tuple(source_to_target)
+
+
+def _site_orbits(site_mappings: Any) -> tuple[int, ...]:
+    """Return minimum-index orbit representatives for site permutations."""
+
+    mappings = tuple(tuple(mapping) for mapping in site_mappings)
+    if not mappings:
+        raise ValueError("at least one site mapping is required")
+    site_count = len(mappings[0])
+    expected = set(range(site_count))
+    if any(
+        len(mapping) != site_count
+        or any(type(value) is not int for value in mapping)
+        or set(mapping) != expected
+        for mapping in mappings
+    ):
+        raise ValueError("site mappings must be equal-length permutations")
+
+    parent = list(range(site_count))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        left_root = find(left)
+        right_root = find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    for mapping in mappings:
+        for source, target in enumerate(mapping):
+            union(source, target)
+    members: dict[int, list[int]] = {}
+    for index in range(site_count):
+        members.setdefault(find(index), []).append(index)
+    representative = {
+        root: min(indices) for root, indices in members.items()
+    }
+    return tuple(representative[find(index)] for index in range(site_count))

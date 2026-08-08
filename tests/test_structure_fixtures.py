@@ -10,6 +10,8 @@ import unittest
 import numpy as np
 
 from group_theory_operations.space_groups import get_crystallographic_space_group
+from group_theory_operations.seitz import SeitzOp
+from group_theory_operations.structure import _seitz_site_mapping, _site_orbits
 
 try:
     import spglib
@@ -38,6 +40,51 @@ def _load_fixture() -> dict:
 def _type_numbers(species: list[str]) -> list[int]:
     mapping: dict[str, int] = {}
     return [mapping.setdefault(symbol, len(mapping) + 1) for symbol in species]
+
+
+class FixtureStructureRecord:
+    def __init__(
+        self,
+        *,
+        lattice,
+        species,
+        fractional_coordinates,
+        pbc=(True, True, True),
+        selective_dynamics=None,
+        length_unit="angstrom",
+    ):
+        self.lattice = tuple(tuple(row) for row in lattice)
+        self.species = tuple(species)
+        self.fractional_coordinates = tuple(
+            tuple(row) for row in fractional_coordinates
+        )
+        self.pbc = tuple(pbc)
+        self.selective_dynamics = selective_dynamics
+        self.length_unit = length_unit
+
+    @classmethod
+    def from_fractional(cls, **kwargs):
+        return cls(**kwargs)
+
+    def wrapped(self):
+        return self.from_fractional(
+            lattice=self.lattice,
+            species=self.species,
+            fractional_coordinates=[
+                [value % 1.0 for value in position]
+                for position in self.fractional_coordinates
+            ],
+            pbc=self.pbc,
+            selective_dynamics=self.selective_dynamics,
+            length_unit=self.length_unit,
+        )
+
+
+def _partition(labels) -> set[frozenset[int]]:
+    groups: dict[int, set[int]] = {}
+    for index, label in enumerate(labels):
+        groups.setdefault(int(label), set()).add(index)
+    return {frozenset(indices) for indices in groups.values()}
 
 
 class RealStructureFixtureContractTests(unittest.TestCase):
@@ -127,3 +174,60 @@ class RealStructureClassificationTests(unittest.TestCase):
                     hall_setting.operation_count,
                     expected["hall_setting_operation_count"],
                 )
+
+    def test_all_detected_operations_are_species_aware_automorphisms(self) -> None:
+        fixture = _load_fixture()
+        settings = fixture["classification"]
+        for item in fixture["structures"]:
+            with self.subTest(item=item["id"], formula=item["formula"]):
+                structure = FixtureStructureRecord(
+                    lattice=item["lattice"],
+                    species=item["species"],
+                    fractional_coordinates=item["fractional_coordinates"],
+                )
+                dataset = spglib.get_symmetry_dataset(
+                    (
+                        item["lattice"],
+                        item["fractional_coordinates"],
+                        _type_numbers(item["species"]),
+                    ),
+                    symprec=settings["symprec"],
+                    angle_tolerance=settings["angle_tolerance"],
+                )
+                self.assertIsNotNone(dataset)
+                assert dataset is not None
+                mappings = []
+                for rotation, translation in zip(
+                    dataset.rotations, dataset.translations
+                ):
+                    mapping = _seitz_site_mapping(
+                        structure,
+                        SeitzOp(rotation, translation),
+                        tolerance=settings["symprec"],
+                    )
+                    self.assertIsNotNone(mapping)
+                    assert mapping is not None
+                    self.assertTrue(
+                        all(
+                            item["species"][source] == item["species"][target]
+                            for source, target in enumerate(mapping)
+                        )
+                    )
+                    mappings.append(mapping)
+
+                orbit_labels = _site_orbits(mappings)
+                self.assertEqual(
+                    _partition(orbit_labels),
+                    _partition(dataset.equivalent_atoms),
+                )
+                self.assertEqual(
+                    len(set(orbit_labels)),
+                    item["expected"]["equivalent_atom_orbit_count"],
+                )
+                for orbit in set(orbit_labels):
+                    letters = {
+                        item["expected"]["wyckoff_letters"][index]
+                        for index, label in enumerate(orbit_labels)
+                        if label == orbit
+                    }
+                    self.assertEqual(len(letters), 1)

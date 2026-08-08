@@ -14,7 +14,11 @@ from group_theory_operations.seitz import (
     multiply,
     transform_seitz_coordinates,
 )
-from group_theory_operations.structure import _apply_seitz_operation
+from group_theory_operations.structure import (
+    _apply_seitz_operation,
+    _seitz_site_mapping,
+    _site_orbits,
+)
 
 
 class StructureDouble:
@@ -230,6 +234,80 @@ class AffineStructureOperationTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(GroupDataError, "PBC axis semantics"):
             _apply_seitz_operation(layer, cyclic_axes)
+
+
+class StructureAutomorphismUnitTests(unittest.TestCase):
+    def test_mapping_is_species_aware_and_bijective(self) -> None:
+        translation = SeitzOp(np.eye(3, dtype=np.int64), np.array([0.5, 0.0, 0.0]))
+        same_species = StructureDouble(
+            lattice=np.eye(3),
+            species=["H", "H"],
+            fractional_coordinates=[[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]],
+        )
+        self.assertEqual(
+            _seitz_site_mapping(same_species, translation),
+            (1, 0),
+        )
+        decorated = StructureDouble(
+            lattice=np.eye(3),
+            species=["H", "He"],
+            fractional_coordinates=[[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]],
+        )
+        self.assertIsNone(_seitz_site_mapping(decorated, translation))
+
+    def test_periodic_matching_uses_cartesian_lattice_distance(self) -> None:
+        inversion = SeitzOp(-np.eye(3, dtype=np.int64), np.zeros(3))
+        periodic = StructureDouble(
+            lattice=np.diag([100.0, 1.0, 1.0]),
+            species=["H", "H"],
+            fractional_coordinates=[[0.1, 0.0, 0.0], [0.9001, 0.0, 0.0]],
+        )
+        self.assertIsNone(
+            _seitz_site_mapping(periodic, inversion, tolerance=0.005)
+        )
+        self.assertEqual(
+            _seitz_site_mapping(periodic, inversion, tolerance=0.02),
+            (1, 0),
+        )
+        nonperiodic = StructureDouble(
+            lattice=np.eye(3),
+            species=["H", "H"],
+            fractional_coordinates=[[0.01, 0.0, 0.0], [0.99, 0.0, 0.0]],
+            pbc=(False, True, True),
+        )
+        self.assertIsNone(
+            _seitz_site_mapping(nonperiodic, inversion, tolerance=1.0e-6)
+        )
+
+    def test_site_orbits_are_canonical_and_validate_permutations(self) -> None:
+        self.assertEqual(
+            _site_orbits(((0, 1, 2, 3), (1, 0, 3, 2), (2, 3, 0, 1))),
+            (0, 0, 0, 0),
+        )
+        with self.assertRaisesRegex(ValueError, "at least one"):
+            _site_orbits(())
+        with self.assertRaisesRegex(ValueError, "permutations"):
+            _site_orbits(((0, 0),))
+
+    def test_invalid_tolerance_and_structure_shape_are_rejected(self) -> None:
+        identity = SeitzOp.identity()
+        with self.assertRaisesRegex(ValueError, "positive finite"):
+            _seitz_site_mapping(self._single_site(), identity, tolerance=0.0)
+        malformed = StructureDouble(
+            lattice=np.eye(3),
+            species=["H"],
+            fractional_coordinates=[],
+        )
+        with self.assertRaisesRegex(GroupDataError, "matching non-empty"):
+            _seitz_site_mapping(malformed, identity)
+
+    @staticmethod
+    def _single_site() -> StructureDouble:
+        return StructureDouble(
+            lattice=np.eye(3),
+            species=["H"],
+            fractional_coordinates=[[0.0, 0.0, 0.0]],
+        )
 
 
 if __name__ == "__main__":
