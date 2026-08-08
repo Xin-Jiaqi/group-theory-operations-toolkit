@@ -1,0 +1,852 @@
+{
+  "schema_version": 1,
+  "fixture_kind": "real_crystal_structure_classification",
+  "generator": "scripts/generate_spglib_structure_fixtures.py",
+  "upstream": {
+    "name": "spglib",
+    "version": "2.5.0",
+    "git_commit": "e4531bb49371dce3e807c2095a4d9d9b7245c524",
+    "license": "BSD-3-Clause",
+    "license_path": "COPYING"
+  },
+  "classification": {
+    "reference_spglib_version": "2.5.0",
+    "symprec": 1e-05,
+    "angle_tolerance": -1.0
+  },
+  "structures": [
+    {
+      "id": "sio2_triclinic",
+      "formula": "SiO2",
+      "source": {
+        "path": "test/functional/python/data/triclinic/POSCAR-001",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/triclinic/POSCAR-001",
+        "sha256": "9400b4f33dc874e52a28767e71e9106dee13d46c7655d4a14725bc90163a7526"
+      },
+      "lattice": [
+        [
+          4.915997686816655,
+          0.0,
+          0.0
+        ],
+        [
+          -2.458498843173054,
+          4.25824490672504,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.406997455780645
+        ]
+      ],
+      "species": [
+        "Si",
+        "Si",
+        "Si",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O"
+      ],
+      "fractional_coordinates": [
+        [
+          0.4702000000000005,
+          0.0,
+          0.3332999999999998
+        ],
+        [
+          2e-16,
+          0.4700000000000001,
+          0.6667000000000002
+        ],
+        [
+          0.5306000000000005,
+          0.5305000000000006,
+          0.0
+        ],
+        [
+          0.8533000000000004,
+          0.5861000000000003,
+          0.8812999999999998
+        ],
+        [
+          0.5862000000000002,
+          0.8539,
+          0.1180000000000003
+        ],
+        [
+          0.1476999999999999,
+          0.7326000000000009,
+          0.4532000000000003
+        ],
+        [
+          0.4139999999999999,
+          0.2679,
+          0.2158999999999997
+        ],
+        [
+          0.2673999999999999,
+          0.4137000000000005,
+          0.7858999999999999
+        ],
+        [
+          0.7338000000000003,
+          0.1465000000000006,
+          0.5489999999999994
+        ]
+      ],
+      "expected": {
+        "ita_number": 1,
+        "hall_number": 1,
+        "international_short": "P1",
+        "hall_symbol": "P 1",
+        "setting_choice": "",
+        "point_group_hm": "1",
+        "crystal_system": "triclinic",
+        "input_cell_operation_count": 1,
+        "hall_setting_operation_count": 1,
+        "equivalent_atom_orbit_count": 9,
+        "wyckoff_letters": [
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a"
+        ]
+      }
+    },
+    {
+      "id": "sio2_monoclinic",
+      "formula": "SiO2",
+      "source": {
+        "path": "test/functional/python/data/monoclinic/POSCAR-004",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/monoclinic/POSCAR-004",
+        "sha256": "a5c00727d039b5eb9f6c7b976f37205a35b26b134f554b5fa738c379a99fc35f"
+      },
+      "lattice": [
+        [
+          8.75349588111261,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0192362783949727,
+          5.0120607273357765,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          8.214096134922842
+        ]
+      ],
+      "species": [
+        "Si",
+        "Si",
+        "Si",
+        "Si",
+        "Si",
+        "Si",
+        "Si",
+        "Si",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O",
+        "O"
+      ],
+      "fractional_coordinates": [
+        [
+          0.1755000000000003,
+          0.5534,
+          0.6844999999999998
+        ],
+        [
+          0.1596999999999998,
+          0.4489999999999998,
+          0.3085999999999998
+        ],
+        [
+          0.6754999999999995,
+          0.0534,
+          0.6844999999999998
+        ],
+        [
+          0.6596999999999997,
+          0.9489999999999996,
+          0.3085999999999998
+        ],
+        [
+          0.8244999999999997,
+          0.4465999999999999,
+          0.1844999999999998
+        ],
+        [
+          0.8403000000000002,
+          0.551,
+          0.8085999999999998
+        ],
+        [
+          0.3245000000000003,
+          0.9465999999999999,
+          0.1844999999999998
+        ],
+        [
+          0.3403000000000002,
+          0.0510000000000001,
+          0.8085999999999998
+        ],
+        [
+          0.3336,
+          0.0003000000000005,
+          0.9969999999999998
+        ],
+        [
+          0.9879999999999999,
+          0.4265,
+          0.2852999999999996
+        ],
+        [
+          0.2669999999999998,
+          0.3304999999999996,
+          0.7728
+        ],
+        [
+          0.2409999999999997,
+          0.6714000000000003,
+          0.2105999999999999
+        ],
+        [
+          0.8335999999999999,
+          0.5003000000000005,
+          0.9969999999999998
+        ],
+        [
+          0.4879999999999999,
+          0.9265000000000001,
+          0.2852999999999996
+        ],
+        [
+          0.7669999999999998,
+          0.8304999999999996,
+          0.7728
+        ],
+        [
+          0.7409999999999997,
+          0.1714000000000004,
+          0.2105999999999999
+        ],
+        [
+          0.6664,
+          0.9997000000000003,
+          0.4969999999999999
+        ],
+        [
+          0.012,
+          0.5734999999999998,
+          0.7852999999999997
+        ],
+        [
+          0.7330000000000001,
+          0.6695000000000002,
+          0.2728
+        ],
+        [
+          0.7589999999999997,
+          0.3286000000000006,
+          0.7105999999999999
+        ],
+        [
+          0.1664,
+          0.4997000000000005,
+          0.4969999999999999
+        ],
+        [
+          0.5119999999999999,
+          0.0734999999999998,
+          0.7852999999999997
+        ],
+        [
+          0.2330000000000002,
+          0.1695000000000003,
+          0.2728
+        ],
+        [
+          0.2590000000000003,
+          0.8286000000000004,
+          0.7105999999999999
+        ]
+      ],
+      "expected": {
+        "ita_number": 4,
+        "hall_number": 6,
+        "international_short": "P2_1",
+        "hall_symbol": "P 2yb",
+        "setting_choice": "b",
+        "point_group_hm": "2",
+        "crystal_system": "monoclinic",
+        "input_cell_operation_count": 4,
+        "hall_setting_operation_count": 2,
+        "equivalent_atom_orbit_count": 6,
+        "wyckoff_letters": [
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a"
+        ]
+      }
+    },
+    {
+      "id": "bates3_orthorhombic",
+      "formula": "BaTeS3",
+      "source": {
+        "path": "test/functional/python/data/orthorhombic/POSCAR-062",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/orthorhombic/POSCAR-062",
+        "sha256": "a208fbf236ef58f1fc0b66da62bfe5a85f6cba7b98ec7506436054e619f7b9f9"
+      },
+      "lattice": [
+        [
+          7.489996475642137,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.897996754202861,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          10.941994851331941
+        ]
+      ],
+      "species": [
+        "Ba",
+        "Ba",
+        "Ba",
+        "Ba",
+        "Te",
+        "Te",
+        "Te",
+        "Te",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S"
+      ],
+      "fractional_coordinates": [
+        [
+          0.2552999999999999,
+          0.2499999999999998,
+          0.5865000000000002
+        ],
+        [
+          0.2447000000000002,
+          0.7500000000000002,
+          0.0865000000000002
+        ],
+        [
+          0.7446999999999995,
+          0.7500000000000002,
+          0.4134999999999999
+        ],
+        [
+          0.7552999999999999,
+          0.2500000000000006,
+          0.9134999999999998
+        ],
+        [
+          0.5196999999999996,
+          0.2499999999999998,
+          0.2440999999999998
+        ],
+        [
+          1.0196999999999996,
+          0.2499999999999998,
+          0.2559000000000002
+        ],
+        [
+          -0.0197000000000003,
+          0.7500000000000002,
+          0.7441000000000003
+        ],
+        [
+          0.4802999999999998,
+          0.7500000000000002,
+          0.7558999999999997
+        ],
+        [
+          0.3705999999999997,
+          0.2499999999999998,
+          0.0548000000000002
+        ],
+        [
+          0.3779999999999999,
+          0.5143000000000004,
+          0.3407999999999999
+        ],
+        [
+          0.1220000000000001,
+          0.4857000000000003,
+          0.8407999999999998
+        ],
+        [
+          0.878,
+          0.5143000000000004,
+          0.1592000000000001
+        ],
+        [
+          0.8705999999999997,
+          0.2499999999999998,
+          0.4451999999999999
+        ],
+        [
+          0.878,
+          -0.0143000000000001,
+          0.1592000000000001
+        ],
+        [
+          0.1294000000000004,
+          0.7500000000000002,
+          0.5548000000000002
+        ],
+        [
+          0.1220000000000001,
+          1.0143000000000002,
+          0.8407999999999998
+        ],
+        [
+          0.6293999999999997,
+          0.7500000000000002,
+          0.9451999999999999
+        ],
+        [
+          0.6220000000000002,
+          1.0143000000000002,
+          0.6592000000000001
+        ],
+        [
+          0.3779999999999999,
+          -0.0143000000000001,
+          0.3407999999999999
+        ],
+        [
+          0.6220000000000002,
+          0.4857000000000003,
+          0.6592000000000001
+        ]
+      ],
+      "expected": {
+        "ita_number": 62,
+        "hall_number": 292,
+        "international_short": "Pnma",
+        "hall_symbol": "-P 2ac 2n",
+        "setting_choice": "",
+        "point_group_hm": "mmm",
+        "crystal_system": "orthorhombic",
+        "input_cell_operation_count": 8,
+        "hall_setting_operation_count": 8,
+        "equivalent_atom_orbit_count": 4,
+        "wyckoff_letters": [
+          "c",
+          "c",
+          "c",
+          "c",
+          "c",
+          "c",
+          "c",
+          "c",
+          "c",
+          "d",
+          "d",
+          "d",
+          "c",
+          "d",
+          "c",
+          "d",
+          "c",
+          "d",
+          "d",
+          "d"
+        ]
+      }
+    },
+    {
+      "id": "mno2_tetragonal",
+      "formula": "MnO2",
+      "source": {
+        "path": "test/functional/python/data/tetragonal/POSCAR-136",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/tetragonal/POSCAR-136",
+        "sha256": "969491b355cc65de1182cbb26086a7d3209ecca50a905fe475eca9e9cb9e4b3c"
+      },
+      "lattice": [
+        [
+          4.3982979304161285,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.3982979304161285,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          2.872998648133493
+        ]
+      ],
+      "species": [
+        "Mn",
+        "Mn",
+        "O",
+        "O",
+        "O",
+        "O"
+      ],
+      "fractional_coordinates": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.5,
+          0.5,
+          0.4999999999999992
+        ],
+        [
+          0.3050999999999995,
+          0.3050999999999995,
+          0.0
+        ],
+        [
+          0.6949000000000006,
+          0.6949000000000006,
+          0.0
+        ],
+        [
+          0.1949000000000005,
+          0.8050999999999996,
+          0.4999999999999992
+        ],
+        [
+          0.8050999999999996,
+          0.1949000000000005,
+          0.4999999999999992
+        ]
+      ],
+      "expected": {
+        "ita_number": 136,
+        "hall_number": 419,
+        "international_short": "P4_2/mnm",
+        "hall_symbol": "-P 4n 2n",
+        "setting_choice": "",
+        "point_group_hm": "4/mmm",
+        "crystal_system": "tetragonal",
+        "input_cell_operation_count": 16,
+        "hall_setting_operation_count": 16,
+        "equivalent_atom_orbit_count": 2,
+        "wyckoff_letters": [
+          "a",
+          "a",
+          "f",
+          "f",
+          "f",
+          "f"
+        ]
+      }
+    },
+    {
+      "id": "rucl3_trigonal",
+      "formula": "RuCl3",
+      "source": {
+        "path": "test/functional/python/data/trigonal/POSCAR-158",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/trigonal/POSCAR-158",
+        "sha256": "7684e9510fb0c29bc076bb5b896b9b4786e83e061179b065960755dd30d598a3"
+      },
+      "lattice": [
+        [
+          6.119997120284361,
+          0.0,
+          0.0
+        ],
+        [
+          -3.0599985601421777,
+          5.3000729772538655,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.65799733767466
+        ]
+      ],
+      "species": [
+        "Ru",
+        "Ru",
+        "Cl",
+        "Cl",
+        "Cl",
+        "Cl",
+        "Cl",
+        "Cl"
+      ],
+      "fractional_coordinates": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.4999999999999996
+        ],
+        [
+          0.3180000000000004,
+          0.0270000000000001,
+          0.2369999999999997
+        ],
+        [
+          0.9729999999999999,
+          0.2909999999999996,
+          0.2369999999999997
+        ],
+        [
+          0.7090000000000002,
+          0.6820000000000005,
+          0.2369999999999997
+        ],
+        [
+          0.7089999999999997,
+          0.0270000000000001,
+          0.7370000000000002
+        ],
+        [
+          0.3179999999999997,
+          0.2909999999999996,
+          0.7370000000000002
+        ],
+        [
+          0.9730000000000005,
+          0.6820000000000005,
+          0.7370000000000002
+        ]
+      ],
+      "expected": {
+        "ita_number": 158,
+        "hall_number": 448,
+        "international_short": "P3c1",
+        "hall_symbol": "P 3 -2\"c",
+        "setting_choice": "",
+        "point_group_hm": "3m",
+        "crystal_system": "trigonal",
+        "input_cell_operation_count": 6,
+        "hall_setting_operation_count": 6,
+        "equivalent_atom_orbit_count": 2,
+        "wyckoff_letters": [
+          "a",
+          "a",
+          "d",
+          "d",
+          "d",
+          "d",
+          "d",
+          "d"
+        ]
+      }
+    },
+    {
+      "id": "aucn_hexagonal",
+      "formula": "AuCN",
+      "source": {
+        "path": "test/functional/python/data/hexagonal/POSCAR-183-2",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/hexagonal/POSCAR-183-2",
+        "sha256": "74b77a9ee8cfda258f4b3bb78627ada7994d165497f23e9351974f2b0f8c1801"
+      },
+      "lattice": [
+        [
+          3.3959984020401435,
+          0.0,
+          0.0
+        ],
+        [
+          -1.6979992010200717,
+          2.941020887378126,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.091997604001303
+        ]
+      ],
+      "species": [
+        "Au",
+        "C",
+        "N"
+      ],
+      "fractional_coordinates": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.4040000000000003
+        ],
+        [
+          0.0,
+          0.0,
+          0.6419999999999999
+        ]
+      ],
+      "expected": {
+        "ita_number": 183,
+        "hall_number": 477,
+        "international_short": "P6mm",
+        "hall_symbol": "P 6 -2",
+        "setting_choice": "",
+        "point_group_hm": "6mm",
+        "crystal_system": "hexagonal",
+        "input_cell_operation_count": 12,
+        "hall_setting_operation_count": 12,
+        "equivalent_atom_orbit_count": 3,
+        "wyckoff_letters": [
+          "a",
+          "a",
+          "a"
+        ]
+      }
+    },
+    {
+      "id": "cssnbr3_cubic",
+      "formula": "CsSnBr3",
+      "source": {
+        "path": "test/functional/python/data/cubic/POSCAR-221-2",
+        "url": "https://github.com/spglib/spglib/blob/e4531bb49371dce3e807c2095a4d9d9b7245c524/test/functional/python/data/cubic/POSCAR-221-2",
+        "sha256": "bfacab3c23563283fc5d4aff9637823da7788bb5db2afb33de476505481dd7ff"
+      },
+      "lattice": [
+        [
+          5.794997273210436,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          5.794997273210436,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.794997273210436
+        ]
+      ],
+      "species": [
+        "Cs",
+        "Sn",
+        "Br",
+        "Br",
+        "Br"
+      ],
+      "fractional_coordinates": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.5,
+          0.5,
+          0.5
+        ],
+        [
+          0.0,
+          0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.0,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.0
+        ]
+      ],
+      "expected": {
+        "ita_number": 221,
+        "hall_number": 517,
+        "international_short": "Pm-3m",
+        "hall_symbol": "-P 4 2 3",
+        "setting_choice": "",
+        "point_group_hm": "m-3m",
+        "crystal_system": "cubic",
+        "input_cell_operation_count": 48,
+        "hall_setting_operation_count": 48,
+        "equivalent_atom_orbit_count": 3,
+        "wyckoff_letters": [
+          "a",
+          "b",
+          "c",
+          "c",
+          "c"
+        ]
+      }
+    }
+  ]
+}
