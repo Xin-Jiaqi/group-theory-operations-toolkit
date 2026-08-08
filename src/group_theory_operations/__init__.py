@@ -18,6 +18,10 @@ from .catalog import (
     validate_database,
 )
 from .structure import apply_fractional_operation
+from .structure_symmetry import (
+    StructureSymmetryContext,
+    classify_structure_symmetry,
+)
 from .representations import (
     QuadraticFieldRepresentation,
     antisymmetric_field_matrix,
@@ -127,6 +131,7 @@ __all__ = [
     "QuadraticFieldRepresentation",
     "ResolvedMagneticPointOperation",
     "TENSOR_SPACE_BASES",
+    "StructureSymmetryContext",
     "antisymmetric_field_matrix",
     "antiunitary_equivariant_map_basis",
     "apply_fractional_operation",
@@ -136,6 +141,7 @@ __all__ = [
     "canonical_response_name",
     "canonical_tensor_space",
     "canonical_time_parity",
+    "classify_structure_symmetry",
     "determinant3",
     "equivalent_interface_orbit",
     "equivalent_interface_translation",
@@ -186,4 +192,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"

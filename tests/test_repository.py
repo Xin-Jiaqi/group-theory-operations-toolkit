@@ -79,6 +79,10 @@ class RepositoryDataTests(unittest.TestCase):
         self.assertEqual(version.group(1), group_theory_operations.__version__)
         self.assertIn(f"version: {group_theory_operations.__version__}", citation)
         self.assertRegex(pyproject, r'dependencies = \[[^\]]*"numpy>=1\.24,<3"')
+        self.assertRegex(
+            pyproject,
+            r'(?m)^structure = \[.*"spglib>=2\.5,<3"\]$',
+        )
 
     def test_public_validator_accepts_canonical_catalog(self):
         self.assertEqual(group_tools.validate_database(self.database), ())

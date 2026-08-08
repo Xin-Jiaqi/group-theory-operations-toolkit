@@ -249,8 +249,7 @@ def _seitz_site_mapping(
     if not np.all(np.isfinite(lattice)) or not np.all(np.isfinite(coordinates)):
         raise GroupDataError("structure lattice and coordinates must be finite")
 
-    transformed = _apply_seitz_operation(structure, operation, wrap=False)
-    images = np.asarray(transformed.fractional_coordinates, dtype=np.float64)
+    images = coordinates @ operation.rotation.T + operation.translation
     candidates: list[list[int]] = []
     for source_index, image in enumerate(images):
         distances: list[tuple[float, int]] = []
