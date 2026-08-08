@@ -114,6 +114,23 @@ shift-current, injection-current and SHG sectors. Exact affine magnetic-layer
 operations require a future schema that also fixes origin and translation
 conventions.
 
+## Stacking-ferroelectricity boundary
+
+`layer_group_polarization()` computes the common fixed space of the complete
+Seitz-operation closure and classifies it as IP, OP, CP, or NP.
+`stacking_rotation_cosets()` partitions a compatible Bravais-lattice point
+group into left cosets of the monolayer point group; unlike a quotient-group
+construction, the subgroup need not be normal. Both groups must use the same
+coordinate embedding.
+
+`equivalent_interface_translation()` implements the symmorphic relation
+$R^{\pm}\tau_p=\pm\tau_q$. `preserves_recursive_stacking_step()` implements
+the recursive multilayer condition: $R^+$ fixes both interface translations,
+whereas $R^-$ exchanges them, modulo primitive translations and the optional
+centered translation. These functions do not establish energetic degeneracy;
+that premise must come from calculation or experiment before the returned
+relations are interpreted as ferroelectric switching paths.
+
 ## Structure-core boundary
 
 `apply_fractional_operation` implements the column-vector rule $f' = Df$ about the origin and keeps the lattice fixed. It accepts the public `materials-structure-core` `StructureRecord` contract. The bridge preserves site order and supported site flags.

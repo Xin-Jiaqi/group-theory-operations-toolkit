@@ -66,6 +66,15 @@
 - [x] Solve the six magnetic nonlinear-optical sectors for every magnetic layer group.
 - [x] Add versioned JSON/Schema artifacts, deterministic extraction/generation scripts, typed Python APIs and CLI queries.
 
+## 0.8.0 — bilayer and multilayer stacking symmetry
+
+- [x] Derive IP/OP/CP/NP classifications from the fixed polar-vector subspace and reproduce all 80 published layer-group classifications.
+- [x] Replace factor-group assumptions by a left-coset partition that also accepts nonnormal monolayer subgroups.
+- [x] Implement the symmorphic equivalent-interface relation for layer-preserving and layer-exchanging operations.
+- [x] Implement the recursive multilayer preservation criterion for primitive and centered in-plane lattices.
+- [x] Reproduce the BN AB/BA relation and the graphene ABC/$D_{3d}$ and ABA/$D_{3h}$ benchmarks.
+- [x] Keep energetic degeneracy, switching barriers and polarization magnitudes outside the symmetry-only contract.
+
 ## Stable-release gates
 
 - [x] License repository-authored code, data, and documentation under BSD-3-Clause.
