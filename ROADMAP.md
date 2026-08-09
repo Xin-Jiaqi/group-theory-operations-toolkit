@@ -101,4 +101,12 @@
 - [x] Cross-check all 3996 group-response combinations against the existing full-basis calculations.
 - [x] Provide Python and JSON command-line queries while retaining response magnitudes and microscopic dynamics outside the symmetry-only scope.
 
+## 0.11.0 candidate — nonlinear-response selection for concrete structures
+
+- [x] Connect three-periodic structure classification to the corresponding crystallographic point group without symbol ambiguity.
+- [x] Report symmetry-allowed dimensions for shift current, electric-dipole SHG and circular injection current directly from a structure record.
+- [x] Provide CIF/POSCAR command-line analysis with explicit spatial tolerances and compact JSON output.
+- [x] Cross-check the response dimensions on pinned real structures spanning all seven crystal systems.
+- [x] Keep magnetic order, response magnitude, frequency dependence and observability outside the nonmagnetic structure contract.
+
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
