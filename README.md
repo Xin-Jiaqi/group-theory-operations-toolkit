@@ -140,8 +140,12 @@ print([(item.response, item.dimension) for item in analysis.responses])
 结构读写和分类使用可选依赖 `materials-structure-core[io]` 与 spglib：
 
 ```bash
+python -m pip install \
+  'materials-structure-core[io] @ git+https://github.com/Xin-Jiaqi/materials-structure-core.git@2a8d33548f10f5261f95b427eaaea3787df6dceb'
 python -m pip install -e '.[structure]'
 ```
+
+其中固定提交对应 `materials-structure-core` v0.0.2；先安装这一结构合同，再安装本仓库的 `structure` 可选依赖，可避免尚未进入 PyPI 的包被错误解析为缺失依赖。
 
 本仓库在外部识别结果之上核对物种感知的一一位点映射、等价原子轨道、标准 Hall 操作和仿射坐标约定；也可继续直接对 POSCAR/CIF 应用已注册操作：
 

@@ -22,7 +22,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install release checks
-        run: python -m pip install -e '.[test]'
+        run: |
+          python -m pip install 'materials-structure-core[io] @ git+https://github.com/Xin-Jiaqi/materials-structure-core.git@2a8d33548f10f5261f95b427eaaea3787df6dceb'
+          python -m pip install -e '.[test]'
       - name: Run repository tests
         run: python -m unittest discover -s tests -v
       - name: Type check
