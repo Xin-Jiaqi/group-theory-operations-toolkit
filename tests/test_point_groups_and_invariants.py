@@ -28,6 +28,7 @@ from group_theory_operations import (  # noqa: E402
     point_group_operations,
     quadratic_field_representation,
     response_tensor_basis,
+    screen_response_symmetry,
 )
 from group_theory_operations.cli import main  # noqa: E402
 
@@ -275,6 +276,22 @@ class OpticalInvariantTests(unittest.TestCase):
                     registry=self.registry,
                 )
                 self.assertEqual(stored, solved.to_dict(), (item["hm_symbol"], response_name))
+
+        screened = {
+            (result.group_number, result.response): result.dimension
+            for result in screen_response_symmetry(
+                "point_group",
+                database=self.database,
+                registry=self.registry,
+            )
+        }
+        self.assertEqual(len(screened), 32 * 3)
+        for item in self.catalog["point_groups"]:
+            for response_name, stored in item["responses"].items():
+                self.assertEqual(
+                    screened[(item["number"], response_name)],
+                    stored["dimension"],
+                )
 
     def test_frozen_spatial_selection_rule_dimensions(self):
         for group in iter_crystallographic_point_groups(self.registry):

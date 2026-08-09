@@ -22,6 +22,7 @@ from group_theory_operations import (
     load_magnetic_layer_group_registry,
     magnetic_layer_response_tensor_basis,
     magnetic_layer_tensor_basis,
+    screen_response_symmetry,
 )
 from group_theory_operations.cli import main
 
@@ -259,6 +260,14 @@ class MagneticLayerGroupTests(unittest.TestCase):
             "shg_even",
             "shg_odd",
         )
+        screened = {
+            (result.group_number, result.response): result.dimension
+            for result in screen_response_symmetry(
+                "magnetic_layer_group",
+                registry=self.registry,
+            )
+        }
+        self.assertEqual(len(screened), 528 * 6)
         for group in self.groups:
             for response in responses:
                 result = magnetic_layer_response_tensor_basis(
@@ -269,6 +278,10 @@ class MagneticLayerGroupTests(unittest.TestCase):
                 self.assertEqual(result.magnetic_layer_group_number, group.global_number)
                 self.assertEqual(result.shape[0], 3)
                 self.assertIn(result.shape[1], (3, 6))
+                self.assertEqual(
+                    screened[(group.global_number, response)],
+                    result.dimension,
+                )
 
     def test_gray_point_cogroups_remove_time_odd_homogeneous_tensors(self):
         for identifier in (2, 3):
