@@ -107,6 +107,8 @@
 - [x] Report symmetry-allowed dimensions for shift current, electric-dipole SHG and circular injection current directly from a structure record.
 - [x] Provide CIF/POSCAR command-line analysis with explicit spatial tolerances and compact JSON output.
 - [x] Cross-check the response dimensions on pinned real structures spanning all seven crystal systems.
+- [x] Cross-check public bulk structures from `materials-structure-benchmark` across multiple spatial tolerances and document tolerance-sensitive selection rules.
+- [x] Define the handoff among `materials-structure-core`, `materials-structure-benchmark`, `batch-symmetry-checker`, and this response-symmetry layer.
 - [x] Keep magnetic order, response magnitude, frequency dependence and observability outside the nonmagnetic structure contract.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.

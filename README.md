@@ -150,6 +150,12 @@ group-ops apply-structure structure.vasp 3+_001 \
   --family hexagonal_D6h --output transformed.vasp
 ```
 
+### 与材料结构仓库的衔接
+
+具体材料分析沿用分工明确的数据链：[`materials-structure-core`](https://github.com/Xin-Jiaqi/materials-structure-core) 负责晶格、元素、分数坐标和 POSCAR/CIF 的守恒读写；[`materials-structure-benchmark`](https://github.com/Xin-Jiaqi/materials-structure-benchmark) 提供带稳定编号、来源、许可和 SHA-256 的公开结构；[`batch-symmetry-checker`](https://github.com/Xin-Jiaqi/batch-symmetry-checker) 负责大量结构的多容差空间群扫描；本仓库在已核验的群表上给出相应非线性响应的允许张量维数。各仓库之间传递结构文件哈希、`symprec`、空间群号、Hall symbol 和晶体点群，不把材料来源标签直接当作重新计算后的对称性结论。
+
+实验结构、弛豫结构和含数值噪声的结构应检查多个 `symprec`。如果空间群、晶体点群或允许响应随容差改变，应报告为**容差敏感**，不能只选取支持预期物理结论的一次识别结果。含真空的单层、双层或异质结 POSCAR 还需使用二维周期的层群判定；本接口给出的三维空间群不能替代层群结论。
+
 ## 版本演进：每一版增加了什么物理能力
 
 | 版本 | 新增内容 | 科学意义与核验 |
