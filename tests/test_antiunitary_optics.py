@@ -14,6 +14,7 @@ from group_theory_operations import (
     load_database,
     load_magnetic_point_group_registry,
     magnetic_response_tensor_basis,
+    screen_response_symmetry,
 )
 from group_theory_operations.cli import main
 
@@ -58,6 +59,15 @@ class MagneticOpticalResponseTests(unittest.TestCase):
     def test_all_122_groups_and_six_sectors_are_solved(self):
         database = load_database()
         registry = load_magnetic_point_group_registry()
+        screened = {
+            (result.group_number, result.response): result.dimension
+            for result in screen_response_symmetry(
+                "magnetic_point_group",
+                database=database,
+                registry=registry,
+            )
+        }
+        self.assertEqual(len(screened), 122 * 6)
         for group in iter_magnetic_point_groups(registry):
             for response in self.responses:
                 result = magnetic_response_tensor_basis(
@@ -69,6 +79,10 @@ class MagneticOpticalResponseTests(unittest.TestCase):
                 self.assertEqual(result.magnetic_point_group_number, group.number)
                 self.assertEqual(result.shape[0], 3)
                 self.assertIn(result.shape[1], (3, 6))
+                self.assertEqual(
+                    screened[(group.number, response)],
+                    result.dimension,
+                )
 
     def test_gray_group_keeps_only_time_even_sectors(self):
         self.assertEqual(

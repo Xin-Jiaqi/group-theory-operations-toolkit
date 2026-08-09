@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "group-theory-operations-toolkit"
-version = "0.9.0"
-description = "Validated group operations, structure symmetry, stacking symmetry, and response-tensor interfaces"
+version = "0.10.0"
+description = "Group operations, crystal symmetry, stacking symmetry, and response-tensor screening"
 authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
 license = "BSD-3-Clause"

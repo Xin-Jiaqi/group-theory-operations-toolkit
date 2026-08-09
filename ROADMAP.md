@@ -82,7 +82,7 @@
 - [x] Expand the registry to all 32 crystallographic point groups with independent generator/order/closure tests.
 - [x] Add invariant-tensor solvers on top of the stable $M_+$/$M_-$ interfaces.
 - [x] Cross-check real-structure classifications in all seven crystal systems through fixtures pinned to spglib v2.5.0 source files and hashes.
-- [ ] Define affine Seitz operations on concrete structures (origin choice, Wyckoff placement) before accepting them for structure transforms.
+- [x] Define affine Seitz operations on concrete structures, including origin choice, Wyckoff placement and input-to-standard coordinate conversion.
 
 ## 0.9.0 candidate — affine symmetry on concrete structures
 
@@ -91,5 +91,14 @@
 - [x] Verify species-aware structure automorphisms and Wyckoff/equivalent-atom orbits on the pinned real-structure fixtures.
 - [x] Round-trip input and standardized settings through lattice, site and Seitz-operation conversions, including nonzero origin shifts and supercell quotient multiplicities.
 - [x] Expose a typed structure-symmetry context only after input/standard setting conversions are end-to-end verified.
+
+## 0.10.0 candidate — high-throughput response-symmetry screening
+
+- [x] Compute allowed tensor-space dimensions from group-character inner products without constructing every full tensor basis.
+- [x] Cover all 32 crystallographic point groups, 122 magnetic point groups and 528 magnetic layer groups.
+- [x] Preserve the i-type/c-type time-reversal character in magnetic response screening.
+- [x] Filter selected groups and responses while retaining standard registry order and explicit zero-dimensional forbidden sectors.
+- [x] Cross-check all 3996 group-response combinations against the existing full-basis calculations.
+- [x] Provide Python and JSON command-line queries while retaining response magnitudes and microscopic dynamics outside the symmetry-only scope.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.

@@ -60,13 +60,16 @@ from .invariants import (
     AntiunitaryEquivariantMapBasis,
     InvariantTensorBasis,
     MAGNETIC_RESPONSE_SPECS,
+    RESPONSE_SYMMETRY_CLASSES,
     MagneticInvariantTensorBasis,
     MagneticLayerInvariantTensorBasis,
     MagneticLayerResponseTensorBasis,
     MagneticResponseTensorBasis,
+    ResponseSymmetryResult,
     TENSOR_SPACE_BASES,
     antiunitary_equivariant_map_basis,
     canonical_magnetic_response_name,
+    canonical_response_symmetry_class,
     canonical_response_name,
     canonical_tensor_space,
     canonical_time_parity,
@@ -78,6 +81,7 @@ from .invariants import (
     magnetic_response_tensor_basis,
     magnetic_tensor_basis,
     response_tensor_basis,
+    screen_response_symmetry,
 )
 from .layer_groups import (
     CrystallographicLayerGroup,
@@ -115,6 +119,7 @@ __all__ = [
     "MAGNETIC_CATEGORIES",
     "MAGNETIC_LAYER_TYPES",
     "MAGNETIC_RESPONSE_SPECS",
+    "RESPONSE_SYMMETRY_CLASSES",
     "CorrespondingMagneticSpaceGroup",
     "MagneticInvariantTensorBasis",
     "MagneticLayerGroup",
@@ -130,6 +135,7 @@ __all__ = [
     "PolarizationSwitch",
     "QuadraticFieldRepresentation",
     "ResolvedMagneticPointOperation",
+    "ResponseSymmetryResult",
     "TENSOR_SPACE_BASES",
     "StructureSymmetryContext",
     "antisymmetric_field_matrix",
@@ -138,6 +144,7 @@ __all__ = [
     "bravais_lattice_operations",
     "canonical_name",
     "canonical_magnetic_response_name",
+    "canonical_response_symmetry_class",
     "canonical_response_name",
     "canonical_tensor_space",
     "canonical_time_parity",
@@ -186,10 +193,11 @@ __all__ = [
     "preserves_recursive_stacking_step",
     "quadratic_field_representation",
     "response_tensor_basis",
+    "screen_response_symmetry",
     "symmetric_field_matrix",
     "stacking_rotation_cosets",
     "equivariant_map_basis",
     "validate_database",
 ]
 
-__version__ = "0.9.0"
+__version__ = "0.10.0"

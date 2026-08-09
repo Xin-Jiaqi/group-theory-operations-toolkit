@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论工具。它汇集晶体学与磁性群表、点操作矩阵、群乘法、光场二次表示和对称性允许张量基，可用于查阅群论结果，也可接入真实晶体结构分析与高通量材料筛选。
 
-当前版本为 **0.9.0**。仓库回答五类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入胞与标准 Hall setting 怎样对应。
+当前版本为 **0.10.0**。仓库回答六类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应。
 
 ## 科学能力
 
@@ -17,6 +17,7 @@
 | 晶体结构对称性分析 | 三维周期结构、覆盖 7 个晶系的代表性结构 | 识别空间群与 Hall setting，分别给出输入晶胞和标准晶胞中的 Seitz 操作、等价原子、Wyckoff 位置、基变换与原点移动 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 $(R,\theta)$ 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | 二次光场与响应 | 88 个 $M_\pm(R)$；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
+| 高通量响应筛选 | 3996 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
 | 堆叠铁电 | 80 层群与五类二维 Bravais 晶格 | 判断单层极化类型、双层取向类、等价界面、极化切换和递归多层保留对称性 |
 
 基础数据位于 [`data/`](data)，相应的数据格式说明位于 [`schema/`](schema)。[`data/group_operations.json`](data/group_operations.json) 是基础点操作的唯一来源；常用数据表包括 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json) 与 [`data/optical_response_invariants.json`](data/optical_response_invariants.json)。其余数据表由固定版本的程序重复生成，并记录来源数据或输入文件的 SHA-256 校验值。
@@ -38,6 +39,18 @@ $$M_-(R)=\det[D(R)]D(R).$$
 $$D(R)T_+=T_+M_+(R),\qquad D(R)T_-=T_-M_-(R).$$
 
 求解所有群操作的公共零空间即可得到完整的对称性允许张量基。`shift_current` 与 `shg` 使用 $3\times6$ 的 $D\leftarrow M_+$ 映射；`circular_injection_current` 使用 $3\times3$ 的 $D\leftarrow M_-$ 映射。对磁性体系，操作写为 $(R,\theta)$，并按光场与响应量的时间反演奇偶性施加反幺正约束，从而区分 normal/magnetic shift current、normal/magnetic injection current 与 i-type/c-type SHG。
+
+### 从特征标到高通量响应筛选
+
+在材料高通量研究中，对称性预筛选首先回答某一响应是否被群对称性禁止，以及允许张量空间有多少个独立方向。对这里使用的实输出表示 $A$ 和实输入表示 $B$，这一维数可由特征标内积直接得到：
+
+$$d=\frac{1}{|G|}\sum_{g\in G}\chi_A(g)\chi_B(g).$$
+
+对磁性群 $M$，系数张量的时间反演特征写为 $\eta=\pm1$，相应维数为
+
+$$d_\eta=\frac{1}{|M|}\sum_{(R,\theta)\in M}\eta^\theta\chi_A(R)\chi_B(R).$$
+
+其中 i-type（时间偶）取 $\eta=+1$，c-type（时间奇）取 $\eta=-1$。这种计算只给出允许空间的维数，适合先筛选大量群；确定候选群后，再求完整张量基以读取允许分量。0.10.0 对 32 个点群的 3 类响应、122 个磁点群和 528 个磁性层群的 6 类响应逐项核验，共覆盖 3996 个“群–响应”组合。
 
 ### 从层群到堆叠铁电
 
@@ -72,6 +85,8 @@ group-ops magnetic-layer-groups 80.9.528 --json
 # 非线性光学与堆叠铁电
 group-ops invariants 4mm shift_current --json
 group-ops magnetic-layer-responses 6.5.25 shg_odd --json
+group-ops screen-responses --symmetry-class magnetic_layer_group \
+  --response shg_odd --allowed-only --json
 group-ops layer-polarity LG68 --json
 group-ops stacking-rotations -1 --lattice rP --json
 ```
@@ -85,11 +100,19 @@ from group_theory_operations import (
     layer_group_polarization,
     magnetic_layer_response_tensor_basis,
     point_group_operations,
+    screen_response_symmetry,
 )
 
 print(layer_group_polarization(68).polar_type)  # NP
 print(magnetic_layer_response_tensor_basis("6.5.25", "shg_odd").dimension)
 print(equivalent_interface_orbit((1 / 3, 2 / 3), point_group_operations("6/mmm")))
+
+allowed_shg = screen_response_symmetry(
+    "magnetic_layer_group",
+    responses=("shg_odd",),
+    allowed_only=True,
+)
+print(len(allowed_shg), allowed_shg[0].group_identifier)
 
 # structure 需给出晶格、元素、分数坐标和周期性。
 # spglib 完成数值搜索后，结果还会与本仓库的 Hall 操作、
@@ -126,6 +149,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.7.0** | 注册全部 528 个磁性层群及六类响应基 | 把磁性张量筛选扩展到二维周期体系；保存有限磁点余群、I–IV 型、母层群、对应磁空间群和 type-IV 反平移 |
 | **0.8.0** | 加入双层与多层堆叠铁电的对称性判据 | 从 80 层群导出 IP/OP/CP/NP；用左陪集处理取向，用 $R^\pm$ 处理等价界面与极化切换，并实现递归多层判据；复现 BN AB/BA、graphene ABC/$D_{3d}$ 与 ABA/$D_{3h}$ 基准 |
 | **0.9.0** | 加入真实晶体结构的空间群识别与标准化 | 对 spglib 的数值识别结果进一步核对 Hall 操作、同元素原子映射和等价原子轨道；分别给出输入晶胞与标准晶胞中的 Seitz 操作，以及 Wyckoff 字母、位点对称性、基变换 $P$、原点移动 $p$ 和理想化标准结构；验证非零原点移动、超胞操作折叠与中心化标准胞展开 |
+| **0.10.0** | 加入普通与磁性非线性响应的高通量对称性筛选 | 以特征标内积计算允许张量空间维数；覆盖 96 个普通点群响应组合、732 个磁点群响应组合和 3168 个磁性层群响应组合，并与完整张量基逐项一致 |
 
 完整核验要求与后续范围见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是群论数据与物理分析能力的演进，不代表已经计算任何具体材料的响应强度。
 

@@ -7,21 +7,24 @@ from importlib import resources
 import json
 import math
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 from .catalog import GroupDataError, load_database
 from .point_groups import (
     get_crystallographic_point_group,
+    iter_crystallographic_point_groups,
     load_point_group_registry,
     point_group_operations,
 )
 from .magnetic_point_groups import (
     get_magnetic_point_group,
+    iter_magnetic_point_groups,
     load_magnetic_point_group_registry,
     magnetic_point_group_operations,
 )
 from .magnetic_layer_groups import (
     get_magnetic_layer_group,
+    iter_magnetic_layer_groups,
     load_magnetic_layer_group_registry,
 )
 from .representations import determinant3, quadratic_field_representation
@@ -133,6 +136,22 @@ MAGNETIC_RESPONSE_SPECS = {
     },
 }
 
+RESPONSE_SYMMETRY_CLASSES = (
+    "point_group",
+    "magnetic_point_group",
+    "magnetic_layer_group",
+)
+
+_RESPONSE_SYMMETRY_CLASS_ALIASES = {
+    "point": "point_group",
+    "point_group": "point_group",
+    "crystallographic_point_group": "point_group",
+    "magnetic_point": "magnetic_point_group",
+    "magnetic_point_group": "magnetic_point_group",
+    "magnetic_layer": "magnetic_layer_group",
+    "magnetic_layer_group": "magnetic_layer_group",
+}
+
 _RESPONSE_ALIASES = {
     "shift": "shift_current",
     "shiftcurrent": "shift_current",
@@ -193,6 +212,21 @@ def canonical_magnetic_response_name(value: str) -> str:
         choices = ", ".join(MAGNETIC_RESPONSE_SPECS)
         raise GroupDataError(
             f"unknown magnetic response {value!r}; choices: {choices}"
+        ) from exc
+
+
+def canonical_response_symmetry_class(value: str) -> str:
+    """Normalize the symmetry class used for response screening."""
+
+    if not isinstance(value, str):
+        raise GroupDataError("response symmetry class must be a string")
+    key = value.strip().lower().replace("-", "_").replace(" ", "_")
+    try:
+        return _RESPONSE_SYMMETRY_CLASS_ALIASES[key]
+    except KeyError as exc:
+        choices = ", ".join(RESPONSE_SYMMETRY_CLASSES)
+        raise GroupDataError(
+            f"unknown response symmetry class {value!r}; choices: {choices}"
         ) from exc
 
 
@@ -360,6 +394,53 @@ class InvariantTensorBasis:
                 [[_json_number(value) for value in row] for row in matrix]
                 for matrix in self.basis
             ],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ResponseSymmetryResult:
+    """Symmetry selection result for one group and one optical response.
+
+    ``dimension`` is the number of linearly independent tensor combinations
+    allowed by the selected group.  A nonzero dimension states only that the
+    response is symmetry-allowed; it does not predict its material magnitude.
+    """
+
+    symmetry_class: str
+    group_number: int
+    group_identifier: str
+    group_symbol: str
+    crystal_system: str
+    magnetic_type: str | None
+    response: str
+    time_character: str | None
+    output_basis: tuple[str, ...]
+    input_basis: tuple[str, ...]
+    dimension: int
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return len(self.output_basis), len(self.input_basis)
+
+    @property
+    def allowed(self) -> bool:
+        return self.dimension > 0
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "symmetry_class": self.symmetry_class,
+            "group_number": self.group_number,
+            "group_identifier": self.group_identifier,
+            "group_symbol": self.group_symbol,
+            "crystal_system": self.crystal_system,
+            "magnetic_type": self.magnetic_type,
+            "response": self.response,
+            "time_character": self.time_character,
+            "shape": list(self.shape),
+            "output_basis": list(self.output_basis),
+            "input_basis": list(self.input_basis),
+            "dimension": self.dimension,
+            "allowed": self.allowed,
         }
 
 
@@ -1019,6 +1100,295 @@ def response_tensor_basis(
         equation=str(specification["equation"]),
         basis=basis,
     )
+
+
+def _character_inner_product_dimension(
+    output_representations: Sequence[Matrix],
+    input_representations: Sequence[Matrix],
+    tolerance: float,
+) -> int:
+    if not output_representations or len(output_representations) != len(
+        input_representations
+    ):
+        raise ValueError("output and input representations must align")
+    value = sum(
+        sum(matrix[index][index] for index in range(len(matrix)))
+        * sum(other[index][index] for index in range(len(other)))
+        for matrix, other in zip(output_representations, input_representations)
+    ) / len(output_representations)
+    dimension = int(round(value))
+    if dimension < 0 or abs(value - dimension) > tolerance:
+        raise GroupDataError(
+            "response character inner product is not a non-negative integer"
+        )
+    return dimension
+
+
+def _screening_selection(
+    values: Iterable[Any] | None,
+    description: str,
+) -> tuple[Any, ...] | None:
+    if values is None:
+        return None
+    if isinstance(values, (str, bytes)):
+        raise GroupDataError(f"{description} must be supplied as a collection")
+    try:
+        selected = tuple(values)
+    except TypeError as exc:
+        raise GroupDataError(f"{description} must be iterable") from exc
+    if not selected:
+        raise GroupDataError(f"{description} cannot be empty")
+    return selected
+
+
+def screen_response_symmetry(
+    symmetry_class: str,
+    *,
+    groups: Iterable[str | int] | None = None,
+    responses: Iterable[str] | None = None,
+    allowed_only: bool = False,
+    database: Mapping[str, Any] | None = None,
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-8,
+) -> tuple[ResponseSymmetryResult, ...]:
+    """Screen symmetry-allowed optical responses using character inner products.
+
+    The result is ordered by the standard group registry and then by the
+    published response order.  It reports the dimension of each allowed tensor
+    space without constructing the full basis.  Use the corresponding
+    single-group basis function after screening to inspect tensor components.
+    """
+
+    resolved_class = canonical_response_symmetry_class(symmetry_class)
+    group_selection = _screening_selection(groups, "group identifiers")
+    response_selection = _screening_selection(responses, "response names")
+    if group_selection is not None and any(
+        type(value) not in (str, int) for value in group_selection
+    ):
+        raise GroupDataError("group identifiers must be numbers or symbols")
+    if type(allowed_only) is not bool:
+        raise GroupDataError("allowed_only must be boolean")
+    if not math.isfinite(tolerance) or tolerance <= 0.0:
+        raise ValueError("tolerance must be a positive finite number")
+
+    if resolved_class == "point_group":
+        point_registry = load_point_group_registry() if registry is None else registry
+        point_groups = tuple(iter_crystallographic_point_groups(point_registry))
+        if group_selection is None:
+            selected_point_groups = point_groups
+        else:
+            selected_point_numbers = {
+                get_crystallographic_point_group(value, point_registry).number
+                for value in group_selection
+            }
+            selected_point_groups = tuple(
+                group for group in point_groups if group.number in selected_point_numbers
+            )
+        if response_selection is None:
+            selected_point_responses = tuple(RESPONSE_SPECS)
+        else:
+            response_names = {
+                canonical_response_name(value) for value in response_selection
+            }
+            selected_point_responses = tuple(
+                name for name in RESPONSE_SPECS if name in response_names
+            )
+        point_database = load_database() if database is None else database
+        point_results: list[ResponseSymmetryResult] = []
+        for point_group in selected_point_groups:
+            point_operations = point_group_operations(
+                point_group.number,
+                database=point_database,
+                registry=point_registry,
+            )
+            point_output_representations: tuple[Matrix, ...] = tuple(
+                operation.matrix_cartesian for operation in point_operations
+            )
+            for response_name in selected_point_responses:
+                point_specification = RESPONSE_SPECS[response_name]
+                point_input_representations: tuple[Matrix, ...]
+                if point_specification["input_space"] == "symmetric":
+                    point_input_representations = tuple(
+                        quadratic_field_representation(
+                            operation.matrix_cartesian
+                        ).matrix_symmetric
+                        for operation in point_operations
+                    )
+                else:
+                    point_input_representations = tuple(
+                        quadratic_field_representation(
+                            operation.matrix_cartesian
+                        ).matrix_antisymmetric
+                        for operation in point_operations
+                    )
+                point_result = ResponseSymmetryResult(
+                    symmetry_class=resolved_class,
+                    group_number=point_group.number,
+                    group_identifier=str(point_group.number),
+                    group_symbol=point_group.hm_symbol,
+                    crystal_system=point_group.crystal_system,
+                    magnetic_type=None,
+                    response=response_name,
+                    time_character=None,
+                    output_basis=tuple(point_specification["output_basis"]),
+                    input_basis=tuple(point_specification["input_basis"]),
+                    dimension=_character_inner_product_dimension(
+                        point_output_representations,
+                        point_input_representations,
+                        tolerance,
+                    ),
+                )
+                if not allowed_only or point_result.allowed:
+                    point_results.append(point_result)
+        return tuple(point_results)
+
+    if response_selection is None:
+        selected_magnetic_responses = tuple(MAGNETIC_RESPONSE_SPECS)
+    else:
+        magnetic_response_names = {
+            canonical_magnetic_response_name(value) for value in response_selection
+        }
+        selected_magnetic_responses = tuple(
+            name for name in MAGNETIC_RESPONSE_SPECS if name in magnetic_response_names
+        )
+
+    if resolved_class == "magnetic_point_group":
+        magnetic_point_registry = (
+            load_magnetic_point_group_registry() if registry is None else registry
+        )
+        magnetic_point_groups = tuple(
+            iter_magnetic_point_groups(magnetic_point_registry)
+        )
+        if group_selection is None:
+            selected_magnetic_point_groups = magnetic_point_groups
+        else:
+            selected_magnetic_point_numbers = {
+                get_magnetic_point_group(value, magnetic_point_registry).number
+                for value in group_selection
+            }
+            selected_magnetic_point_groups = tuple(
+                group
+                for group in magnetic_point_groups
+                if group.number in selected_magnetic_point_numbers
+            )
+        magnetic_point_database = load_database() if database is None else database
+        magnetic_point_results: list[ResponseSymmetryResult] = []
+        for magnetic_point_group in selected_magnetic_point_groups:
+            magnetic_point_operations = magnetic_point_group_operations(
+                magnetic_point_group.number,
+                database=magnetic_point_database,
+                registry=magnetic_point_registry,
+            )
+            magnetic_point_output_representations: tuple[Matrix, ...] = tuple(
+                _spatial_representation(
+                    operation.spatial.matrix_cartesian, "polar_vector"
+                )
+                for operation in magnetic_point_operations
+            )
+            for response_name in selected_magnetic_responses:
+                magnetic_point_specification = MAGNETIC_RESPONSE_SPECS[response_name]
+                magnetic_point_input_space = str(
+                    magnetic_point_specification["input_space"]
+                )
+                magnetic_point_time_character = str(
+                    magnetic_point_specification["time_character"]
+                )
+                magnetic_point_input_representations: tuple[Matrix, ...] = tuple(
+                    _scale_matrix(
+                        _spatial_representation(
+                            operation.spatial.matrix_cartesian,
+                            magnetic_point_input_space,
+                        ),
+                        -1.0
+                        if operation.time_reversal
+                        and magnetic_point_time_character == "odd"
+                        else 1.0,
+                    )
+                    for operation in magnetic_point_operations
+                )
+                magnetic_point_result = ResponseSymmetryResult(
+                    symmetry_class=resolved_class,
+                    group_number=magnetic_point_group.number,
+                    group_identifier=magnetic_point_group.magnetic_number,
+                    group_symbol=magnetic_point_group.hm_symbol,
+                    crystal_system=magnetic_point_group.crystal_system,
+                    magnetic_type=magnetic_point_group.category,
+                    response=response_name,
+                    time_character=magnetic_point_time_character,
+                    output_basis=POLAR_BASIS,
+                    input_basis=TENSOR_SPACE_BASES[magnetic_point_input_space],
+                    dimension=_character_inner_product_dimension(
+                        magnetic_point_output_representations,
+                        magnetic_point_input_representations,
+                        tolerance,
+                    ),
+                )
+                if not allowed_only or magnetic_point_result.allowed:
+                    magnetic_point_results.append(magnetic_point_result)
+        return tuple(magnetic_point_results)
+
+    magnetic_layer_registry = (
+        load_magnetic_layer_group_registry() if registry is None else registry
+    )
+    magnetic_layer_groups = tuple(iter_magnetic_layer_groups(magnetic_layer_registry))
+    if group_selection is None:
+        selected_magnetic_layer_groups = magnetic_layer_groups
+    else:
+        selected_magnetic_layer_numbers = {
+            get_magnetic_layer_group(value, magnetic_layer_registry).global_number
+            for value in group_selection
+        }
+        selected_magnetic_layer_groups = tuple(
+            group
+            for group in magnetic_layer_groups
+            if group.global_number in selected_magnetic_layer_numbers
+        )
+    magnetic_layer_results: list[ResponseSymmetryResult] = []
+    for magnetic_layer_group in selected_magnetic_layer_groups:
+        magnetic_layer_output_representations: tuple[Matrix, ...] = tuple(
+            _spatial_representation(operation.matrix_cartesian, "polar_vector")
+            for operation in magnetic_layer_group.point_operations
+        )
+        for response_name in selected_magnetic_responses:
+            magnetic_layer_specification = MAGNETIC_RESPONSE_SPECS[response_name]
+            magnetic_layer_input_space = str(
+                magnetic_layer_specification["input_space"]
+            )
+            magnetic_layer_time_character = str(
+                magnetic_layer_specification["time_character"]
+            )
+            magnetic_layer_input_representations: tuple[Matrix, ...] = tuple(
+                _scale_matrix(
+                    _spatial_representation(
+                        operation.matrix_cartesian, magnetic_layer_input_space
+                    ),
+                    -1.0
+                    if operation.time_reversal
+                    and magnetic_layer_time_character == "odd"
+                    else 1.0,
+                )
+                for operation in magnetic_layer_group.point_operations
+            )
+            magnetic_layer_result = ResponseSymmetryResult(
+                symmetry_class=resolved_class,
+                group_number=magnetic_layer_group.global_number,
+                group_identifier=magnetic_layer_group.og_number,
+                group_symbol=magnetic_layer_group.litvin_og_symbol_ascii,
+                crystal_system=magnetic_layer_group.crystal_system,
+                magnetic_type=magnetic_layer_group.magnetic_type,
+                response=response_name,
+                time_character=magnetic_layer_time_character,
+                output_basis=POLAR_BASIS,
+                input_basis=TENSOR_SPACE_BASES[magnetic_layer_input_space],
+                dimension=_character_inner_product_dimension(
+                    magnetic_layer_output_representations,
+                    magnetic_layer_input_representations,
+                    tolerance,
+                ),
+            )
+            if not allowed_only or magnetic_layer_result.allowed:
+                magnetic_layer_results.append(magnetic_layer_result)
+    return tuple(magnetic_layer_results)
 
 
 def load_optical_response_catalog(path: str | Path | None = None) -> dict[str, Any]:

@@ -56,6 +56,7 @@ from .stacking import (
 )
 from .invariants import (
     MAGNETIC_RESPONSE_SPECS,
+    RESPONSE_SYMMETRY_CLASSES,
     RESPONSE_SPECS,
     TENSOR_SPACE_BASES,
     magnetic_layer_response_tensor_basis,
@@ -63,6 +64,7 @@ from .invariants import (
     magnetic_tensor_basis,
     magnetic_response_tensor_basis,
     response_tensor_basis,
+    screen_response_symmetry,
 )
 from .structure import apply_fractional_operation
 
@@ -407,6 +409,37 @@ def _invariants(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _screen_responses(args: argparse.Namespace, database: dict) -> int:
+    results = screen_response_symmetry(
+        args.symmetry_class,
+        groups=args.groups,
+        responses=args.responses,
+        allowed_only=args.allowed_only,
+        database=database,
+    )
+    if args.json:
+        print(
+            json.dumps(
+                [result.to_dict() for result in results],
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+    for result in results:
+        time_character = (
+            "spatial" if result.time_character is None else result.time_character
+        )
+        print(
+            f"{result.group_identifier:10s} {result.group_symbol:18s} "
+            f"{result.response:28s} {time_character:7s} "
+            f"shape={result.shape[0]}x{result.shape[1]} "
+            f"dimension={result.dimension:2d} "
+            f"allowed={'yes' if result.allowed else 'no'}"
+        )
+    return 0
+
+
 def _magnetic_invariants(args: argparse.Namespace, database: dict) -> int:
     result = magnetic_tensor_basis(
         args.magnetic_point_group,
@@ -633,6 +666,22 @@ def build_parser() -> argparse.ArgumentParser:
     invariants_parser.add_argument("response", choices=tuple(RESPONSE_SPECS))
     invariants_parser.add_argument("--json", action="store_true")
     invariants_parser.set_defaults(handler=_invariants)
+
+    screen_responses_parser = subparsers.add_parser("screen-responses")
+    screen_responses_parser.add_argument(
+        "--symmetry-class",
+        choices=RESPONSE_SYMMETRY_CLASSES,
+        required=True,
+    )
+    screen_responses_parser.add_argument(
+        "--group", dest="groups", action="append"
+    )
+    screen_responses_parser.add_argument(
+        "--response", dest="responses", action="append"
+    )
+    screen_responses_parser.add_argument("--allowed-only", action="store_true")
+    screen_responses_parser.add_argument("--json", action="store_true")
+    screen_responses_parser.set_defaults(handler=_screen_responses)
 
     magnetic_invariants_parser = subparsers.add_parser("magnetic-invariants")
     magnetic_invariants_parser.add_argument("magnetic_point_group")
