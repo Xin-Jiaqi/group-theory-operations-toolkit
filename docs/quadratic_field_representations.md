@@ -8,7 +8,7 @@
 
 $$\boldsymbol{\mathcal E}_+=(|E^x|^2,|E^y|^2,|E^z|^2,E^xE^{y*}+E^yE^{x*},E^xE^{z*}+E^zE^{x*},E^yE^{z*}+E^zE^{y*})^{\mathsf T}$$
 
-上，$\boldsymbol{\mathcal E}'_+=M_+(R)\boldsymbol{\mathcal E}_+$，且 $M_+(R)=\operatorname{Sym}^2D(R)$。
+上，$\boldsymbol{\mathcal E}'_+=M_+(R)\boldsymbol{\mathcal E}_+$，且 $M_+(R)=\mathrm{Sym}^2D(R)$。
 
 反对称子空间与实轴矢量 $\mathbf h=i\mathbf E\times\mathbf E^*$ 等价。由
 

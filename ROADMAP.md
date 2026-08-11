@@ -12,7 +12,7 @@
 
 ## 0.2.0 candidate — quadratic-field representations
 
-- [x] Derive $M_+(R)=\operatorname{Sym}^2D(R)$ in the explicit complex-field basis.
+- [x] Derive $M_+(R)=\mathrm{Sym}^2D(R)$ in the explicit complex-field basis.
 - [x] Derive $M_-(R)=\det[D(R)]D(R)$ for the axial-vector input space.
 - [x] Publish generated 6×6 and 3×3 matrices for all 88 family records.
 - [x] Add a versioned derived-data schema, Python API and JSON CLI query.
