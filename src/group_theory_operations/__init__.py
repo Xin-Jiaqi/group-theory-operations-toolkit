@@ -22,6 +22,10 @@ from .structure_symmetry import (
     StructureSymmetryContext,
     classify_structure_symmetry,
 )
+from .structure_responses import (
+    StructureResponseAnalysis,
+    analyze_structure_responses,
+)
 from .representations import (
     QuadraticFieldRepresentation,
     antisymmetric_field_matrix,
@@ -138,6 +142,7 @@ __all__ = [
     "ResponseSymmetryResult",
     "TENSOR_SPACE_BASES",
     "StructureSymmetryContext",
+    "StructureResponseAnalysis",
     "antisymmetric_field_matrix",
     "antiunitary_equivariant_map_basis",
     "apply_fractional_operation",
@@ -149,6 +154,7 @@ __all__ = [
     "canonical_tensor_space",
     "canonical_time_parity",
     "classify_structure_symmetry",
+    "analyze_structure_responses",
     "determinant3",
     "equivalent_interface_orbit",
     "equivalent_interface_translation",
@@ -200,4 +206,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"

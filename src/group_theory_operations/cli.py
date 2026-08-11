@@ -67,6 +67,7 @@ from .invariants import (
     screen_response_symmetry,
 )
 from .structure import apply_fractional_operation
+from .structure_responses import analyze_structure_responses
 
 
 def _list(args: argparse.Namespace, database: dict) -> int:
@@ -575,6 +576,50 @@ def _apply(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _structure_responses(args: argparse.Namespace, database: dict) -> int:
+    try:
+        from materials_structure_core import StructureIOError, read_structure
+    except ImportError as exc:
+        raise GroupDataError(
+            "structure-responses requires "
+            "group-theory-operations-toolkit[structure]"
+        ) from exc
+    try:
+        parsed = read_structure(args.input, format=args.input_format)
+    except StructureIOError as exc:
+        raise GroupDataError(str(exc)) from exc
+    try:
+        analysis = analyze_structure_responses(
+            parsed.structure,
+            responses=args.responses,
+            allowed_only=args.allowed_only,
+            symprec=args.symprec,
+            angle_tolerance=args.angle_tolerance,
+            database=database,
+        )
+    except ImportError as exc:
+        raise GroupDataError(str(exc)) from exc
+
+    if args.json:
+        payload = {"input": str(Path(args.input)), **analysis.to_dict()}
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    space_group = analysis.symmetry.space_group
+    hall_setting = analysis.symmetry.hall_setting
+    print(
+        f"{args.input}: space group {space_group.ita_number} "
+        f"{space_group.international_short}; Hall {hall_setting.hall_number} "
+        f"{hall_setting.hall_symbol}; point group {space_group.point_group_hm}"
+    )
+    for result in analysis.responses:
+        print(
+            f"{result.response:28s} dimension={result.dimension:2d} "
+            f"allowed={'yes' if result.allowed else 'no'}"
+        )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="group-ops")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -735,6 +780,22 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.set_defaults(handler=_validate)
+
+    structure_responses_parser = subparsers.add_parser("structure-responses")
+    structure_responses_parser.add_argument("input")
+    structure_responses_parser.add_argument(
+        "--input-format", choices=("vasp", "cif")
+    )
+    structure_responses_parser.add_argument(
+        "--response", dest="responses", action="append"
+    )
+    structure_responses_parser.add_argument("--allowed-only", action="store_true")
+    structure_responses_parser.add_argument("--symprec", type=float, default=1.0e-5)
+    structure_responses_parser.add_argument(
+        "--angle-tolerance", type=float, default=-1.0
+    )
+    structure_responses_parser.add_argument("--json", action="store_true")
+    structure_responses_parser.set_defaults(handler=_structure_responses)
 
     apply_parser = subparsers.add_parser("apply-structure")
     apply_parser.add_argument("input")
