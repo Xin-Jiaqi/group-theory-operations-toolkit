@@ -61,7 +61,7 @@ $$
 
 理论章节常用不带 $1/2$ 的对称基底 $\boldsymbol{\mathcal E}_+$。令
 $$
-S=\operatorname{diag}(1,1,1,2,2,2),
+S=\mathrm{diag}(1,1,1,2,2,2),
 $$
 则两个约定严格等价：
 $$

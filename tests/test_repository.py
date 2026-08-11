@@ -429,6 +429,21 @@ class RepositoryDataTests(unittest.TestCase):
                 pipe_count = block[0].count("|")
                 self.assertTrue(all(line.count("|") == pipe_count for line in block), path)
 
+    def test_rendered_markdown_uses_github_compatible_math(self):
+        markdown_paths = (
+            ROOT / "README.md",
+            ROOT / "ROADMAP.md",
+            *(ROOT / "docs").glob("*.md"),
+        )
+        for path in markdown_paths:
+            document = path.read_text(encoding="utf-8")
+            self.assertNotIn(r"\operatorname", document, path)
+
+        readme_lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        for line in readme_lines:
+            if line.startswith("|"):
+                self.assertNotIn("$", line, line)
+
     def test_structure_contract_applies_fractional_operation(self):
         structure = MinimalStructureRecord(
             lattice=[[3, 0, 0], [0, 3, 0], [0, 0, 12]],
