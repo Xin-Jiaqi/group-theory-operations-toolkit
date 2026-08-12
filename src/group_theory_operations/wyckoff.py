@@ -17,11 +17,32 @@ from .structure_symmetry import (
 )
 
 
-def _periodic_cartesian_distance(left: Any, right: Any, lattice: Any) -> float:
+def _minimum_image_fractional_difference(
+    left: Any, right: Any, lattice: Any
+) -> np.ndarray:
+    """Return the shortest periodic difference under the lattice metric."""
+
     difference = np.asarray(left, dtype=np.float64) - np.asarray(
         right, dtype=np.float64
     )
-    difference -= np.rint(difference)
+    metric_lattice = np.asarray(lattice, dtype=np.float64)
+    central_translation = np.rint(difference).astype(np.int64)
+    candidates = (
+        difference
+        - central_translation
+        - np.asarray((i, j, k), dtype=np.float64)
+        for i in (-1, 0, 1)
+        for j in (-1, 0, 1)
+        for k in (-1, 0, 1)
+    )
+    return min(
+        candidates,
+        key=lambda candidate: float(np.linalg.norm(candidate @ metric_lattice)),
+    )
+
+
+def _periodic_cartesian_distance(left: Any, right: Any, lattice: Any) -> float:
+    difference = _minimum_image_fractional_difference(left, right, lattice)
     return float(np.linalg.norm(difference @ np.asarray(lattice, dtype=np.float64)))
 
 
@@ -64,11 +85,11 @@ def _standard_site_stabilizer(
     )
 
 
-def _standard_orbit_size(
+def _standard_orbit_positions(
     position: Any,
     context: StructureSymmetryContext,
     tolerance: float,
-) -> int:
+) -> tuple[Vector3, ...]:
     images: list[np.ndarray] = []
     for operation in context.standard_operations:
         image = operation.apply(np.asarray(position, dtype=np.float64))
@@ -80,12 +101,25 @@ def _standard_orbit_size(
             for known in images
         ):
             images.append(image)
-    return len(images)
+    return tuple(
+        (float(image[0]), float(image[1]), float(image[2])) for image in images
+    )
 
 
 def _cartesian_rotation(rotation: Any, lattice: Any) -> np.ndarray:
     basis = np.asarray(lattice, dtype=np.float64).T
     return basis @ np.asarray(rotation, dtype=np.float64) @ np.linalg.inv(basis)
+
+
+def _invariant_projector(
+    stabilizer: tuple[SeitzOp, ...], lattice: Any
+) -> np.ndarray:
+    rotations = tuple(
+        _cartesian_rotation(operation.rotation, lattice)
+        for operation in stabilizer
+    )
+    projector = sum(rotations, np.zeros((3, 3), dtype=np.float64)) / len(rotations)
+    return (projector + projector.T) / 2.0
 
 
 def _canonical_invariant_basis(
@@ -97,8 +131,7 @@ def _canonical_invariant_basis(
         _cartesian_rotation(operation.rotation, lattice)
         for operation in stabilizer
     )
-    projector = sum(rotations, np.zeros((3, 3), dtype=np.float64)) / len(rotations)
-    projector = (projector + projector.T) / 2.0
+    projector = _invariant_projector(stabilizer, lattice)
     basis: list[np.ndarray] = []
     for axis in np.eye(3, dtype=np.float64):
         vector = projector @ axis
@@ -127,6 +160,84 @@ def _canonical_invariant_basis(
 
 
 @dataclass(frozen=True, slots=True)
+class WyckoffSiteProjection:
+    """Projection of one input site onto its identified local Wyckoff manifold."""
+
+    site_index: int
+    input_standard_fractional_coordinate: Vector3
+    projected_standard_fractional_coordinate: Vector3
+    tangent_residual_cartesian: Vector3
+    transverse_deviation_cartesian: Vector3
+    transverse_deviation_distance: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "site_index": self.site_index,
+            "input_standard_fractional_coordinate": list(
+                self.input_standard_fractional_coordinate
+            ),
+            "projected_standard_fractional_coordinate": list(
+                self.projected_standard_fractional_coordinate
+            ),
+            "tangent_residual_cartesian": list(
+                self.tangent_residual_cartesian
+            ),
+            "transverse_deviation_cartesian": list(
+                self.transverse_deviation_cartesian
+            ),
+            "transverse_deviation_distance": self.transverse_deviation_distance,
+        }
+
+
+def _project_site_to_local_manifold(
+    *,
+    site_index: int,
+    observed_position: Any,
+    ideal_position: Any,
+    stabilizer: tuple[SeitzOp, ...],
+    lattice: Any,
+) -> WyckoffSiteProjection:
+    metric_lattice = np.asarray(lattice, dtype=np.float64)
+    observed = np.asarray(observed_position, dtype=np.float64)
+    ideal = np.asarray(ideal_position, dtype=np.float64)
+    difference_fractional = _minimum_image_fractional_difference(
+        observed, ideal, metric_lattice
+    )
+    difference_cartesian = metric_lattice.T @ difference_fractional
+    projector = _invariant_projector(stabilizer, lattice)
+    tangent_residual = projector @ difference_cartesian
+    projected_fractional = (
+        ideal
+        + np.linalg.solve(metric_lattice.T, tangent_residual)
+    ) % 1.0
+    transverse_deviation: np.ndarray = difference_cartesian - tangent_residual
+    return WyckoffSiteProjection(
+        site_index=site_index,
+        input_standard_fractional_coordinate=(
+            float(observed[0]), float(observed[1]), float(observed[2])
+        ),
+        projected_standard_fractional_coordinate=(
+            float(projected_fractional[0]),
+            float(projected_fractional[1]),
+            float(projected_fractional[2]),
+        ),
+        tangent_residual_cartesian=(
+            float(tangent_residual[0]),
+            float(tangent_residual[1]),
+            float(tangent_residual[2]),
+        ),
+        transverse_deviation_cartesian=(
+            float(transverse_deviation[0]),
+            float(transverse_deviation[1]),
+            float(transverse_deviation[2]),
+        ),
+        transverse_deviation_distance=float(
+            np.linalg.norm(transverse_deviation)
+        ),
+    )
+
+
+@dataclass(frozen=True, slots=True)
 class WyckoffOrbit:
     """One occupied crystallographic orbit in a concrete structure.
 
@@ -144,6 +255,7 @@ class WyckoffOrbit:
     standard_fractional_coordinate: Vector3
     stabilizer_operations: tuple[SeitzOp, ...]
     allowed_displacement_basis_cartesian: tuple[Vector3, ...]
+    site_projections: tuple[WyckoffSiteProjection, ...]
 
     @property
     def label(self) -> str:
@@ -163,6 +275,43 @@ class WyckoffOrbit:
     def allowed_displacement_dimension(self) -> int:
         return len(self.allowed_displacement_basis_cartesian)
 
+    @property
+    def positional_parameter_dimension(self) -> int:
+        """Return the local number of Wyckoff positional degrees of freedom."""
+
+        return self.allowed_displacement_dimension
+
+    @property
+    def constraint_codimension(self) -> int:
+        """Return the number of locally symmetry-constrained directions."""
+
+        return 3 - self.positional_parameter_dimension
+
+    @property
+    def maximum_transverse_deviation(self) -> float:
+        return max(
+            (
+                site.transverse_deviation_distance
+                for site in self.site_projections
+            ),
+            default=0.0,
+        )
+
+    @property
+    def rms_transverse_deviation(self) -> float:
+        if not self.site_projections:
+            return 0.0
+        return float(
+            np.sqrt(
+                np.mean(
+                    [
+                        site.transverse_deviation_distance**2
+                        for site in self.site_projections
+                    ]
+                )
+            )
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "species": self.species,
@@ -181,9 +330,20 @@ class WyckoffOrbit:
                 operation.to_dict() for operation in self.stabilizer_operations
             ],
             "allowed_displacement_dimension": self.allowed_displacement_dimension,
+            "positional_parameter_dimension": (
+                self.positional_parameter_dimension
+            ),
+            "constraint_codimension": self.constraint_codimension,
             "allowed_displacement_basis_cartesian": [
                 list(vector)
                 for vector in self.allowed_displacement_basis_cartesian
+            ],
+            "maximum_transverse_deviation": (
+                self.maximum_transverse_deviation
+            ),
+            "rms_transverse_deviation": self.rms_transverse_deviation,
+            "site_projections": [
+                site.to_dict() for site in self.site_projections
             ],
         }
 
@@ -237,7 +397,10 @@ def analyze_wyckoff_orbits(
 
     The displacement basis is the fixed-vector space of the site stabilizer.
     It describes infinitesimal displacements that preserve that stabilizer; it
-    is not a phonon eigenvector, force constant or energetic prediction.
+    is not a phonon eigenvector, force constant or energetic prediction.  Site
+    projections compare the supplied coordinates with the symmetry-idealized
+    coordinates returned at the same recognition tolerance.  They are local to
+    the identified Wyckoff manifold and do not search other special positions.
     """
 
     _, species, coordinates, _ = _validated_structure_arrays(structure)
@@ -293,14 +456,36 @@ def analyze_wyckoff_orbits(
         stabilizer = _standard_site_stabilizer(
             standard_position, context, tolerance
         )
-        multiplicity = _standard_orbit_size(
+        standard_orbit = _standard_orbit_positions(
             standard_position, context, tolerance
         )
+        multiplicity = len(standard_orbit)
         if not stabilizer or (
             multiplicity * len(stabilizer) != len(context.standard_operations)
         ):
             raise GroupDataError(
                 "standard-cell orbit and site stabilizer violate orbit-stabilizer"
+            )
+        site_projections: list[WyckoffSiteProjection] = []
+        for index in indices:
+            observed = context.to_standard_fractional([coordinates[index]])[0]
+            ideal = min(
+                standard_orbit,
+                key=lambda position: _periodic_cartesian_distance(
+                    observed, position, context.standardized_lattice
+                ),
+            )
+            site_stabilizer = _standard_site_stabilizer(
+                ideal, context, tolerance
+            )
+            site_projections.append(
+                _project_site_to_local_manifold(
+                    site_index=index,
+                    observed_position=observed,
+                    ideal_position=ideal,
+                    stabilizer=site_stabilizer,
+                    lattice=context.standardized_lattice,
+                )
             )
         orbits.append(
             WyckoffOrbit(
@@ -315,6 +500,7 @@ def analyze_wyckoff_orbits(
                 allowed_displacement_basis_cartesian=_canonical_invariant_basis(
                     stabilizer, context.standardized_lattice
                 ),
+                site_projections=tuple(site_projections),
             )
         )
     return WyckoffOrbitAnalysis(symmetry=context, orbits=tuple(orbits))

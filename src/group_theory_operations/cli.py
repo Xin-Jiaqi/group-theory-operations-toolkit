@@ -664,8 +664,10 @@ def _wyckoff_orbits(args: argparse.Namespace, database: dict) -> int:
             f"site symmetry={orbit.site_symmetry_symbol:8s} "
             f"input sites={orbit.input_orbit_size:3d} "
             f"stabilizer={orbit.stabilizer_order:3d} "
-            f"allowed displacement dimension="
-            f"{orbit.allowed_displacement_dimension}; x_std=({coordinate})"
+            f"positional parameters={orbit.positional_parameter_dimension}; "
+            f"max transverse deviation="
+            f"{orbit.maximum_transverse_deviation:.6g} Angstrom; "
+            f"x_std=({coordinate})"
         )
     return 0
 

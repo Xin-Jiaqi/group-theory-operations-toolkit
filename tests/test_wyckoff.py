@@ -17,6 +17,9 @@ from group_theory_operations import (
     analyze_wyckoff_orbits,
 )
 from group_theory_operations.cli import main
+from group_theory_operations.wyckoff import (
+    _minimum_image_fractional_difference,
+)
 
 try:
     import spglib
@@ -46,6 +49,21 @@ class StructureDouble:
             tuple(row) for row in fractional_coordinates
         )
         self.pbc = (True, True, True)
+
+
+class PeriodicMetricTests(unittest.TestCase):
+    def test_minimum_image_uses_the_lattice_metric_in_a_skew_cell(self) -> None:
+        lattice = np.asarray(
+            [[1.0, 0.0, 0.0], [0.9, 0.1, 0.0], [0.0, 0.0, 1.0]]
+        )
+        difference = _minimum_image_fractional_difference(
+            [0.49, 0.49, 0.0], [0.0, 0.0, 0.0], lattice
+        )
+        self.assertTrue(np.allclose(difference, [0.49, -0.51, 0.0]))
+        self.assertLess(
+            np.linalg.norm(difference @ lattice),
+            np.linalg.norm(np.asarray([0.49, 0.49, 0.0]) @ lattice),
+        )
 
 
 def _structure(item) -> StructureDouble:
@@ -147,6 +165,27 @@ class WyckoffOrbitTests(unittest.TestCase):
                                     rtol=0.0,
                                 )
                             )
+                    self.assertEqual(
+                        orbit.positional_parameter_dimension,
+                        orbit.allowed_displacement_dimension,
+                    )
+                    self.assertEqual(
+                        orbit.positional_parameter_dimension
+                        + orbit.constraint_codimension,
+                        3,
+                    )
+                    self.assertLess(
+                        orbit.maximum_transverse_deviation,
+                        10.0 * settings["symprec"],
+                    )
+                    for site in orbit.site_projections:
+                        tangent = np.asarray(site.tangent_residual_cartesian)
+                        transverse = np.asarray(
+                            site.transverse_deviation_cartesian
+                        )
+                        self.assertAlmostEqual(
+                            float(np.dot(tangent, transverse)), 0.0, places=12
+                        )
 
     def test_nacl_special_sites_have_zero_symmetry_preserving_displacement(self) -> None:
         structure = StructureDouble(
@@ -163,12 +202,21 @@ class WyckoffOrbitTests(unittest.TestCase):
             self.assertEqual(orbit.multiplicity, 4)
             self.assertEqual(orbit.stabilizer_order, 48)
             self.assertEqual(orbit.allowed_displacement_dimension, 0)
+            self.assertEqual(orbit.positional_parameter_dimension, 0)
+            self.assertEqual(orbit.constraint_codimension, 3)
+            self.assertLess(orbit.maximum_transverse_deviation, 1.0e-12)
 
     def test_general_position_allows_three_cartesian_displacements(self) -> None:
         item = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))["structures"][0]
         analysis = analyze_wyckoff_orbits(_structure(item))
         self.assertTrue(
             all(orbit.allowed_displacement_dimension == 3 for orbit in analysis.orbits)
+        )
+        self.assertTrue(
+            all(orbit.constraint_codimension == 0 for orbit in analysis.orbits)
+        )
+        self.assertTrue(
+            all(orbit.maximum_transverse_deviation < 1.0e-12 for orbit in analysis.orbits)
         )
         payload = analysis.to_dict()
         self.assertEqual(len(payload["orbits"]), len(analysis.orbits))
@@ -183,9 +231,59 @@ class WyckoffOrbitTests(unittest.TestCase):
         self.assertTrue(mirror_orbits)
         for orbit in mirror_orbits:
             self.assertEqual(orbit.allowed_displacement_dimension, 2)
+            self.assertEqual(orbit.positional_parameter_dimension, 2)
+            self.assertEqual(orbit.constraint_codimension, 1)
             self.assertTrue(
                 all(abs(vector[1]) < 1.0e-10 for vector in orbit.allowed_displacement_basis_cartesian)
             )
+
+    def test_mirror_normal_perturbation_is_transverse_to_local_manifold(self) -> None:
+        item = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))["structures"][2]
+        positions = [list(position) for position in item["fractional_coordinates"]]
+        positions[0][1] += 1.0e-5
+        perturbed = StructureDouble(item["lattice"], item["species"], positions)
+        analysis = analyze_wyckoff_orbits(perturbed, symprec=1.0e-3)
+        orbit = next(orbit for orbit in analysis.orbits if 0 in orbit.site_indices)
+        site = next(site for site in orbit.site_projections if site.site_index == 0)
+        self.assertEqual(orbit.site_symmetry_symbol, ".m.")
+        self.assertEqual(orbit.positional_parameter_dimension, 2)
+        self.assertAlmostEqual(
+            site.transverse_deviation_distance,
+            abs(0.5e-5 * item["lattice"][1][1]),
+            places=10,
+        )
+        self.assertAlmostEqual(
+            abs(site.transverse_deviation_cartesian[1]),
+            site.transverse_deviation_distance,
+            places=12,
+        )
+        self.assertLess(
+            np.linalg.norm(site.tangent_residual_cartesian), 1.0e-10
+        )
+
+    def test_high_symmetry_site_reports_recognition_induced_displacement(self) -> None:
+        structure = StructureDouble(
+            [[0.0, 2.82, 2.82], [2.82, 0.0, 2.82], [2.82, 2.82, 0.0]],
+            ["Na", "Cl"],
+            [[1.0e-4, 0.0, 0.0], [0.5, 0.5, 0.5]],
+        )
+        analysis = analyze_wyckoff_orbits(structure, symprec=1.0e-3)
+        displaced = max(
+            (orbit for orbit in analysis.orbits),
+            key=lambda orbit: orbit.maximum_transverse_deviation,
+        )
+        self.assertEqual(displaced.positional_parameter_dimension, 0)
+        self.assertAlmostEqual(
+            displaced.maximum_transverse_deviation,
+            np.sqrt(2.0) * 2.82e-4,
+            places=10,
+        )
+        self.assertLess(
+            np.linalg.norm(
+                displaced.site_projections[0].tangent_residual_cartesian
+            ),
+            1.0e-12,
+        )
 
     def test_cli_reads_poscar_and_returns_wyckoff_orbits(self) -> None:
         item = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))["structures"][-2]
@@ -211,6 +309,10 @@ class WyckoffOrbitTests(unittest.TestCase):
         self.assertEqual([orbit["label"] for orbit in payload["orbits"]], ["1a"] * 3)
         self.assertEqual(
             [orbit["allowed_displacement_dimension"] for orbit in payload["orbits"]],
+            [1, 1, 1],
+        )
+        self.assertEqual(
+            [orbit["positional_parameter_dimension"] for orbit in payload["orbits"]],
             [1, 1, 1],
         )
 

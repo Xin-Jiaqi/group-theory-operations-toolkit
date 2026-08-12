@@ -29,6 +29,7 @@ from .structure_responses import (
 from .wyckoff import (
     WyckoffOrbit,
     WyckoffOrbitAnalysis,
+    WyckoffSiteProjection,
     analyze_wyckoff_orbits,
 )
 from .representations import (
@@ -150,6 +151,7 @@ __all__ = [
     "StructureResponseAnalysis",
     "WyckoffOrbit",
     "WyckoffOrbitAnalysis",
+    "WyckoffSiteProjection",
     "antisymmetric_field_matrix",
     "antiunitary_equivariant_map_basis",
     "apply_fractional_operation",
@@ -214,4 +216,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
