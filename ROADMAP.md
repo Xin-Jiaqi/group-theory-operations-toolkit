@@ -111,4 +111,14 @@
 - [x] Define the handoff among `materials-structure-core`, `materials-structure-benchmark`, `batch-symmetry-checker`, and this response-symmetry layer.
 - [x] Keep magnetic order, response magnitude, frequency dependence and observability outside the nonmagnetic structure contract.
 
+## 0.12.0 — occupied Wyckoff orbits and site-stabilizer displacements
+
+- [x] Resolve occupied crystallographic orbits separately from the input-cell equivalent-atom partition.
+- [x] Report the conventional-cell multiplicity, Wyckoff letter, site-symmetry symbol and standard-setting representative for each occupied orbit.
+- [x] Construct the standard-setting site stabilizer and verify the orbit–stabilizer theorem in both input and conventional standard cells.
+- [x] Determine the Cartesian fixed-vector space of each site stabilizer as the infinitesimal displacement directions that preserve the site symmetry.
+- [x] Cross-check all seven crystal-system fixtures against the independent moyopy 0.10.0 implementation, with its version, tag commit and license recorded.
+- [ ] Parameterize complete Wyckoff-position manifolds and measure displacements from special-position subspaces (second stage).
+- [ ] Add a licensed, versioned Wyckoff registry and group–subgroup orbit splitting only after the source and setting policy are fixed (third stage).
+
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.

@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论工具。它汇集晶体学与磁性群表、点操作矩阵、群乘法、光场二次表示和对称性允许张量基，可用于查阅群论结果，也可接入真实晶体结构分析与高通量材料筛选。
 
-当前版本为 **0.11.0**。仓库回答七类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；以及该结构的晶体点群是否允许 shift current、SHG 与 circular injection current。
+当前版本为 **0.12.0**。仓库回答八类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、位点群允许沿哪些方向发生保持该位点对称性的微小位移；以及该结构的晶体点群是否允许 shift current、SHG 与 circular injection current。
 
 ## 科学能力
 
@@ -15,6 +15,7 @@
 | 点操作代数 | 88 种基础点操作 | 查询 O<sub>h</sub>、D<sub>4h</sub>、D<sub>6h</sub> 中的分数/笛卡尔矩阵、逆操作与乘法表 |
 | 晶体学群 | 32 点群、230 空间群、80 层群 | 给出标准 setting、生成元与 Seitz 闭包，连接三维周期晶体和二维周期层状体系 |
 | 晶体结构对称性分析 | 三维周期结构、覆盖 7 个晶系的代表性结构 | 识别空间群与 Hall setting，分别给出输入晶胞和标准晶胞中的 Seitz 操作、等价原子、Wyckoff 位置、基变换与原点移动 |
+| Wyckoff 轨道与位点群 | 具体结构中实际占据的不等价原子轨道 | 给出标准晶胞中的重数与 Wyckoff 字母、位点对称性、位点稳定子，以及保持该位点对称性的笛卡尔微小位移方向 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 3996 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
@@ -61,6 +62,16 @@ $$\text{structure}\longrightarrow (\mathrm{SG},\text{Hall setting})\longrightarr
 
 允许空间的维数在晶体整体刚性转动下不变，因此适合作为材料筛选指标；具体非零张量分量仍需在选定晶轴中读取完整张量基。仅凭元素和原子位置不能确定磁矩排列或磁群，所以这一结构接口不推断 NSC/NIC、MSC/MIC 或 i-type/c-type SHG 的磁性分解。
 
+### 从 Wyckoff 轨道到局域对称性允许位移
+
+对结构中一个代表原子 $\mathbf r$，位点稳定子由所有满足 $g\mathbf r\equiv\mathbf r$（模晶格平移）的空间群操作组成。0.12.0 分别保留输入晶胞中的原子数与标准常规晶胞中的 Wyckoff 重数，并在标准 Hall setting 中检验
+
+$$
+m\,|G_{\mathbf r}|=|G|.
+$$
+
+保持该位点稳定子不变的微小位移 $\mathbf u$ 满足 $R_g\mathbf u=\mathbf u$。程序给出这一固定向量空间在标准结构笛卡尔坐标中的维数和基矢。例如，一般位置允许三个方向；镜面位点只允许镜面内的两个方向；NaCl 的 $4a$ 与 $4b$ 位点具有 $m\bar 3m$ 位点对称性，不存在非零的保持位点群不变的局域位移。这里的基矢只描述局域对称性约束，不是声子本征矢，也不包含力常数、能量或结构稳定性。
+
 ### 从层群到堆叠铁电
 
 单层允许极化是其点操作共同不变子空间
@@ -97,6 +108,7 @@ group-ops magnetic-layer-responses 6.5.25 shg_odd --json
 group-ops screen-responses --symmetry-class magnetic_layer_group \
   --response shg_odd --allowed-only --json
 group-ops structure-responses POSCAR --input-format vasp --allowed-only --json
+group-ops wyckoff-orbits POSCAR --input-format vasp --json
 group-ops layer-polarity LG68 --json
 group-ops stacking-rotations -1 --lattice rP --json
 ```
@@ -105,6 +117,7 @@ Python 中可直接读取群论结果，并对具体晶体结构进行对称性�
 
 ```python
 from group_theory_operations import (
+    analyze_wyckoff_orbits,
     analyze_structure_responses,
     classify_structure_symmetry,
     equivalent_interface_orbit,
@@ -131,6 +144,13 @@ print(len(allowed_shg), allowed_shg[0].group_identifier)
 symmetry = classify_structure_symmetry(structure)
 print(symmetry.space_group.ita_number, symmetry.hall_setting.hall_number)
 print(len(symmetry.input_operations), len(symmetry.standard_operations))
+
+wyckoff = analyze_wyckoff_orbits(structure)
+print([
+    (orbit.species, orbit.label, orbit.site_symmetry_symbol,
+     orbit.allowed_displacement_dimension)
+    for orbit in wyckoff.orbits
+])
 
 analysis = analyze_structure_responses(structure, allowed_only=True)
 print(analysis.symmetry.space_group.international_short)
@@ -176,6 +196,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.9.0** | 加入真实晶体结构的空间群识别与标准化 | 对 spglib 的数值识别结果进一步核对 Hall 操作、同元素原子映射和等价原子轨道；分别给出输入晶胞与标准晶胞中的 Seitz 操作，以及 Wyckoff 字母、位点对称性、基变换 <i>P</i>、原点移动 <i>p</i> 和理想化标准结构；验证非零原点移动、超胞操作折叠与中心化标准胞展开 |
 | **0.10.0** | 加入普通与磁性非线性响应的高通量对称性筛选 | 以特征标内积计算允许张量空间维数；覆盖 96 个普通点群响应组合、732 个磁点群响应组合和 3168 个磁性层群响应组合，并与完整张量基逐项一致 |
 | **0.11.0** | 把真实晶体结构识别直接连接到非磁二阶响应选择定则 | 从 CIF/POSCAR 得到空间群、Hall setting 和晶体点群，再给出 shift current、electric-dipole SHG 与 circular injection current 的允许张量维数；在七个晶系的固定结构样本上核对，并明确不由非磁结构推断磁序或磁性响应 |
+| **0.12.0** | 加入实际占据的 Wyckoff 轨道、位点稳定子与局域允许位移 | 区分输入晶胞等价原子和原胞晶体学轨道；在标准 Hall setting 中给出重数、Wyckoff 字母、位点群及其固定向量空间；以轨道—稳定子定理、七晶系固定结构、NaCl 与独立 moyopy 0.10.0 结果交叉核验 |
 
 完整核验要求与后续范围见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是群论数据与物理分析能力的演进，不代表已经计算任何具体材料的响应强度。
 
@@ -183,23 +204,26 @@ group-ops apply-structure structure.vasp 3+_001 \
 
 1. **晶体学群表与结构识别。** 空间群和层群的 Hall setting、Seitz 操作与标识基于固定版本的 [spglib](https://spglib.readthedocs.io/) 数据库；层群数据固定为 v2.5.0，并保留许可证、来源 URL 与校验值。0.9.0 采用[现代 spglib/ITA 坐标约定](https://spglib.readthedocs.io/en/v2.5.0/definition.html) $\mathbf x_s=P\mathbf x+\mathbf p$，并把晶格基变换与标准胞理想化中的笛卡尔刚体旋转分开处理。spglib 负责数值识别；本仓库独立核验识别结果是否与 Hall 操作、同元素原子映射和等价原子轨道一致。
 
-2. **磁性层群。** D. B. Litvin, *Magnetic Group Tables, Part 3: Magnetic Layer Groups* 提供 OG 符号、磁点群和操作表；Z. Zhang *et al.*, [“Encyclopedia of emergent particles in 528 magnetic layer groups and 394 magnetic rod groups,” *Phys. Rev. B* **107**, 075405 (2023)](https://doi.org/10.1103/PhysRevB.107.075405) 提供 528 个磁性层群的类型及其与磁空间群的系统对应。仓库还利用 spglib 磁空间群数据库进行第三方交叉核验。
+2. **Wyckoff 轨道与位点对称性。** G. de la Flor, E. Kroumova, R. M. Hanson, and M. I. Aroyo, [“The International Tables Symmetry Database,” *J. Appl. Cryst.* **56**, 1824–1840 (2023)](https://doi.org/10.1107/S1600576723009068) 系统说明标准设置中的 Wyckoff 位置、具体点的位点对称群和群—子群轨道关系。A. Togo, K. Shinohara, and I. Tanaka, [“Spglib: a software library for crystal symmetry search,” *Sci. Technol. Adv. Mater.: Methods* **4**, 2384822 (2024)](https://doi.org/10.1080/27660400.2024.2384822) 给出结构对称性搜索、标准化和 Wyckoff 指派的数值方法。0.12.0 在这些定义上进一步显式构造位点稳定子和其笛卡尔固定向量空间，并用 K. Shinohara, [“moyo: A fast and robust crystal symmetry finder, written in Rust” (2026), figshare](https://doi.org/10.6084/m9.figshare.31081162.v1) 的固定版本 0.10.0 独立核对逐原子 Wyckoff 字母、位点对称性和轨道划分。仓库不复制 International Tables 的完整坐标表。
 
-3. **磁性非线性光电流。** H. Wang and X. Qian, [“Electrically and magnetically switchable nonlinear photocurrent in $PT$-symmetric magnetic topological quantum materials,” *npj Computational Materials* **6**, 199 (2020)](https://doi.org/10.1038/s41524-020-00462-9) 系统区分 NSC、NIC、MSC 与 MIC，并说明这些响应对空间反演、时间反演和磁畴的不同奇偶性。0.6.0 将这种物理分类写成显式的时间反演奇偶约束；仓库只求允许分量，不实现论文中的微观 Berry 几何或第一性原理响应公式。
+3. **磁性层群。** D. B. Litvin, *Magnetic Group Tables, Part 3: Magnetic Layer Groups* 提供 OG 符号、磁点群和操作表；Z. Zhang *et al.*, [“Encyclopedia of emergent particles in 528 magnetic layer groups and 394 magnetic rod groups,” *Phys. Rev. B* **107**, 075405 (2023)](https://doi.org/10.1103/PhysRevB.107.075405) 提供 528 个磁性层群的类型及其与磁空间群的系统对应。仓库还利用 spglib 磁空间群数据库进行第三方交叉核验。
 
-4. **磁性 SHG。** R.-C. Xiao *et al.*, [“Classification of second harmonic generation effect in magnetically ordered materials,” *npj Quantum Materials* **8**, 62 (2023)](https://doi.org/10.1038/s41535-023-00594-3) 将 SHG 分解为时间偶 i-type 与时间奇 c-type，并用磁点群连接磁序、反演破缺来源和 SHG 选择定则。0.6.0/0.7.0 采用这一时间奇偶框架求允许张量基，但不复刻论文的七类材料学分类或材料数据库。
+4. **磁性非线性光电流。** H. Wang and X. Qian, [“Electrically and magnetically switchable nonlinear photocurrent in $PT$-symmetric magnetic topological quantum materials,” *npj Computational Materials* **6**, 199 (2020)](https://doi.org/10.1038/s41524-020-00462-9) 系统区分 NSC、NIC、MSC 与 MIC，并说明这些响应对空间反演、时间反演和磁畴的不同奇偶性。0.6.0 将这种物理分类写成显式的时间反演奇偶约束；仓库只求允许分量，不实现论文中的微观 Berry 几何或第一性原理响应公式。
 
-5. **双层堆叠铁电。** J. Ji *et al.*, [“General Theory for Bilayer Stacking Ferroelectricity,” *Phys. Rev. Lett.* **130**, 146801 (2023)](https://doi.org/10.1103/PhysRevLett.130.146801) 建立 80 层群上的一般 BSF 框架，说明堆叠可在原本非极性的单层之间产生极化，并给出 IP/OP/CP/NP 与 $R^\pm$ 的基本语言。0.8.0 的层群极化固定空间和双层操作分类以此为基础。
+5. **磁性 SHG。** R.-C. Xiao *et al.*, [“Classification of second harmonic generation effect in magnetically ordered materials,” *npj Quantum Materials* **8**, 62 (2023)](https://doi.org/10.1038/s41535-023-00594-3) 将 SHG 分解为时间偶 i-type 与时间奇 c-type，并用磁点群连接磁序、反演破缺来源和 SHG 选择定则。0.6.0/0.7.0 采用这一时间奇偶框架求允许张量基，但不复刻论文的七类材料学分类或材料数据库。
 
-6. **切换与取向的增强理论。** J. Xin, Y. Guo, and Q. Wang, [“Enhanced theoretical framework for bilayer stacking ferroelectricity,” *Phys. Rev. B* **111**, 224102 (2025)](https://doi.org/10.1103/PhysRevB.111.224102) 修正旋转操作的选择：应从晶格系统允许的操作出发，并用左陪集区分物理取向，而非默认商群；同时把“极性构型”与“存在对称等价反向极化态的铁电构型”区分开。0.8.0 据此实现非正规子群也适用的左陪集和等价界面映射。
+6. **双层堆叠铁电。** J. Ji *et al.*, [“General Theory for Bilayer Stacking Ferroelectricity,” *Phys. Rev. Lett.* **130**, 146801 (2023)](https://doi.org/10.1103/PhysRevLett.130.146801) 建立 80 层群上的一般 BSF 框架，说明堆叠可在原本非极性的单层之间产生极化，并给出 IP/OP/CP/NP 与 $R^\pm$ 的基本语言。0.8.0 的层群极化固定空间和双层操作分类以此为基础。
 
-7. **多层堆叠铁电。** J. Xin, Y. Guo, and Q. Wang, [“Multilayer stacking ferroelectricity in two-dimensional materials with Bravais lattice symmetry: Theory and applications,” *Phys. Rev. B* **113**, 075310 (2026)](https://doi.org/10.1103/9tt5-qm26) 把 BSF 推广到 Bravais-lattice monolayers 与递归多层结构：层保持操作固定相邻界面平移，层交换操作交换它们，由此决定多层堆叠后的剩余对称性和允许极化。0.8.0 实现的是该递归对称性判据，不包含文中的材料设计、BPVE 数值或能量计算。
+7. **切换与取向的增强理论。** J. Xin, Y. Guo, and Q. Wang, [“Enhanced theoretical framework for bilayer stacking ferroelectricity,” *Phys. Rev. B* **111**, 224102 (2025)](https://doi.org/10.1103/PhysRevB.111.224102) 修正旋转操作的选择：应从晶格系统允许的操作出发，并用左陪集区分物理取向，而非默认商群；同时把“极性构型”与“存在对称等价反向极化态的铁电构型”区分开。0.8.0 据此实现非正规子群也适用的左陪集和等价界面映射。
+
+8. **多层堆叠铁电。** J. Xin, Y. Guo, and Q. Wang, [“Multilayer stacking ferroelectricity in two-dimensional materials with Bravais lattice symmetry: Theory and applications,” *Phys. Rev. B* **113**, 075310 (2026)](https://doi.org/10.1103/9tt5-qm26) 把 BSF 推广到 Bravais-lattice monolayers 与递归多层结构：层保持操作固定相邻界面平移，层交换操作交换它们，由此决定多层堆叠后的剩余对称性和允许极化。0.8.0 实现的是该递归对称性判据，不包含文中的材料设计、BPVE 数值或能量计算。
 
 ## 约定、边界与核验
 
 - 乘法表使用“行操作 × 列操作”，即 $D(\text{left})D(\text{right})$，右操作先作用。
 - 分数坐标矩阵只用于相应晶格基；轴矢量公式 $M_-(R)=\det(D)D$ 由正交笛卡尔矩阵导出。
 - 结构标准化使用 $\mathbf x_s=P\mathbf x+\mathbf p$。输入超胞可有多个操作折叠为同一标准操作，原胞输入也可在中心化标准胞中展开出更多操作；两套操作均显式保留，不能仅凭操作数判断识别错误。
+- Wyckoff 重数、字母和位点对称性属于标准 Hall setting；`input_orbit_size` 只表示所给晶胞中该轨道实际包含的原子数，两者在原胞、常规晶胞和超胞中不应混为一谈。允许位移是位点群的固定向量空间，不是声子模或结构不稳定性的判据。
 - 具体结构的响应判定目前只适用于三维周期非磁结构。它依据晶体点群给出允许张量维数，不从原子种类和位置推断磁矩、磁点群或时间反演奇偶响应。
 - 磁性层群部分讨论 $q=0$ 均匀张量，并保留有限磁点余群。普通平移不进入均匀张量约束；type-IV 反平移单独给出，但这里并不描述完整的仿射磁性层群作用。
 - 输出是对称性允许空间，不包含材料数值、单位、共振、耗散、频率置换、界面能量或切换动力学。
@@ -208,6 +232,6 @@ group-ops apply-structure structure.vasp 3+_001 \
 python3 -m unittest discover -s tests -v
 ```
 
-核验范围包括矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群、六类磁性光学响应及堆叠铁电基准。结构识别采用 spglib v2.5.0 官方测试库中的七个代表性晶体，覆盖全部七个晶系；各结构文件均固定来源提交与 SHA-256，并核对空间群、Hall setting、点群、输入晶胞与标准晶胞中的操作数、Wyckoff 字母、等价原子轨道、非零原点移动和坐标变换。0.11.0 进一步核对七个结构的三类非磁二阶响应维数，并验证中心对称结构的相应电偶极响应被禁止；另以 NaCl 原胞验证 F-中心标准胞中的操作与原子位置展开。外部论文原文与截图不收入仓库；仓库只保存可复现数据、正式链接、许可信息和校验值。
+核验范围包括矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群、六类磁性光学响应及堆叠铁电基准。结构识别采用 spglib v2.5.0 官方测试库中的七个代表性晶体，覆盖全部七个晶系；各结构文件均固定来源提交与 SHA-256，并核对空间群、Hall setting、点群、输入晶胞与标准晶胞中的操作数、Wyckoff 字母、等价原子轨道、非零原点移动和坐标变换。0.11.0 进一步核对七个结构的三类非磁二阶响应维数，并验证中心对称结构的相应电偶极响应被禁止；0.12.0 对每个已占据轨道检验轨道—稳定子定理和所有允许位移基矢，并与固定版本的独立 moyo 结果逐原子核对。另以 NaCl 原胞验证 F-中心标准胞中的操作、原子位置展开及 $4a/4b$ 高对称位点。外部论文原文与截图不收入仓库；仓库只保存可复现数据、正式链接、许可信息和校验值。
 
 本项目采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的软件版本，并同时引用与你调用的理论模块对应的上述原始文献。
