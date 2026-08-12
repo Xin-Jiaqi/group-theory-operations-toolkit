@@ -89,6 +89,10 @@ class PublicStructureSymmetryTests(unittest.TestCase):
                     expected["equivalent_atom_orbit_count"],
                 )
                 self.assertEqual(
+                    len(context.crystallographic_orbits),
+                    len(item["species"]),
+                )
+                self.assertEqual(
                     len(context.site_mappings),
                     len(context.input_operations),
                 )

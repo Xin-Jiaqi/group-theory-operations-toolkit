@@ -68,6 +68,7 @@ from .invariants import (
 )
 from .structure import apply_fractional_operation
 from .structure_responses import analyze_structure_responses
+from .wyckoff import analyze_wyckoff_orbits
 
 
 def _list(args: argparse.Namespace, database: dict) -> int:
@@ -620,6 +621,55 @@ def _structure_responses(args: argparse.Namespace, database: dict) -> int:
     return 0
 
 
+def _wyckoff_orbits(args: argparse.Namespace, database: dict) -> int:
+    del database
+    try:
+        from materials_structure_core import StructureIOError, read_structure
+    except ImportError as exc:
+        raise GroupDataError(
+            "wyckoff-orbits requires "
+            "group-theory-operations-toolkit[structure]"
+        ) from exc
+    try:
+        parsed = read_structure(args.input, format=args.input_format)
+    except StructureIOError as exc:
+        raise GroupDataError(str(exc)) from exc
+    try:
+        analysis = analyze_wyckoff_orbits(
+            parsed.structure,
+            symprec=args.symprec,
+            angle_tolerance=args.angle_tolerance,
+        )
+    except ImportError as exc:
+        raise GroupDataError(str(exc)) from exc
+
+    if args.json:
+        payload = {"input": str(Path(args.input)), **analysis.to_dict()}
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    space_group = analysis.symmetry.space_group
+    hall_setting = analysis.symmetry.hall_setting
+    print(
+        f"{args.input}: space group {space_group.ita_number} "
+        f"{space_group.international_short}; Hall {hall_setting.hall_number} "
+        f"{hall_setting.hall_symbol}"
+    )
+    for orbit in analysis.orbits:
+        coordinate = ", ".join(
+            f"{value:.8g}" for value in orbit.standard_fractional_coordinate
+        )
+        print(
+            f"{orbit.species:4s} {orbit.label:4s} "
+            f"site symmetry={orbit.site_symmetry_symbol:8s} "
+            f"input sites={orbit.input_orbit_size:3d} "
+            f"stabilizer={orbit.stabilizer_order:3d} "
+            f"allowed displacement dimension="
+            f"{orbit.allowed_displacement_dimension}; x_std=({coordinate})"
+        )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="group-ops")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -796,6 +846,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     structure_responses_parser.add_argument("--json", action="store_true")
     structure_responses_parser.set_defaults(handler=_structure_responses)
+
+    wyckoff_parser = subparsers.add_parser("wyckoff-orbits")
+    wyckoff_parser.add_argument("input")
+    wyckoff_parser.add_argument("--input-format", choices=("vasp", "cif"))
+    wyckoff_parser.add_argument("--symprec", type=float, default=1.0e-5)
+    wyckoff_parser.add_argument(
+        "--angle-tolerance", type=float, default=-1.0
+    )
+    wyckoff_parser.add_argument("--json", action="store_true")
+    wyckoff_parser.set_defaults(handler=_wyckoff_orbits)
 
     apply_parser = subparsers.add_parser("apply-structure")
     apply_parser.add_argument("input")

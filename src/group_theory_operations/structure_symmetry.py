@@ -110,6 +110,7 @@ class StructureSymmetryContext:
     standard_operations: tuple[SeitzOp, ...]
     site_mappings: tuple[tuple[int, ...], ...]
     equivalent_atoms: tuple[int, ...]
+    crystallographic_orbits: tuple[int, ...]
     wyckoff_letters: tuple[str, ...]
     site_symmetry_symbols: tuple[str, ...]
     transformation_matrix: Matrix3
@@ -386,6 +387,9 @@ def classify_structure_symmetry(
         standard_operations=standard_operations,
         site_mappings=tuple(mappings),
         equivalent_atoms=equivalent_atoms,
+        crystallographic_orbits=tuple(
+            int(value) for value in dataset.crystallographic_orbits
+        ),
         wyckoff_letters=tuple(str(value) for value in dataset.wyckoffs),
         site_symmetry_symbols=tuple(
             str(value).strip() for value in dataset.site_symmetry_symbols

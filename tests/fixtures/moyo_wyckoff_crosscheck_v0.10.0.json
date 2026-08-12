@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "fixture_kind": "independent_wyckoff_crosscheck",
+  "generator": "scripts/generate_moyo_wyckoff_fixture.py",
+  "upstream": {
+    "name": "moyopy",
+    "version": "0.10.0",
+    "git_tag_commit": "43ab761cdb2ff1936c569a2c348456caf49ebc73",
+    "license": "MIT OR Apache-2.0",
+    "url": "https://github.com/spglib/moyo"
+  },
+  "input_fixture": {
+    "path": "tests/fixtures/spglib_real_structures_v2.5.0.json",
+    "sha256": "fd771dd25bd6c7b0970a4463f786dc445f55458d0fb64916b99439fd8fb97408"
+  },
+  "classification": {
+    "symprec": 1e-05,
+    "setting": "explicit fixture Hall number"
+  },
+  "structures": [
+    {
+      "id": "sio2_triclinic",
+      "ita_number": 1,
+      "hall_number": 1,
+      "wyckoff_letters": [
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a"
+      ],
+      "site_symmetry_symbols": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "orbit_labels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "sio2_monoclinic",
+      "ita_number": 4,
+      "hall_number": 6,
+      "wyckoff_letters": [
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a"
+      ],
+      "site_symmetry_symbols": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "orbit_labels": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        8,
+        9,
+        10,
+        11,
+        8,
+        9,
+        10,
+        11,
+        8,
+        9,
+        10,
+        11,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "id": "bates3_orthorhombic",
+      "ita_number": 62,
+      "hall_number": 292,
+      "wyckoff_letters": [
+        "c",
+        "c",
+        "c",
+        "c",
+        "c",
+        "c",
+        "c",
+        "c",
+        "c",
+        "d",
+        "d",
+        "d",
+        "c",
+        "d",
+        "c",
+        "d",
+        "c",
+        "d",
+        "d",
+        "d"
+      ],
+      "site_symmetry_symbols": [
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        ".m.",
+        "1",
+        "1",
+        "1",
+        ".m.",
+        "1",
+        ".m.",
+        "1",
+        ".m.",
+        "1",
+        "1",
+        "1"
+      ],
+      "orbit_labels": [
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        4,
+        4,
+        8,
+        9,
+        9,
+        9,
+        8,
+        9,
+        8,
+        9,
+        8,
+        9,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "mno2_tetragonal",
+      "ita_number": 136,
+      "hall_number": 419,
+      "wyckoff_letters": [
+        "a",
+        "a",
+        "f",
+        "f",
+        "f",
+        "f"
+      ],
+      "site_symmetry_symbols": [
+        "m.mm",
+        "m.mm",
+        "m.2m",
+        "m.2m",
+        "m.2m",
+        "m.2m"
+      ],
+      "orbit_labels": [
+        0,
+        0,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "rucl3_trigonal",
+      "ita_number": 158,
+      "hall_number": 448,
+      "wyckoff_letters": [
+        "a",
+        "a",
+        "d",
+        "d",
+        "d",
+        "d",
+        "d",
+        "d"
+      ],
+      "site_symmetry_symbols": [
+        "3..",
+        "3..",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "orbit_labels": [
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "aucn_hexagonal",
+      "ita_number": 183,
+      "hall_number": 477,
+      "wyckoff_letters": [
+        "a",
+        "a",
+        "a"
+      ],
+      "site_symmetry_symbols": [
+        "6mm",
+        "6mm",
+        "6mm"
+      ],
+      "orbit_labels": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "cssnbr3_cubic",
+      "ita_number": 221,
+      "hall_number": 517,
+      "wyckoff_letters": [
+        "a",
+        "b",
+        "c",
+        "c",
+        "c"
+      ],
+      "site_symmetry_symbols": [
+        "m-3m",
+        "m-3m",
+        "4/mm.m",
+        "4/mm.m",
+        "4/mm.m"
+      ],
+      "orbit_labels": [
+        0,
+        1,
+        2,
+        2,
+        2
+      ]
+    }
+  ]
+}
