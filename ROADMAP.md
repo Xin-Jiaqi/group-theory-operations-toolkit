@@ -118,7 +118,16 @@
 - [x] Construct the standard-setting site stabilizer and verify the orbit–stabilizer theorem in both input and conventional standard cells.
 - [x] Determine the Cartesian fixed-vector space of each site stabilizer as the infinitesimal displacement directions that preserve the site symmetry.
 - [x] Cross-check all seven crystal-system fixtures against the independent moyopy 0.10.0 implementation, with its version, tag commit and license recorded.
-- [ ] Parameterize complete Wyckoff-position manifolds and measure displacements from special-position subspaces (second stage).
+- [x] Resolve the local affine manifold of each identified occupied Wyckoff orbit, report its positional-parameter dimension and split recognition-induced coordinate changes into tangent and transverse parts (second stage, v0.13.0).
 - [ ] Add a licensed, versioned Wyckoff registry and group–subgroup orbit splitting only after the source and setting policy are fixed (third stage).
+
+## 0.13.0 — local Wyckoff manifolds and transverse deviations
+
+- [x] Identify the local positional-parameter dimension as the fixed-vector-space dimension of the site stabilizer.
+- [x] Report the complementary constraint codimension for each occupied Wyckoff orbit.
+- [x] Project the input-to-idealized coordinate difference into tangent and transverse Cartesian components.
+- [x] Report per-site vectors together with orbit-level maximum and RMS transverse distances in ångströms.
+- [x] Verify exact structures, a mirror-normal perturbation, a displaced fixed site, projector orthogonality and all seven crystal systems.
+- [x] State explicitly that the analysis is local to the identified orbit and does not search the complete catalogue for a different nearby special position.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
