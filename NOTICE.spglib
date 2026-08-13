@@ -1,5 +1,6 @@
-The file scripts/sources/spglib-layer-groups-v2.5.0.csv, the layer-group
-records derived from it, and tests/fixtures/spglib_real_structures_v2.5.0.json
+The files scripts/sources/spglib-layer-groups-v2.5.0.csv and
+scripts/sources/spglib-Wyckoff-v2.5.0.csv, the layer-group and Wyckoff
+registries derived from them, and tests/fixtures/spglib_real_structures_v2.5.0.json
 use data from spglib v2.5.0 under the following BSD 3-Clause license.
 
 Copyright (c) 2024, Spglib team
