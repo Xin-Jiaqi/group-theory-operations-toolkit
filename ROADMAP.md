@@ -119,7 +119,7 @@
 - [x] Determine the Cartesian fixed-vector space of each site stabilizer as the infinitesimal displacement directions that preserve the site symmetry.
 - [x] Cross-check all seven crystal-system fixtures against the independent moyopy 0.10.0 implementation, with its version, tag commit and license recorded.
 - [x] Resolve the local affine manifold of each identified occupied Wyckoff orbit, report its positional-parameter dimension and split recognition-induced coordinate changes into tangent and transverse parts (second stage, v0.13.0).
-- [ ] Add a licensed, versioned Wyckoff registry and group–subgroup orbit splitting only after the source and setting policy are fixed (third stage).
+- [x] Add a licensed, versioned Wyckoff registry and group–subgroup orbit splitting after fixing the source and Hall-setting policy (third stage, v0.14.0).
 
 ## 0.13.0 — local Wyckoff manifolds and transverse deviations
 
@@ -129,5 +129,15 @@
 - [x] Report per-site vectors together with orbit-level maximum and RMS transverse distances in ångströms.
 - [x] Verify exact structures, a mirror-normal perturbation, a displaced fixed site, projector orthogonality and all seven crystal systems.
 - [x] State explicitly that the analysis is local to the identified orbit and does not search the complete catalogue for a different nearby special position.
+
+## 0.14.0 — complete Wyckoff registry and subgroup orbit splitting
+
+- [x] Register all 3467 Wyckoff positions in all 530 Hall settings from a pinned BSD-3-Clause spglib v2.5.0 source file.
+- [x] Store every coordinate map as an integer parameter matrix and a rational translation with denominator 24, with centering translations explicit.
+- [x] Key the registry by Hall number so axes, origin choice, and hexagonal/rhombohedral settings remain unambiguous.
+- [x] Split a parent Wyckoff orbit under a verified same-translation-lattice subgroup and match every child orbit to its subgroup Wyckoff letter, multiplicity, site symmetry, and parameter dimension.
+- [x] Accept an explicit $\mathbf{x}_{H}=P\mathbf{x}_{G}+\mathbf{p}$ relation for settings with different axes or origins, while rejecting unstated or invalid embeddings.
+- [x] Cross-check every registered coordinate set against the corresponding Hall-operation orbit and verify representative labels and site symmetries through spglib.
+- [ ] Add a separately sourced registry of group–subgroup relations and translation cosets only if its redistribution license, transformation conventions, and independent validation are established; the present release evaluates a specified same-lattice embedding rather than enumerating all embeddings or treating supercells.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.

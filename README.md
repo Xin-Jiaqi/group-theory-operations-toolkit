@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论工具。它汇集晶体学与磁性群表、点操作矩阵、群乘法、光场二次表示和对称性允许张量基，可用于查阅群论结果，也可接入真实晶体结构分析与高通量材料筛选。
 
-当前版本为 **0.13.0**。仓库回答八类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；以及该结构的晶体点群是否允许 shift current、SHG 与 circular injection current。
+当前版本为 **0.14.0**。仓库回答九类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；任一 Hall setting 中有哪些 Wyckoff 位置、指定母群轨道在一个明确嵌入的子群下怎样分裂；以及该结构的晶体点群是否允许 shift current、SHG 与 circular injection current。
 
 ## 科学能力
 
@@ -16,6 +16,7 @@
 | 晶体学群 | 32 点群、230 空间群、80 层群 | 给出标准 setting、生成元与 Seitz 闭包，连接三维周期晶体和二维周期层状体系 |
 | 晶体结构对称性分析 | 三维周期结构、覆盖 7 个晶系的代表性结构 | 识别空间群与 Hall setting，分别给出输入晶胞和标准晶胞中的 Seitz 操作、等价原子、Wyckoff 位置、基变换与原点移动 |
 | Wyckoff 轨道与位点群 | 具体结构中实际占据的不等价原子轨道 | 给出标准晶胞中的重数与 Wyckoff 字母、位点群、位置参数维数，并把结构理想化位移分解为沿局部 Wyckoff 流形的切向残差和横向偏离 |
+| Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，把母群轨道分解并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 3996 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
@@ -76,6 +77,20 @@ $$
 
 这一距离依赖空间群识别容差，且只相对于**已经识别出的**局部 Wyckoff 流形定义；它不遍历完整 Wyckoff 坐标表，也不回答某原子离另一个更高对称特殊位置有多近。不同 `symprec` 下若 Wyckoff 字母、位点群或横向距离发生明显变化，应报告为容差敏感。
 
+### 从完整 Wyckoff 位置表到群—子群轨道分裂
+
+0.14.0 为 530 个 Hall setting 注册完整 Wyckoff 位置表。每个坐标代表写为
+
+$$\mathbf x=A\mathbf q+\frac{\mathbf t}{24}\pmod 1,$$
+
+其中 $A$ 是整数参数矩阵，$\mathbf q=(x,y,z)^T$，$\mathbf t$ 是以 24 为公分母的平移分子；中心化平移另行显式展开。Hall number 是 setting 的主键，因此轴向、原点选择和六方/菱方晶胞选择不会被 Hermann–Mauguin 短符号掩盖。
+
+设母群为 $G$、共享同一平移晶格的嵌入子群为 $H$。若两套分数坐标满足 $\mathbf x_H=P\mathbf x_G+\mathbf p$，其中 $P$ 为整数幺模矩阵，程序先将 $H$ 的 Seitz 操作变换到母群坐标并核对 $H\subseteq G$，再计算
+
+$$\mathcal O_G(\mathbf r)=\bigcup_i\mathcal O_H(\mathbf r_i).$$
+
+每个子轨道随后与子群 setting 的坐标参数式逐项匹配，报告其 Wyckoff 字母、重数、位点群和位置参数维数，同时检验子轨道重数之和等于母轨道重数。程序不从两个群名猜测 $P$ 或 $\mathbf p$；不同轴向或原点必须明确给出。这一接口处理**指定且平移晶格不变的群—子群嵌入**，目前不枚举全部群—子群关系；涉及超胞的 klassengleiche 嵌入还需要另行注册平移陪集，不能由有限点余群操作数代替。它也不计算结构相变能量、序参量或路径。
+
 ### 从层群到堆叠铁电
 
 单层允许极化是其点操作共同不变子空间
@@ -113,6 +128,11 @@ group-ops screen-responses --symmetry-class magnetic_layer_group \
   --response shg_odd --allowed-only --json
 group-ops structure-responses POSCAR --input-format vasp --allowed-only --json
 group-ops wyckoff-orbits POSCAR --input-format vasp --json
+group-ops wyckoff-positions 523 l --json
+group-ops wyckoff-split 2 i 1 --json
+# 若两套 setting 的轴或原点不同，显式给出 x_subgroup = P x_parent + p：
+group-ops wyckoff-split 3 e 4 \
+  --transformation-matrix 1 0 0 0 0 1 0 1 0 --json
 group-ops layer-polarity LG68 --json
 group-ops stacking-rotations -1 --lattice rP --json
 ```
@@ -129,6 +149,8 @@ from group_theory_operations import (
     magnetic_layer_response_tensor_basis,
     point_group_operations,
     screen_response_symmetry,
+    get_wyckoff_setting,
+    split_wyckoff_orbit,
 )
 
 print(layer_group_polarization(68).polar_type)  # NP
@@ -160,6 +182,11 @@ print([
 analysis = analyze_structure_responses(structure, allowed_only=True)
 print(analysis.symmetry.space_group.international_short)
 print([(item.response, item.dimension) for item in analysis.responses])
+
+setting = get_wyckoff_setting(523)
+print([(position.label, position.site_symmetry) for position in setting.positions])
+splitting = split_wyckoff_orbit(2, "i", 1)
+print([orbit.label for orbit in splitting.child_orbits])  # ['1a', '1a']
 ```
 
 结构读写和分类使用可选依赖 `materials-structure-core[io]` 与 spglib：
@@ -203,6 +230,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.11.0** | 把真实晶体结构识别直接连接到非磁二阶响应选择定则 | 从 CIF/POSCAR 得到空间群、Hall setting 和晶体点群，再给出 shift current、electric-dipole SHG 与 circular injection current 的允许张量维数；在七个晶系的固定结构样本上核对，并明确不由非磁结构推断磁序或磁性响应 |
 | **0.12.0** | 加入实际占据的 Wyckoff 轨道、位点稳定子与局域允许位移 | 区分输入晶胞等价原子和原胞晶体学轨道；在标准 Hall setting 中给出重数、Wyckoff 字母、位点群及其固定向量空间；以轨道—稳定子定理、七晶系固定结构、NaCl 与独立 moyopy 0.10.0 结果交叉核验 |
 | **0.13.0** | 加入已识别 Wyckoff 位置的局部参数流形和横向偏离 | 由位点稳定子的固定空间给出位置参数维数与约束余维；把输入结构相对于对称性理想化结构的坐标差分解为切向残差和横向偏离，并报告逐原子、最大值和均方根距离 |
+| **0.14.0** | 加入全部 Hall setting 的 Wyckoff 位置表与群—子群轨道分裂 | 固定 spglib v2.5.0 的 BSD 数据文件及 SHA-256，注册 3467 个位置和 24295 个展开坐标映射；逐 setting 核对 Seitz 轨道，并在相同 setting、中心化晶格和显式轴变换三个层次验证子轨道重数守恒与 Wyckoff 标定 |
 
 完整核验要求与后续范围见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是群论数据与物理分析能力的演进，不代表已经计算任何具体材料的响应强度。
 
@@ -210,7 +238,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 
 1. **晶体学群表与结构识别。** 空间群和层群的 Hall setting、Seitz 操作与标识基于固定版本的 [spglib](https://spglib.readthedocs.io/) 数据库；层群数据固定为 v2.5.0，并保留许可证、来源 URL 与校验值。0.9.0 采用[现代 spglib/ITA 坐标约定](https://spglib.readthedocs.io/en/v2.5.0/definition.html) $\mathbf x_s=P\mathbf x+\mathbf p$，并把晶格基变换与标准胞理想化中的笛卡尔刚体旋转分开处理。spglib 负责数值识别；本仓库独立核验识别结果是否与 Hall 操作、同元素原子映射和等价原子轨道一致。
 
-2. **Wyckoff 轨道与位点对称性。** G. de la Flor, E. Kroumova, R. M. Hanson, and M. I. Aroyo, [“The International Tables Symmetry Database,” *J. Appl. Cryst.* **56**, 1824–1840 (2023)](https://doi.org/10.1107/S1600576723009068) 系统说明标准设置中的 Wyckoff 位置、具体点的位点对称群和群—子群轨道关系。A. Togo, K. Shinohara, and I. Tanaka, [“Spglib: a software library for crystal symmetry search,” *Sci. Technol. Adv. Mater.: Methods* **4**, 2384822 (2024)](https://doi.org/10.1080/27660400.2024.2384822) 给出结构对称性搜索、标准化和 Wyckoff 指派的数值方法。0.12.0 在这些定义上进一步显式构造位点稳定子和其笛卡尔固定向量空间，并用 K. Shinohara, [“moyo: A fast and robust crystal symmetry finder, written in Rust” (2026), figshare](https://doi.org/10.6084/m9.figshare.31081162.v1) 的固定版本 0.10.0 独立核对逐原子 Wyckoff 字母、位点对称性和轨道划分。仓库不复制 International Tables 的完整坐标表。
+2. **Wyckoff 轨道与位点对称性。** G. de la Flor, E. Kroumova, R. M. Hanson, and M. I. Aroyo, [“The International Tables Symmetry Database,” *J. Appl. Cryst.* **56**, 1824–1840 (2023)](https://doi.org/10.1107/S1600576723009068) 系统说明标准设置中的 Wyckoff 位置、具体点的位点对称群和群—子群轨道关系。A. Togo, K. Shinohara, and I. Tanaka, [“Spglib: a software library for crystal symmetry search,” *Sci. Technol. Adv. Mater.: Methods* **4**, 2384822 (2024)](https://doi.org/10.1080/27660400.2024.2384822) 给出结构对称性搜索、标准化和 Wyckoff 指派的数值方法。0.12.0 在这些定义上进一步显式构造位点稳定子和其笛卡尔固定向量空间，并用 K. Shinohara, [“moyo: A fast and robust crystal symmetry finder, written in Rust” (2026), figshare](https://doi.org/10.6084/m9.figshare.31081162.v1) 的固定版本 0.10.0 独立核对逐原子 Wyckoff 字母、位点对称性和轨道划分。0.14.0 使用 spglib v2.5.0 中 BSD-3-Clause 许可的 `database/Wyckoff.csv`，固定其提交、许可证与 SHA-256 后生成本仓库的位置表；不复制 International Tables 的受限表格。
 
 3. **磁性层群。** D. B. Litvin, *Magnetic Group Tables, Part 3: Magnetic Layer Groups* 提供 OG 符号、磁点群和操作表；Z. Zhang *et al.*, [“Encyclopedia of emergent particles in 528 magnetic layer groups and 394 magnetic rod groups,” *Phys. Rev. B* **107**, 075405 (2023)](https://doi.org/10.1103/PhysRevB.107.075405) 提供 528 个磁性层群的类型及其与磁空间群的系统对应。仓库还利用 spglib 磁空间群数据库进行第三方交叉核验。
 
@@ -230,6 +258,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 - 分数坐标矩阵只用于相应晶格基；轴矢量公式 $M_-(R)=\det(D)D$ 由正交笛卡尔矩阵导出。
 - 结构标准化使用 $\mathbf x_s=P\mathbf x+\mathbf p$。输入超胞可有多个操作折叠为同一标准操作，原胞输入也可在中心化标准胞中展开出更多操作；两套操作均显式保留，不能仅凭操作数判断识别错误。
 - Wyckoff 重数、字母和位点对称性属于标准 Hall setting；`input_orbit_size` 只表示所给晶胞中该轨道实际包含的原子数，两者在原胞、常规晶胞和超胞中不应混为一谈。允许位移是位点群的固定向量空间，不是声子模或结构不稳定性的判据。横向偏离是本次识别容差下输入坐标与理想化坐标的比较，不是全空间的“最近特殊位置”搜索。
+- 完整 Wyckoff 位置表以 Hall number 区分 setting。群—子群分裂只在子群操作经给定 $P,\mathbf p$ 变换后确实嵌入母群、且两群共享同一平移晶格时成立；输出坐标使用子群 setting，不能脱离所报告的坐标约定比较 Wyckoff 字母或坐标式。超胞子群必须先有显式平移陪集数据。
 - 具体结构的响应判定目前只适用于三维周期非磁结构。它依据晶体点群给出允许张量维数，不从原子种类和位置推断磁矩、磁点群或时间反演奇偶响应。
 - 磁性层群部分讨论 $q=0$ 均匀张量，并保留有限磁点余群。普通平移不进入均匀张量约束；type-IV 反平移单独给出，但这里并不描述完整的仿射磁性层群作用。
 - 输出是对称性允许空间，不包含材料数值、单位、共振、耗散、频率置换、界面能量或切换动力学。
@@ -238,6 +267,6 @@ group-ops apply-structure structure.vasp 3+_001 \
 python3 -m unittest discover -s tests -v
 ```
 
-核验范围包括矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群、六类磁性光学响应及堆叠铁电基准。结构识别采用 spglib v2.5.0 官方测试库中的七个代表性晶体，覆盖全部七个晶系；各结构文件均固定来源提交与 SHA-256，并核对空间群、Hall setting、点群、输入晶胞与标准晶胞中的操作数、Wyckoff 字母、等价原子轨道、非零原点移动和坐标变换。0.11.0 进一步核对七个结构的三类非磁二阶响应维数，并验证中心对称结构的相应电偶极响应被禁止；0.12.0 对每个已占据轨道检验轨道—稳定子定理和所有允许位移基矢，并与固定版本的独立 moyo 结果逐原子核对。另以 NaCl 原胞验证 F-中心标准胞中的操作、原子位置展开及 $4a/4b$ 高对称位点。外部论文原文与截图不收入仓库；仓库只保存可复现数据、正式链接、许可信息和校验值。
+核验范围包括矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群、六类磁性光学响应及堆叠铁电基准。结构识别采用 spglib v2.5.0 官方测试库中的七个代表性晶体，覆盖全部七个晶系；各结构文件均固定来源提交与 SHA-256，并核对空间群、Hall setting、点群、输入晶胞与标准晶胞中的操作数、Wyckoff 字母、等价原子轨道、非零原点移动和坐标变换。0.11.0 进一步核对七个结构的三类非磁二阶响应维数，并验证中心对称结构的相应电偶极响应被禁止；0.12.0 对每个已占据轨道检验轨道—稳定子定理和所有允许位移基矢，并与固定版本的独立 moyo 结果逐原子核对。0.14.0 对 530 个 Hall setting 的全部 3467 个 Wyckoff 位置逐项比较生成坐标与已注册 Seitz 操作的轨道，并通过 spglib 回代核对代表性 setting 的字母和位点群；群—子群测试覆盖原始晶格、中心化晶格及显式轴变换。另以 NaCl 原胞验证 F-中心标准胞中的操作、原子位置展开及 $4a/4b$ 高对称位点。外部论文原文与截图不收入仓库；仓库只保存可复现数据、正式链接、许可信息和校验值。
 
 本项目采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的软件版本，并同时引用与你调用的理论模块对应的上述原始文献。
