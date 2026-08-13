@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "group-theory-operations-toolkit"
-version = "0.13.0"
+version = "0.14.0"
 description = "Group operations, crystal symmetry, stacking symmetry, and response-tensor screening"
 authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
@@ -32,6 +32,7 @@ packages = ["src/group_theory_operations"]
 "data/crystallographic_layer_groups.json" = "group_theory_operations/data/crystallographic_layer_groups.json"
 "data/magnetic_point_groups.json" = "group_theory_operations/data/magnetic_point_groups.json"
 "data/magnetic_layer_groups.json" = "group_theory_operations/data/magnetic_layer_groups.json"
+"data/crystallographic_wyckoff_positions.json" = "group_theory_operations/data/crystallographic_wyckoff_positions.json"
 "schema/group-operations-v1.schema.json" = "group_theory_operations/schema/group-operations-v1.schema.json"
 "schema/quadratic-field-representations-v1.schema.json" = "group_theory_operations/schema/quadratic-field-representations-v1.schema.json"
 "schema/crystallographic-point-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-point-groups-v1.schema.json"
@@ -40,6 +41,7 @@ packages = ["src/group_theory_operations"]
 "schema/crystallographic-layer-groups-v1.schema.json" = "group_theory_operations/schema/crystallographic-layer-groups-v1.schema.json"
 "schema/magnetic-point-groups-v1.schema.json" = "group_theory_operations/schema/magnetic-point-groups-v1.schema.json"
 "schema/magnetic-layer-groups-v1.schema.json" = "group_theory_operations/schema/magnetic-layer-groups-v1.schema.json"
+"schema/crystallographic-wyckoff-positions-v1.schema.json" = "group_theory_operations/schema/crystallographic-wyckoff-positions-v1.schema.json"
 
 [tool.mypy]
 python_version = "3.12"

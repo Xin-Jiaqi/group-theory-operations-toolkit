@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from . import __version__
 
 from .catalog import (
@@ -69,6 +71,11 @@ from .invariants import (
 from .structure import apply_fractional_operation
 from .structure_responses import analyze_structure_responses
 from .wyckoff import analyze_wyckoff_orbits
+from .wyckoff_registry import (
+    get_wyckoff_setting,
+    load_wyckoff_registry,
+    split_wyckoff_orbit,
+)
 
 
 def _list(args: argparse.Namespace, database: dict) -> int:
@@ -542,6 +549,7 @@ def _validate(_: argparse.Namespace, database: dict) -> int:
     load_layer_group_registry()
     load_magnetic_point_group_registry()
     load_magnetic_layer_group_registry()
+    load_wyckoff_registry()
     print("catalog valid")
     return 0
 
@@ -669,6 +677,58 @@ def _wyckoff_orbits(args: argparse.Namespace, database: dict) -> int:
             f"{orbit.maximum_transverse_deviation:.6g} Angstrom; "
             f"x_std=({coordinate})"
         )
+    return 0
+
+
+def _wyckoff_positions(args: argparse.Namespace, database: dict) -> int:
+    del database
+    setting = get_wyckoff_setting(args.hall_number)
+    positions = (
+        setting.positions
+        if args.letter is None
+        else (setting.position(args.letter),)
+    )
+    if args.json:
+        payload = setting.to_dict()
+        payload["positions"] = [position.to_dict() for position in positions]
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"Hall {setting.hall_number} {setting.hall_symbol}; "
+        f"ITA {setting.ita_number}; choice={setting.choice or '-'}"
+    )
+    for position in positions:
+        print(
+            f"{position.label:4s} site symmetry={position.site_symmetry:8s} "
+            f"positional parameters={position.parameter_dimension}"
+        )
+    return 0
+
+
+def _wyckoff_split(args: argparse.Namespace, database: dict) -> int:
+    del database
+    result = split_wyckoff_orbit(
+        args.parent_hall_number,
+        args.parent_letter,
+        args.subgroup_hall_number,
+        parameters=args.parameters,
+        subgroup_transformation_matrix=(
+            np.asarray(args.transformation_matrix, dtype=float).reshape(3, 3)
+            if args.transformation_matrix is not None
+            else None
+        ),
+        subgroup_origin_shift=args.origin_shift,
+        tolerance=args.tolerance,
+    )
+    if args.json:
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+    child_labels = " + ".join(item.label for item in result.child_orbits)
+    print(
+        f"Hall {result.parent_hall_number} {result.parent_label} -> "
+        f"Hall {result.subgroup_hall_number}: {child_labels}; "
+        f"subgroup index={result.subgroup_index}"
+    )
     return 0
 
 
@@ -858,6 +918,41 @@ def build_parser() -> argparse.ArgumentParser:
     )
     wyckoff_parser.add_argument("--json", action="store_true")
     wyckoff_parser.set_defaults(handler=_wyckoff_orbits)
+
+    wyckoff_positions_parser = subparsers.add_parser("wyckoff-positions")
+    wyckoff_positions_parser.add_argument("hall_number", type=int)
+    wyckoff_positions_parser.add_argument("letter", nargs="?")
+    wyckoff_positions_parser.add_argument("--json", action="store_true")
+    wyckoff_positions_parser.set_defaults(handler=_wyckoff_positions)
+
+    wyckoff_split_parser = subparsers.add_parser("wyckoff-split")
+    wyckoff_split_parser.add_argument("parent_hall_number", type=int)
+    wyckoff_split_parser.add_argument("parent_letter")
+    wyckoff_split_parser.add_argument("subgroup_hall_number", type=int)
+    wyckoff_split_parser.add_argument(
+        "--parameters",
+        type=float,
+        nargs=3,
+        metavar=("X", "Y", "Z"),
+        default=(0.173, 0.287, 0.419),
+    )
+    wyckoff_split_parser.add_argument(
+        "--transformation-matrix",
+        type=float,
+        nargs=9,
+        metavar=("P11", "P12", "P13", "P21", "P22", "P23", "P31", "P32", "P33"),
+        help="P in x_subgroup = P x_parent + p (row-major)",
+    )
+    wyckoff_split_parser.add_argument(
+        "--origin-shift",
+        type=float,
+        nargs=3,
+        metavar=("PX", "PY", "PZ"),
+        help="p in x_subgroup = P x_parent + p",
+    )
+    wyckoff_split_parser.add_argument("--tolerance", type=float, default=1.0e-8)
+    wyckoff_split_parser.add_argument("--json", action="store_true")
+    wyckoff_split_parser.set_defaults(handler=_wyckoff_split)
 
     apply_parser = subparsers.add_parser("apply-structure")
     apply_parser.add_argument("input")

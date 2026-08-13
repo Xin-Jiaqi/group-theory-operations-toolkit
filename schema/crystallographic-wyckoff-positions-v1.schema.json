@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xin-Jiaqi/group-theory-operations-toolkit/raw/main/schema/crystallographic-wyckoff-positions-v1.schema.json",
+  "title": "Crystallographic Wyckoff Positions v1",
+  "type": "object",
+  "required": ["schema_version", "source", "generated_by", "conventions", "counts", "hall_settings"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source": {
+      "type": "object",
+      "required": ["name", "version", "tag", "commit", "license", "file", "sha256", "url"],
+      "properties": {
+        "name": {"const": "spglib"},
+        "version": {"const": "2.5.0"},
+        "tag": {"const": "v2.5.0"},
+        "commit": {"pattern": "^[0-9a-f]{40}$"},
+        "license": {"const": "BSD-3-Clause"},
+        "file": {"const": "database/Wyckoff.csv"},
+        "sha256": {"pattern": "^[0-9a-f]{64}$"},
+        "url": {"type": "string", "format": "uri"}
+      },
+      "additionalProperties": false
+    },
+    "generated_by": {"const": "scripts/generate_wyckoff_positions.py"},
+    "conventions": {
+      "type": "object",
+      "required": ["setting_key", "coordinate_action", "parameters", "centering", "rhombohedral", "origin_and_axes"],
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "counts": {
+      "type": "object",
+      "required": ["hall_settings", "wyckoff_positions", "representative_maps", "expanded_coordinate_maps"],
+      "properties": {
+        "hall_settings": {"const": 530},
+        "wyckoff_positions": {"const": 3467},
+        "representative_maps": {"const": 15117},
+        "expanded_coordinate_maps": {"const": 24295}
+      },
+      "additionalProperties": false
+    },
+    "hall_settings": {
+      "type": "array",
+      "minItems": 530,
+      "maxItems": 530,
+      "items": {"$ref": "#/$defs/hallSetting"}
+    }
+  },
+  "$defs": {
+    "integerVector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "integer"}
+    },
+    "integerMatrix3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {"type": "integer", "minimum": -2, "maximum": 2}
+      }
+    },
+    "affineMap": {
+      "type": "object",
+      "required": ["parameter_matrix", "translation_numerators"],
+      "properties": {
+        "parameter_matrix": {"$ref": "#/$defs/integerMatrix3"},
+        "translation_numerators": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "integer", "minimum": 0, "maximum": 23}
+        }
+      },
+      "additionalProperties": false
+    },
+    "position": {
+      "type": "object",
+      "required": ["multiplicity", "letter", "site_symmetry", "parameter_dimension", "representative_maps"],
+      "properties": {
+        "multiplicity": {"type": "integer", "minimum": 1, "maximum": 192},
+        "letter": {"type": "string", "pattern": "^[A-Za-z]$"},
+        "site_symmetry": {"type": "string", "minLength": 1, "maxLength": 6},
+        "parameter_dimension": {"type": "integer", "minimum": 0, "maximum": 3},
+        "representative_maps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/affineMap"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "hallSetting": {
+      "type": "object",
+      "required": ["hall_number", "source_symbol", "centering", "positions", "ita_number", "hall_symbol", "choice", "centering_translation_numerators"],
+      "properties": {
+        "hall_number": {"type": "integer", "minimum": 1, "maximum": 530},
+        "source_symbol": {"type": "string", "minLength": 1},
+        "centering": {"enum": ["P", "A", "B", "C", "F", "I", "R", "H"]},
+        "ita_number": {"type": "integer", "minimum": 1, "maximum": 230},
+        "hall_symbol": {"type": "string", "minLength": 1},
+        "choice": {"type": "string"},
+        "centering_translation_numerators": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {"type": "integer", "minimum": 0, "maximum": 23}
+          }
+        },
+        "positions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 27,
+          "items": {"$ref": "#/$defs/position"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

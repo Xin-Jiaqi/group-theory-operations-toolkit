@@ -32,6 +32,17 @@ from .wyckoff import (
     WyckoffSiteProjection,
     analyze_wyckoff_orbits,
 )
+from .wyckoff_registry import (
+    HallWyckoffSetting,
+    SubgroupWyckoffOrbit,
+    WyckoffCoordinateMap,
+    WyckoffOrbitSplitting,
+    WyckoffPositionRecord,
+    get_wyckoff_setting,
+    iter_wyckoff_settings,
+    load_wyckoff_registry,
+    split_wyckoff_orbit,
+)
 from .representations import (
     QuadraticFieldRepresentation,
     antisymmetric_field_matrix,
@@ -152,6 +163,11 @@ __all__ = [
     "WyckoffOrbit",
     "WyckoffOrbitAnalysis",
     "WyckoffSiteProjection",
+    "HallWyckoffSetting",
+    "SubgroupWyckoffOrbit",
+    "WyckoffCoordinateMap",
+    "WyckoffOrbitSplitting",
+    "WyckoffPositionRecord",
     "antisymmetric_field_matrix",
     "antiunitary_equivariant_map_basis",
     "apply_fractional_operation",
@@ -165,6 +181,10 @@ __all__ = [
     "classify_structure_symmetry",
     "analyze_structure_responses",
     "analyze_wyckoff_orbits",
+    "get_wyckoff_setting",
+    "iter_wyckoff_settings",
+    "load_wyckoff_registry",
+    "split_wyckoff_orbit",
     "determinant3",
     "equivalent_interface_orbit",
     "equivalent_interface_translation",
@@ -216,4 +236,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.13.0"
+__version__ = "0.14.0"
