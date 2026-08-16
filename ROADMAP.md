@@ -138,6 +138,16 @@
 - [x] Split a parent Wyckoff orbit under a verified same-translation-lattice subgroup and match every child orbit to its subgroup Wyckoff letter, multiplicity, site symmetry, and parameter dimension.
 - [x] Accept an explicit $\mathbf{x}_{H}=P\mathbf{x}_{G}+\mathbf{p}$ relation for settings with different axes or origins, while rejecting unstated or invalid embeddings.
 - [x] Cross-check every registered coordinate set against the corresponding Hall-operation orbit and verify representative labels and site symmetries through spglib.
-- [ ] Add a separately sourced registry of group–subgroup relations and translation cosets only if its redistribution license, transformation conventions, and independent validation are established; the present release evaluates a specified same-lattice embedding rather than enumerating all embeddings or treating supercells.
+- [x] Keep a separately sourced registry of group–subgroup relations outside the stable data until its redistribution license, transformation conventions, and independent validation are established; this release evaluates only a specified same-lattice embedding.
+
+## 0.15.0 — supercell subgroup embeddings and Wyckoff splitting
+
+- [x] Accept an explicit $\mathbf{x}_{H}=P\mathbf{x}_{G}+\mathbf{p}$ relation when $A=P^{-1}$ is an integer supercell matrix in the parent conventional basis.
+- [x] Construct representatives of $\mathbb Z^3/A\mathbb Z^3$ from the exact integer adjugate and expand every parent Wyckoff orbit into the subgroup conventional cell.
+- [x] Partition the expanded coordinates under the native subgroup Hall operations and match every child orbit to the subgroup Wyckoff registry.
+- [x] Report the conventional-cell volume ratio, translation-subgroup index, point-group index and full space-group index separately, including changes of lattice centering.
+- [x] Verify diagonal and non-diagonal doubled cells, nonzero origin shifts, F-to-P lattice reduction, invalid cell contractions, bounded expansion and child-orbit multiplicity conservation.
+- [x] Reproduce the published $I23\;2a\rightarrow P23\;(1a+1b)$ Wyckoff splitting from the International Tables Symmetry Database.
+- [ ] Add a versioned registry that enumerates group–subgroup embeddings only after the upstream source, redistribution license and independent crystallographic validation are documented.
 
 The 32-point-group expansion is a data-curation project, not a name-only checklist. A group enters the registry only with sourced operations, a fixed basis/setting, closure tests, and a documented mapping to external conventions.
