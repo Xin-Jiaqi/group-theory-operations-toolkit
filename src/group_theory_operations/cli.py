@@ -727,7 +727,8 @@ def _wyckoff_split(args: argparse.Namespace, database: dict) -> int:
     print(
         f"Hall {result.parent_hall_number} {result.parent_label} -> "
         f"Hall {result.subgroup_hall_number}: {child_labels}; "
-        f"subgroup index={result.subgroup_index}"
+        f"subgroup index={result.subgroup_index}; "
+        f"cell-volume ratio={result.conventional_cell_index}"
     )
     return 0
 
