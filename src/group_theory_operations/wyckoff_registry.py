@@ -22,6 +22,8 @@ IntegerVector3 = tuple[int, int, int]
 IntegerMatrix3 = tuple[tuple[int, int, int], ...]
 FloatVector3 = tuple[float, float, float]
 FloatMatrix3 = tuple[tuple[float, float, float], ...]
+_MAX_CONVENTIONAL_CELL_INDEX = 4096
+_MAX_EXPANDED_ORBIT_SIZE = 4096
 
 
 def _vector3(value: Iterable[Any], *, label: str) -> IntegerVector3:
@@ -48,10 +50,28 @@ def _parameters(value: Iterable[Any]) -> np.ndarray:
     return result
 
 
+def _integer_determinant_and_adjugate(
+    matrix: np.ndarray,
+) -> tuple[int, IntegerMatrix3]:
+    rows = tuple(tuple(int(value) for value in row) for row in matrix)
+    a, b, c = rows[0]
+    d, e, f = rows[1]
+    g, h, i = rows[2]
+    determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (
+        d * h - e * g
+    )
+    adjugate: IntegerMatrix3 = (
+        (e * i - f * h, c * h - b * i, b * f - c * e),
+        (f * g - d * i, a * i - c * g, c * d - a * f),
+        (d * h - e * g, b * g - a * h, a * e - b * d),
+    )
+    return determinant, adjugate
+
+
 def _coordinate_transformation(
     transformation_matrix: Iterable[Iterable[Any]] | None,
     origin_shift: Iterable[Any] | None,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, tuple[IntegerVector3, ...]]:
     try:
         matrix = (
             np.eye(3, dtype=np.float64)
@@ -72,21 +92,79 @@ def _coordinate_transformation(
     if not np.all(np.isfinite(matrix)) or not np.all(np.isfinite(shift)):
         raise GroupDataError("subgroup coordinate transformation must be finite")
     try:
-        np.linalg.inv(matrix)
+        inverse_matrix = np.linalg.inv(matrix)
     except np.linalg.LinAlgError as exc:
         raise GroupDataError("subgroup transformation matrix must be invertible") from exc
-    rounded_matrix = np.rint(matrix)
-    if not np.allclose(matrix, rounded_matrix, atol=1.0e-9, rtol=0.0):
+    rounded_inverse = np.rint(inverse_matrix)
+    if not np.allclose(inverse_matrix, rounded_inverse, atol=1.0e-9, rtol=0.0):
         raise GroupDataError(
-            "subgroup transformation must be an integer lattice-basis matrix"
+            "P^-1 must be an integer parent-cell supercell matrix for "
+            "x_subgroup = P x_parent + p"
         )
-    determinant = int(round(float(np.linalg.det(rounded_matrix))))
-    if abs(determinant) != 1:
+    if float(np.max(np.abs(rounded_inverse))) > float(np.iinfo(np.int32).max):
+        raise GroupDataError("subgroup supercell-matrix entries are too large")
+    supercell_matrix = rounded_inverse.astype(np.int64)
+    determinant, adjugate = _integer_determinant_and_adjugate(supercell_matrix)
+    if determinant == 0:  # pragma: no cover - guarded by invertibility above
+        raise GroupDataError("subgroup supercell matrix must be invertible")
+    if abs(determinant) > _MAX_CONVENTIONAL_CELL_INDEX:
         raise GroupDataError(
-            "subgroup transformation must be unimodular; supercell "
-            "subgroup embeddings require explicit translation-coset data"
+            "subgroup conventional-cell index exceeds the supported maximum "
+            f"of {_MAX_CONVENTIONAL_CELL_INDEX}"
         )
-    return rounded_matrix, shift
+    canonical_matrix = np.asarray(adjugate, dtype=np.float64) / determinant
+    if not np.allclose(matrix, canonical_matrix, atol=1.0e-9, rtol=0.0):
+        raise GroupDataError("subgroup transformation is not an exact supercell map")
+    cosets = _translation_coset_representatives(supercell_matrix)
+    return canonical_matrix, shift, supercell_matrix, cosets
+
+
+def _translation_coset_representatives(
+    supercell_matrix: np.ndarray,
+) -> tuple[IntegerVector3, ...]:
+    """Return representatives of ``Z^3 / A Z^3`` for integer ``A``.
+
+    The representatives are parent-cell lattice translations.  Their images
+    ``P n`` with ``P = A^-1`` place every copy of a parent conventional cell
+    inside the subgroup conventional cell.  Residues are evaluated with the
+    exact integer adjugate, avoiding a tolerance-dependent coset partition.
+    """
+
+    matrix = np.asarray(supercell_matrix, dtype=np.int64)
+    determinant, adjugate = _integer_determinant_and_adjugate(matrix)
+    cell_index = abs(determinant)
+
+    def residue(vector: np.ndarray) -> IntegerVector3:
+        values = tuple(
+            sum(row[column] * int(vector[column]) for column in range(3))
+            % cell_index
+            for row in adjugate
+        )
+        return int(values[0]), int(values[1]), int(values[2])
+
+    zero = np.zeros(3, dtype=np.int64)
+    representatives = [zero]
+    seen = {residue(zero)}
+    cursor = 0
+    generators = np.eye(3, dtype=np.int64)
+    while cursor < len(representatives) and len(representatives) < cell_index:
+        current = representatives[cursor]
+        cursor += 1
+        for generator in generators:
+            candidate = current + generator
+            key = residue(candidate)
+            if key in seen:
+                continue
+            seen.add(key)
+            representatives.append(candidate)
+            if len(representatives) == cell_index:
+                break
+    if len(representatives) != cell_index:  # pragma: no cover - algebraic guard
+        raise GroupDataError("could not construct all supercell translation cosets")
+    return tuple(
+        (int(item[0]), int(item[1]), int(item[2]))
+        for item in representatives
+    )
 
 
 def _periodic_close(left: Any, right: Any, tolerance: float) -> bool:
@@ -517,6 +595,11 @@ class WyckoffOrbitSplitting:
     parent_label: str
     subgroup_hall_number: int
     subgroup_index: int
+    conventional_cell_index: int
+    translation_subgroup_index: int
+    point_group_index: int
+    subgroup_supercell_matrix: IntegerMatrix3
+    parent_translation_cosets: tuple[IntegerVector3, ...]
     subgroup_transformation_matrix: FloatMatrix3
     subgroup_origin_shift: FloatVector3
     child_orbits: tuple[SubgroupWyckoffOrbit, ...]
@@ -527,7 +610,16 @@ class WyckoffOrbitSplitting:
             "parent_label": self.parent_label,
             "subgroup_hall_number": self.subgroup_hall_number,
             "subgroup_index": self.subgroup_index,
+            "conventional_cell_index": self.conventional_cell_index,
+            "translation_subgroup_index": self.translation_subgroup_index,
+            "point_group_index": self.point_group_index,
             "coordinate_convention": "x_subgroup = P @ x_parent + p",
+            "subgroup_supercell_matrix": [
+                list(row) for row in self.subgroup_supercell_matrix
+            ],
+            "parent_translation_cosets": [
+                list(item) for item in self.parent_translation_cosets
+            ],
             "subgroup_transformation_matrix": [
                 list(row) for row in self.subgroup_transformation_matrix
             ],
@@ -550,20 +642,23 @@ def split_wyckoff_orbit(
 
     The optional coordinate relation follows ``x_subgroup = P x_parent + p``.
     Identity ``P`` and zero ``p`` are used by default.  ``P`` must be an
-    integer unimodular matrix because this finite Hall-operation representation
-    does not contain the translation cosets needed for supercell embeddings.
-    If the transformed subgroup operations are not a subset of the parent
-    operations, the pair is rejected; the function never infers an unstated
-    change of basis or origin.
+    matrix whose inverse ``A = P^-1`` is an integer supercell matrix in the
+    parent conventional basis.  The translation cosets ``Z^3 / A Z^3`` are
+    constructed exactly and used to expand the parent orbit into the subgroup
+    conventional cell.  If the transformed subgroup operations are not a
+    subset of the parent operations, the pair is rejected; the function never
+    infers an unstated change of basis, origin, or group--subgroup relation.
     """
 
     if not np.isfinite(tolerance) or tolerance <= 0:
         raise GroupDataError("tolerance must be positive and finite")
     parent = get_wyckoff_setting(parent_hall_number)
     subgroup = get_wyckoff_setting(subgroup_hall_number)
-    transformation, origin_shift = _coordinate_transformation(
-        subgroup_transformation_matrix,
-        subgroup_origin_shift,
+    transformation, origin_shift, supercell_matrix, translation_cosets = (
+        _coordinate_transformation(
+            subgroup_transformation_matrix,
+            subgroup_origin_shift,
+        )
     )
     parent_position = parent.position(parent_letter)
     parent_coordinates = [
@@ -607,17 +702,64 @@ def split_wyckoff_orbit(
             "subgroup Hall operations are not embedded in the parent setting; "
             "an explicit basis/origin transformation is required"
         )
-    if len(parent_operations) % len(subgroup_operations):
+    conventional_cell_index = len(translation_cosets)
+    index_numerator = conventional_cell_index * len(parent_operations)
+    if index_numerator % len(subgroup_operations):
         raise GroupDataError("parent and subgroup operation orders have noninteger index")
+    centering_numerator = (
+        conventional_cell_index * len(parent.centering_translation_numerators)
+    )
+    if centering_numerator % len(subgroup.centering_translation_numerators):
+        raise GroupDataError(
+            "parent and subgroup translation lattices have noninteger index"
+        )
+    translation_subgroup_index = (
+        centering_numerator // len(subgroup.centering_translation_numerators)
+    )
+    parent_point_order = (
+        len(parent_operations) // len(parent.centering_translation_numerators)
+    )
+    subgroup_point_order = (
+        len(subgroup_operations) // len(subgroup.centering_translation_numerators)
+    )
+    if parent_point_order % subgroup_point_order:
+        raise GroupDataError("parent and subgroup point groups have noninteger index")
+    point_group_index = parent_point_order // subgroup_point_order
+    subgroup_index = index_numerator // len(subgroup_operations)
+    if subgroup_index != translation_subgroup_index * point_group_index:
+        raise GroupDataError(
+            "space-group index does not factor into lattice and point indices"
+        )
+
+    expected_coordinate_count = (
+        parent_position.multiplicity * conventional_cell_index
+    )
+    if expected_coordinate_count > _MAX_EXPANDED_ORBIT_SIZE:
+        raise GroupDataError(
+            "expanded parent Wyckoff orbit exceeds the supported maximum "
+            f"of {_MAX_EXPANDED_ORBIT_SIZE} coordinates"
+        )
+    expanded_subgroup_coordinates = _unique_positions(
+        (
+            transformation @ (coordinate + np.asarray(coset, dtype=float))
+            + origin_shift
+            for coset in translation_cosets
+            for coordinate in parent_coordinates
+        ),
+        tolerance,
+    )
+    if len(expanded_subgroup_coordinates) != expected_coordinate_count:
+        raise GroupDataError(
+            "supercell translation cosets do not produce the expected parent-orbit copies"
+        )
     coordinate_orbits = _coordinate_orbits(
-        parent_coordinates, subgroup_operations, tolerance
+        expanded_subgroup_coordinates,
+        native_subgroup_operations,
+        tolerance,
     )
     children: list[SubgroupWyckoffOrbit] = []
     for orbit in coordinate_orbits:
-        subgroup_orbit = [
-            (transformation @ coordinate + origin_shift) % 1.0
-            for coordinate in orbit
-        ]
+        subgroup_orbit = orbit
         matched: tuple[WyckoffPositionRecord, tuple[Vector3, ...]] | None = None
         for candidate in subgroup.positions:
             if candidate.multiplicity != len(subgroup_orbit):
@@ -677,11 +819,33 @@ def split_wyckoff_orbit(
         float(origin_shift[1]),
         float(origin_shift[2]),
     )
+    supercell_matrix_tuple: IntegerMatrix3 = (
+        (
+            int(supercell_matrix[0, 0]),
+            int(supercell_matrix[0, 1]),
+            int(supercell_matrix[0, 2]),
+        ),
+        (
+            int(supercell_matrix[1, 0]),
+            int(supercell_matrix[1, 1]),
+            int(supercell_matrix[1, 2]),
+        ),
+        (
+            int(supercell_matrix[2, 0]),
+            int(supercell_matrix[2, 1]),
+            int(supercell_matrix[2, 2]),
+        ),
+    )
     return WyckoffOrbitSplitting(
         parent_hall_number,
         parent_position.label,
         subgroup_hall_number,
-        len(parent_operations) // len(subgroup_operations),
+        subgroup_index,
+        conventional_cell_index,
+        translation_subgroup_index,
+        point_group_index,
+        supercell_matrix_tuple,
+        translation_cosets,
         transformation_tuple,
         origin_shift_tuple,
         tuple(children),

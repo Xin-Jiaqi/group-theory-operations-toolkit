@@ -198,6 +198,8 @@ class WyckoffSplittingTests(unittest.TestCase):
         self.assertEqual(result.subgroup_index, 2)
         self.assertEqual([item.label for item in result.child_orbits], ["1a", "1a"])
         self.assertEqual(sum(item.multiplicity for item in result.child_orbits), 2)
+        self.assertEqual(result.translation_subgroup_index, 1)
+        self.assertEqual(result.point_group_index, 2)
 
     def test_pmmm_general_orbit_splitting_conserves_multiplicity(self) -> None:
         result = split_wyckoff_orbit(227, "A", 2)
@@ -210,6 +212,21 @@ class WyckoffSplittingTests(unittest.TestCase):
         self.assertEqual(result.subgroup_index, 4)
         self.assertEqual([item.label for item in result.child_orbits], ["4d"] * 4)
         self.assertEqual(sum(item.multiplicity for item in result.child_orbits), 16)
+
+    def test_centering_loss_is_counted_in_translation_subgroup_index(self) -> None:
+        result = split_wyckoff_orbit(523, "l", 517)
+        self.assertEqual(result.conventional_cell_index, 1)
+        self.assertEqual(result.translation_subgroup_index, 4)
+        self.assertEqual(result.point_group_index, 1)
+        self.assertEqual(result.subgroup_index, 4)
+        self.assertEqual([item.label for item in result.child_orbits], ["48n"] * 4)
+
+    def test_published_i23_to_p23_wyckoff_splitting(self) -> None:
+        result = split_wyckoff_orbit(491, "a", 489)
+        self.assertEqual(result.parent_label, "2a")
+        self.assertEqual(result.translation_subgroup_index, 2)
+        self.assertEqual(result.point_group_index, 1)
+        self.assertEqual([item.label for item in result.child_orbits], ["1a", "1b"])
 
     def test_unembedded_setting_is_rejected(self) -> None:
         with self.assertRaisesRegex(GroupDataError, "basis/origin transformation"):
@@ -246,8 +263,64 @@ class WyckoffSplittingTests(unittest.TestCase):
         with self.assertRaisesRegex(GroupDataError, "special Wyckoff letter"):
             split_wyckoff_orbit(2, "i", 1, parameters=(0.0, 0.0, 0.0))
 
-    def test_supercell_embedding_requires_translation_coset_data(self) -> None:
-        with self.assertRaisesRegex(GroupDataError, "translation-coset data"):
+    def test_doubled_cell_expands_parent_orbit_and_constructs_cosets(self) -> None:
+        result = split_wyckoff_orbit(
+            2,
+            "i",
+            1,
+            subgroup_transformation_matrix=(
+                (0.5, 0.0, 0.0),
+                (0.0, 1.0, 0.0),
+                (0.0, 0.0, 1.0),
+            ),
+        )
+        self.assertEqual(result.conventional_cell_index, 2)
+        self.assertEqual(result.translation_subgroup_index, 2)
+        self.assertEqual(result.point_group_index, 2)
+        self.assertEqual(result.subgroup_index, 4)
+        self.assertEqual(
+            result.subgroup_supercell_matrix,
+            ((2, 0, 0), (0, 1, 0), (0, 0, 1)),
+        )
+        self.assertEqual(
+            result.parent_translation_cosets,
+            ((0, 0, 0), (1, 0, 0)),
+        )
+        self.assertEqual([item.label for item in result.child_orbits], ["1a"] * 4)
+        self.assertEqual(sum(item.multiplicity for item in result.child_orbits), 4)
+
+    def test_non_diagonal_supercell_cosets_are_complete(self) -> None:
+        result = split_wyckoff_orbit(
+            1,
+            "a",
+            1,
+            subgroup_transformation_matrix=(
+                (0.5, -0.5, 0.0),
+                (0.5, 0.5, 0.0),
+                (0.0, 0.0, 1.0),
+            ),
+            subgroup_origin_shift=(0.125, 0.25, 0.0),
+        )
+        self.assertEqual(result.conventional_cell_index, 2)
+        self.assertEqual(result.subgroup_index, 2)
+        self.assertEqual(len(result.parent_translation_cosets), 2)
+        self.assertEqual([item.label for item in result.child_orbits], ["1a", "1a"])
+
+    def test_noncrystallographic_basis_change_is_rejected(self) -> None:
+        with self.assertRaisesRegex(GroupDataError, "integer parent-cell supercell"):
+            split_wyckoff_orbit(
+                2,
+                "i",
+                1,
+                subgroup_transformation_matrix=(
+                    (0.5, 0.0, 0.0),
+                    (0.0, 2.0, 0.0),
+                    (0.0, 0.0, 1.0),
+                ),
+            )
+
+    def test_cell_contraction_is_rejected_as_non_subgroup_embedding(self) -> None:
+        with self.assertRaisesRegex(GroupDataError, "integer parent-cell supercell"):
             split_wyckoff_orbit(
                 2,
                 "i",
@@ -259,15 +332,28 @@ class WyckoffSplittingTests(unittest.TestCase):
                 ),
             )
 
-    def test_noncrystallographic_basis_change_is_rejected(self) -> None:
-        with self.assertRaisesRegex(GroupDataError, "integer lattice-basis"):
+    def test_unbounded_supercell_expansion_is_rejected(self) -> None:
+        with self.assertRaisesRegex(GroupDataError, "supported maximum"):
             split_wyckoff_orbit(
-                2,
-                "i",
+                1,
+                "a",
                 1,
                 subgroup_transformation_matrix=(
-                    (0.5, 0.0, 0.0),
-                    (0.0, 2.0, 0.0),
+                    (1.0 / 4097.0, 0.0, 0.0),
+                    (0.0, 1.0, 0.0),
+                    (0.0, 0.0, 1.0),
+                ),
+            )
+
+    def test_unbounded_expanded_orbit_is_rejected_before_construction(self) -> None:
+        with self.assertRaisesRegex(GroupDataError, "expanded parent Wyckoff orbit"):
+            split_wyckoff_orbit(
+                227,
+                "A",
+                1,
+                subgroup_transformation_matrix=(
+                    (1.0 / 1024.0, 0.0, 0.0),
+                    (0.0, 1.0, 0.0),
                     (0.0, 0.0, 1.0),
                 ),
             )
