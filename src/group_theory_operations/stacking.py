@@ -214,7 +214,7 @@ def _translations_equivalent(
     )
 
 
-def polarization_space(operations: Iterable[Any]) -> PolarizationSpace:
+def polarization_space(operations: Iterable[Any], *, normal=None) -> PolarizationSpace:
     """Return the polar-vector subspace fixed by every supplied operation."""
 
     matrices = tuple(_matrix(operation) for operation in operations)
@@ -230,12 +230,19 @@ def polarization_space(operations: Iterable[Any]) -> PolarizationSpace:
         for index in range(raw_basis.shape[1])
     )
 
-    in_plane_dimension = int(
-        np.linalg.matrix_rank(raw_basis[:2, :], tol=_TOLERANCE)
-    )
-    out_of_plane_dimension = int(
-        np.linalg.matrix_rank(raw_basis[2:3, :], tol=_TOLERANCE)
-    )
+    if normal is None:
+        in_projection, out_projection = raw_basis[:2, :], raw_basis[2:3, :]
+    else:
+        n = np.asarray(normal, dtype=float)
+        if n.shape != (3,) or not np.isfinite(n).all() or np.linalg.norm(n) < _TOLERANCE:
+            raise GroupDataError("normal must be a finite nonzero Cartesian vector")
+        if any(not np.allclose(m.T @ m, np.eye(3), atol=1e-8) for m in matrices):
+            raise GroupDataError("normal requires orthogonal Cartesian operations")
+        n = n / np.linalg.norm(n)
+        in_projection = (np.eye(3) - np.outer(n,n)) @ raw_basis
+        out_projection = n[None,:] @ raw_basis
+    in_plane_dimension = int(np.linalg.matrix_rank(in_projection, tol=_TOLERANCE))
+    out_of_plane_dimension = int(np.linalg.matrix_rank(out_projection, tol=_TOLERANCE))
     if raw_basis.shape[1] == 0:
         polar_type = "NP"
     elif out_of_plane_dimension == 0:

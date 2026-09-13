@@ -293,3 +293,19 @@ python3 -m unittest discover -s tests -v
 核验范围包括矩阵与逆运算、乘法表、Seitz 闭包、$M_\pm$ 表示同态、32 个点群、122 个磁点群、230 个空间群、80 个层群、528 个磁性层群、六类磁性光学响应及堆叠铁电基准。结构识别采用 spglib v2.5.0 官方测试库中的七个代表性晶体，覆盖全部七个晶系；各结构文件均固定来源提交与 SHA-256，并核对空间群、Hall setting、点群、输入晶胞与标准晶胞中的操作数、Wyckoff 字母、等价原子轨道、非零原点移动和坐标变换。0.11.0 进一步核对七个结构的三类非磁二阶响应维数，并验证中心对称结构的相应电偶极响应被禁止；0.12.0 对每个已占据轨道检验轨道—稳定子定理和所有允许位移基矢，并与固定版本的独立 moyo 结果逐原子核对。0.14.0 对 530 个 Hall setting 的全部 3467 个 Wyckoff 位置逐项比较生成坐标与已注册 Seitz 操作的轨道，并通过 spglib 回代核对代表性 setting 的字母和位点群。0.15.0 进一步验证对角与非对角二倍胞、非零原点移动、常规胞中心化改变、平移与点群指数分解，以及子轨道总重数 $|\det A|m_G$ 守恒；并复现 International Tables Symmetry Database 给出的 $I23\,2a\rightarrow P23\,(1a+1b)$ 分裂。另以 NaCl 原胞验证 F-中心标准胞中的操作、原子位置展开及 $4a/4b$ 高对称位点。外部论文原文与截图不收入仓库；仓库只保存可复现数据、正式链接、许可信息和校验值。
 
 本项目采用 [BSD 3-Clause License](LICENSE)。科研使用请通过 [`CITATION.cff`](CITATION.cff) 引用实际使用的软件版本，并同时引用与你调用的理论模块对应的上述原始文献。
+
+
+## Intrinsic slab geometry (0.16.0)
+
+Install the `structure` extra to use `lattice_point_operations(lattice)` with
+Cartesian row lattice vectors. It derives metric-preserving integer operations
+from the supplied a/b lattice, including centered rectangular primitive cells,
+and returns Cartesian matrices. Integer changes of the same lattice basis and
+rigid rotations preserve the physical operation set. A nonprimitive supercell
+is treated as its supplied lattice; hidden primitive translations are not inferred.
+
+`polarization_space(operations, normal=normal)` classifies the fixed space relative
+to the actual layer normal. With `normal` specified, operations must be Cartesian
+orthogonal matrices. Without it the established catalog-coordinate behavior is
+preserved. This determines symmetry-allowed directions, not switching partners,
+polarization magnitudes or energy barriers.

@@ -17,6 +17,7 @@ from .catalog import (
     operation_record,
     validate_database,
 )
+from .lattice_geometry import lattice_point_operations
 from .structure import apply_fractional_operation
 from .structure_symmetry import (
     StructureSymmetryContext,
@@ -130,6 +131,7 @@ from .stacking import (
 )
 
 __all__ = [
+    "lattice_point_operations",
     "AntiunitaryEquivariantMapBasis",
     "BRAVAIS_LATTICE_POINT_GROUPS",
     "GroupDataError",
@@ -236,4 +238,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.15.0"
+__version__ = "0.16.0"
