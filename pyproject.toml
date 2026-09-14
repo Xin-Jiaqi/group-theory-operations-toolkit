@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "group-theory-operations-toolkit"
-version = "0.15.0"
+version = "0.16.0"
 description = "Group operations, crystal symmetry, stacking symmetry, and response-tensor screening"
 authors = [{name = "Jiaqi Xin"}]
 readme = "README.md"
@@ -17,7 +17,7 @@ dependencies = ["numpy>=1.24,<3"]
 group-ops = "group_theory_operations.cli:main"
 
 [project.optional-dependencies]
-structure = ["materials-structure-core[io]>=0.0.2,<0.2", "spglib>=2.5,<3"]
+structure = ["materials-structure-core[io]>=0.0.3,<0.2", "spglib>=2.5,<3"]
 test = ["ase>=3.23,<4", "build>=1.2,<2", "gemmi>=0.6,<1", "jsonschema[format]>=4.21,<5", "mypy>=1.10", "spglib>=2.5,<3", "twine>=5,<7"]
 
 [tool.hatch.build.targets.wheel]
