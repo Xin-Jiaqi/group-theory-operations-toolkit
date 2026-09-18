@@ -59,6 +59,12 @@ _TENSOR_SPACE_ALIASES = {
 }
 
 RESPONSE_SPECS = {
+    "edelstein": {
+        "input_space": "polar_vector",
+        "output_basis": TENSOR_SPACE_BASES["axial_vector"],
+        "input_basis": POLAR_BASIS,
+        "equation": "S_i = chi_ij j_j; S is axial and j is polar",
+    },
     "shift_current": {
         "input_space": "symmetric",
         "output_basis": POLAR_BASIS,
@@ -153,6 +159,9 @@ _RESPONSE_SYMMETRY_CLASS_ALIASES = {
 }
 
 _RESPONSE_ALIASES = {
+    "edelstein": "edelstein",
+    "rashba_edelstein": "edelstein",
+    "rashbaedelstein": "edelstein",
     "shift": "shift_current",
     "shiftcurrent": "shift_current",
     "shift_current": "shift_current",
@@ -1075,7 +1084,16 @@ def response_tensor_basis(
     )
     output_representations = [operation.matrix_cartesian for operation in operations]
     input_representations: list[tuple[tuple[float, ...], ...]]
-    if specification["input_space"] == "symmetric":
+    if specification["input_space"] == "polar_vector":
+        input_representations = output_representations
+        output_representations = [
+            tuple(
+                tuple(determinant3(operation.matrix_cartesian) * value for value in row)
+                for row in operation.matrix_cartesian
+            )
+            for operation in operations
+        ]
+    elif specification["input_space"] == "symmetric":
         input_representations = [
             quadratic_field_representation(operation.matrix_cartesian).matrix_symmetric
             for operation in operations

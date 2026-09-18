@@ -30,6 +30,7 @@ from group_theory_operations import (  # noqa: E402
     response_tensor_basis,
     screen_response_symmetry,
 )
+from group_theory_operations.invariants import RESPONSE_SPECS  # noqa: E402
 from group_theory_operations.cli import main  # noqa: E402
 
 
@@ -285,7 +286,7 @@ class OpticalInvariantTests(unittest.TestCase):
                 registry=self.registry,
             )
         }
-        self.assertEqual(len(screened), 32 * 3)
+        self.assertEqual(len(screened), 32 * len(RESPONSE_SPECS))
         for item in self.catalog["point_groups"]:
             for response_name, stored in item["responses"].items():
                 self.assertEqual(
@@ -301,6 +302,30 @@ class OpticalInvariantTests(unittest.TestCase):
             cpge = response_tensor_basis(group.number, "cpge", database=self.database, registry=self.registry)
             self.assertEqual((shift.dimension, cpge.dimension), (symmetric, circular), group.hm_symbol)
             self.assertEqual(shift.basis, shg.basis, group.hm_symbol)
+
+    def test_edelstein_tensor_matches_axial_polar_selection_rules(self):
+        expected_dimensions = {
+            "1": 9,
+            "-1": 0,
+            "mm2": 2,
+            "4mm": 1,
+            "-6m2": 0,
+            "6mm": 1,
+        }
+        for point_group, expected in expected_dimensions.items():
+            solved = response_tensor_basis(
+                point_group,
+                "rashba-edelstein",
+                database=self.database,
+                registry=self.registry,
+            )
+            self.assertEqual(solved.dimension, expected, point_group)
+            self.assertEqual(solved.shape, (3, 3))
+
+        c4v = response_tensor_basis(
+            "4mm", "edelstein", database=self.database, registry=self.registry
+        )
+        self.assertEqual(c4v.basis[0], ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 0.0)))
 
     def test_every_basis_vector_is_equivariant_under_every_operation(self):
         for item in self.catalog["point_groups"]:
