@@ -25,13 +25,13 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "spglib_real_structures_v2.5.0.json"
 
 EXPECTED_RESPONSE_DIMENSIONS = {
-    "sio2_triclinic": (18, 18, 9),
-    "sio2_monoclinic": (8, 8, 5),
-    "bates3_orthorhombic": (0, 0, 0),
-    "mno2_tetragonal": (0, 0, 0),
-    "rucl3_trigonal": (4, 4, 1),
-    "aucn_hexagonal": (3, 3, 1),
-    "cssnbr3_cubic": (0, 0, 0),
+    "sio2_triclinic": (9, 18, 18, 9),
+    "sio2_monoclinic": (5, 8, 8, 5),
+    "bates3_orthorhombic": (0, 0, 0, 0),
+    "mno2_tetragonal": (0, 0, 0, 0),
+    "rucl3_trigonal": (1, 4, 4, 1),
+    "aucn_hexagonal": (1, 3, 3, 1),
+    "cssnbr3_cubic": (0, 0, 0, 0),
 }
 
 

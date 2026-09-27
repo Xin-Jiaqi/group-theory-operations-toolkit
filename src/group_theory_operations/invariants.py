@@ -1134,7 +1134,10 @@ def response_tensor_basis(
         database=source_database,
         registry=source_registry,
     )
-    output_representations = [operation.matrix_cartesian for operation in operations]
+    output_representations: list[Matrix] = [
+        tuple(tuple(float(value) for value in row) for row in operation.matrix_cartesian)
+        for operation in operations
+    ]
     input_representations: list[tuple[tuple[float, ...], ...]]
     if specification["input_space"] == "polar_vector":
         input_representations = output_representations
