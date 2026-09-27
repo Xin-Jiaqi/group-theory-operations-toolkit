@@ -97,8 +97,8 @@ $$
 
 $$
 \mathcal O_G^{(H\text{ cell})}(\mathbf r)
-=\left\{P(\mathbf x+\mathbf n_\alpha)+\mathbf p\mid
-\mathbf x\in\mathcal O_G(\mathbf r)\right\}
+=\Bigl\{P(\mathbf x+\mathbf n_\alpha)+\mathbf p\mathrel{|}
+\mathbf x\in\mathcal O_G(\mathbf r)\Bigr\}
 =\bigcup_i\mathcal O_H(\mathbf r_i).
 $$
 
