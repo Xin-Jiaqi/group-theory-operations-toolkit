@@ -111,6 +111,13 @@ from .invariants import (
     response_tensor_basis,
     screen_response_symmetry,
 )
+from .imhe import (
+    IMHE_SECTORS,
+    IMHETensorBasis,
+    canonical_imhe_sector,
+    magnetic_imhe_tensor_basis,
+    magnetic_layer_imhe_tensor_basis,
+)
 from .layer_groups import (
     CrystallographicLayerGroup,
     LayerHallSetting,
@@ -146,6 +153,11 @@ __all__ = [
     "CrystallographicPointGroup",
     "CrystallographicLayerGroup",
     "InvariantTensorBasis",
+    "magnetic_layer_imhe_tensor_basis",
+    "magnetic_imhe_tensor_basis",
+    "canonical_imhe_sector",
+    "IMHETensorBasis",
+    "IMHE_SECTORS",
     "LayerHallSetting",
     "MAGNETIC_CATEGORIES",
     "MAGNETIC_LAYER_TYPES",
