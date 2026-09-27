@@ -439,10 +439,17 @@ class RepositoryDataTests(unittest.TestCase):
             document = path.read_text(encoding="utf-8")
             self.assertNotIn(r"\operatorname", document, path)
 
-        readme_lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        readme_document = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme_lines = readme_document.splitlines()
         for line in readme_lines:
             if line.startswith("|"):
                 self.assertNotIn("$", line, line)
+
+        # GitHub's Markdown math renderer rejects the escaped-brace form
+        # ``\\left\\{ ... \\right\\}`` in the displayed orbit expression.
+        # Keep README set notation on the portable Bigl/Bigr form instead.
+        self.assertNotIn(r"\left\{", readme_document)
+        self.assertNotIn(r"\right\}", readme_document)
 
     def test_structure_contract_applies_fractional_operation(self):
         structure = MinimalStructureRecord(
