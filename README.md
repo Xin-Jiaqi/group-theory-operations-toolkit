@@ -255,6 +255,8 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.13.0** | 加入已识别 Wyckoff 位置的局部参数流形和横向偏离 | 由位点稳定子的固定空间给出位置参数维数与约束余维；把输入结构相对于对称性理想化结构的坐标差分解为切向残差和横向偏离，并报告逐原子、最大值和均方根距离 |
 | **0.14.0** | 加入全部 Hall setting 的 Wyckoff 位置表与群—子群轨道分裂 | 固定 spglib v2.5.0 的 BSD 数据文件及 SHA-256，注册 3467 个位置和 24295 个展开坐标映射；逐 setting 核对 Seitz 轨道，并在相同 setting、中心化晶格和显式轴变换三个层次验证子轨道重数守恒与 Wyckoff 标定 |
 | **0.15.0** | 将 Wyckoff 轨道分裂推广到超胞子群 | 由给定的整数超胞矩阵构造平移陪集，将母群轨道展开到子群常规胞；分别报告常规胞体积比、平移子群指数、点群指数和完整空间群指数，并验证对角/非对角倍胞、原点移动及 F 中心到 P 晶格的重数守恒 |
+| **0.16.0** | 从实际层状晶格导出 slab 点操作并判定本征极化 | 以真实晶格度量生成 slab 操作；相对调用者给定的层法向量分类极化固定空间，并以五种二维 Bravais 晶格、整数换基和旋转基准核验 |
+| **0.17.0** | 加入 Edelstein tensor 与 bilayer layer Edelstein effect | 对 32 个点群求 axial-spin ← polar-current 允许张量基；按层保持/交换操作逐分量区分 bilayer LEE 的 Type-I、Type-II、Both 或 forbidden，并以 MoSSe、MoTe₂ 与反演构型基准核验 |
 
 完整核验要求与后续范围见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是群论数据与物理分析能力的演进，不代表已经计算任何具体材料的响应强度。
 
