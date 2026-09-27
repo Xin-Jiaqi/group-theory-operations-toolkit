@@ -61,6 +61,7 @@ from .invariants import (
     RESPONSE_SYMMETRY_CLASSES,
     RESPONSE_SPECS,
     TENSOR_SPACE_BASES,
+    bilayer_edelstein_point_groups,
     magnetic_layer_response_tensor_basis,
     magnetic_layer_tensor_basis,
     magnetic_tensor_basis,
@@ -348,6 +349,29 @@ def _stacking_rotations(args: argparse.Namespace, database: dict) -> int:
                 f"C{index}: order={len(coset.members)} "
                 f"representative={coset.representative}"
             )
+    return 0
+
+
+def _bilayer_edelstein(args: argparse.Namespace, database: dict) -> int:
+    result = bilayer_edelstein_point_groups(
+        args.monolayer_point_group,
+        args.bilayer_point_group,
+        database=database,
+    )
+    payload = {
+        "monolayer_point_group": args.monolayer_point_group,
+        "bilayer_point_group": args.bilayer_point_group,
+        **result.to_dict(),
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    print(
+        f"monolayer={args.monolayer_point_group} / bilayer={args.bilayer_point_group} / "
+        f"LEE={result.classification}"
+    )
+    print("Type-I: " + (", ".join(result.type_i_components) or "none"))
+    print("Type-II: " + (", ".join(result.type_ii_components) or "none"))
     return 0
 
 
@@ -812,6 +836,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     stacking_rotations_parser.add_argument("--json", action="store_true")
     stacking_rotations_parser.set_defaults(handler=_stacking_rotations)
+
+    bilayer_edelstein_parser = subparsers.add_parser("bilayer-edelstein")
+    bilayer_edelstein_parser.add_argument("monolayer_point_group")
+    bilayer_edelstein_parser.add_argument("bilayer_point_group")
+    bilayer_edelstein_parser.add_argument("--json", action="store_true")
+    bilayer_edelstein_parser.set_defaults(handler=_bilayer_edelstein)
 
     magnetic_layer_groups_parser = subparsers.add_parser("magnetic-layer-groups")
     magnetic_layer_groups_parser.add_argument("identifier", nargs="?")
