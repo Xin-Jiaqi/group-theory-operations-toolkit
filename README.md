@@ -19,6 +19,7 @@
 | Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，将母群轨道在同胞或超胞子群中分裂并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | Edelstein 与 bilayer LEE | 32 个点群及任意 R<sub>B</sub><sup>+</sup>/R<sub>B</sub><sup>−</sup> 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
+| IMHE 张量 | 106 个轴保持磁点群与 528 个磁性层群 | 对固定分量 χ<sub>ab;zz</sub> 求 intrinsic 反对称与 extrinsic 对称允许子空间；拒绝混合层法向量的 cubic 点群 |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 4028 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
 | 具体结构的响应判定 | 覆盖 7 个晶系的真实结构基准 | 从 CIF/POSCAR 识别空间群和晶体点群，并直接给出 Edelstein 与三类非磁二阶响应的允许张量维数 |
@@ -170,6 +171,8 @@ from group_theory_operations import (
     equivalent_interface_orbit,
     layer_group_polarization,
     magnetic_layer_response_tensor_basis,
+    magnetic_imhe_tensor_basis,
+    magnetic_layer_imhe_tensor_basis,
     point_group_operations,
     screen_response_symmetry,
     get_wyckoff_setting,
@@ -178,6 +181,8 @@ from group_theory_operations import (
 
 print(layer_group_polarization(68).polar_type)  # NP
 print(magnetic_layer_response_tensor_basis("6.5.25", "shg_odd").dimension)
+print(magnetic_imhe_tensor_basis("3", "intrinsic").basis)
+print(magnetic_layer_imhe_tensor_basis("6.5.25", "extrinsic").dimension)
 print(equivalent_interface_orbit((1 / 3, 2 / 3), point_group_operations("6/mmm")))
 
 allowed_shg = screen_response_symmetry(
@@ -312,3 +317,24 @@ to the actual layer normal. With `normal` specified, operations must be Cartesia
 orthogonal matrices. Without it the established catalog-coordinate behavior is
 preserved. This determines symmetry-allowed directions, not switching partners,
 polarization magnitudes or energy barriers.
+
+
+### Planar IMHE tensor symmetry
+
+The planar intrinsic/extrinsic magnetoelectric Hall response
+
+$$
+j_a=\chi_{ab;zz}E_b\mathcal E B,
+\qquad a,b\in\{x,y\},
+$$
+
+is available through `magnetic_imhe_tensor_basis` and
+`magnetic_layer_imhe_tensor_basis`. The intrinsic sector is treated as a
+T-even antisymmetric planar pseudotensor, while the extrinsic sector is a
+T-odd symmetric planar pseudotensor. The fixed-`zz` solver is defined for
+operations preserving the chosen layer normal; all 528 magnetic layer groups
+are supported, while magnetic point groups whose standard operations rotate
+z into x/y are rejected instead of projected onto a non-closed component set.
+See [`docs/imhe_tensor_symmetry.md`](docs/imhe_tensor_symmetry.md) for the
+independent derivation and the documented differences from arXiv:2604.20249v1
+Table I.
