@@ -55,6 +55,10 @@ class IMHESymmetryTests(unittest.TestCase):
         self.assertEqual(self.point("31'", "intrinsic").dimension, 1)
         self.assertEqual(self.point("31'", "extrinsic").dimension, 0)
 
+    def test_c2z_time_reversal_keeps_only_intrinsic(self):
+        self.assertEqual(self.point("2'", "intrinsic").dimension, 1)
+        self.assertEqual(self.point("2'", "extrinsic").dimension, 0)
+
     def test_c4z_time_reversal_extrinsic(self):
         result = self.point("4'", "extrinsic")
         self.assertEqual(result.dimension, 2)

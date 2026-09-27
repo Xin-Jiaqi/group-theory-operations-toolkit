@@ -213,15 +213,20 @@ def _solve_imhe_operations(
                     constraints.append(equation)
 
     coefficient_basis = _nullspace(constraints, len(candidates), tolerance)
-    result = []
+    result: list[Matrix2] = []
     for coefficients in coefficient_basis:
         matrix = _linear_combination(coefficients, candidates)
-        result.append(
-            tuple(
-                tuple(_clean(value, tolerance * 10.0) for value in row)
-                for row in matrix
-            )
+        cleaned: Matrix2 = (
+            (
+                _clean(matrix[0][0], tolerance * 10.0),
+                _clean(matrix[0][1], tolerance * 10.0),
+            ),
+            (
+                _clean(matrix[1][0], tolerance * 10.0),
+                _clean(matrix[1][1], tolerance * 10.0),
+            ),
         )
+        result.append(cleaned)
     return tuple(result)
 
 

@@ -5,7 +5,7 @@ This document gives an independent symmetry derivation for the planar IMHE respo
 The response is
 
 $$
-j_a=chi_{ab;zz}E_b\mathcal E B,
+j_a=\chi_{ab;zz}E_b\mathcal E B,
 \qquad a,b\in\{x,y\}.
 $$
 
@@ -166,7 +166,7 @@ $$
 
 but allows the symmetric extrinsic tensor. This disagrees with the extrinsic PT entry in arXiv:2604.20249v1 Table I and is therefore retained as an explicit validation discrepancy rather than adjusted to match the paper.
 
-The same derivation also confirms that the duplicated $C_{2z}T$, $C_{3z}T$ and $C_{6z}T$ entries in Table I cannot both be correct. The independent result supports the row with intrinsic allowed and extrinsic $xx$ forbidden.
+The repeated $C_{2z}T$, $C_{3z}T$ and $C_{6z}T$ labels in Table I are mutually incompatible as printed. The solver retains its result as an independent check; the missing SM S2 is required before assigning the discrepancy to a specific published row.
 
 ## Scope
 
