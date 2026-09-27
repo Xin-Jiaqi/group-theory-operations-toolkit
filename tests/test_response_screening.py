@@ -17,15 +17,15 @@ class ResponseSymmetryScreeningTests(unittest.TestCase):
         magnetic_point = screen_response_symmetry("magnetic_point_group")
         magnetic_layer = screen_response_symmetry("magnetic_layer_group")
 
-        self.assertEqual(len(point), 32 * 3)
+        self.assertEqual(len(point), 32 * 4)
         self.assertEqual(len(magnetic_point), 122 * 6)
         self.assertEqual(len(magnetic_layer), 528 * 6)
         self.assertEqual(
             [(item.group_number, item.response) for item in point[:3]],
             [
+                (1, "edelstein"),
                 (1, "shift_current"),
                 (1, "shg"),
-                (1, "circular_injection_current"),
             ],
         )
         self.assertEqual(magnetic_point[-1].group_number, 122)

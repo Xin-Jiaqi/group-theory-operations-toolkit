@@ -18,7 +18,7 @@
 | Wyckoff 轨道与位点群 | 具体结构中实际占据的不等价原子轨道 | 给出标准晶胞中的重数与 Wyckoff 字母、位点群、位置参数维数，并把结构理想化位移分解为沿局部 Wyckoff 流形的切向残差和横向偏离 |
 | Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，将母群轨道在同胞或超胞子群中分裂并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
-| Edelstein 与 bilayer LEE | 32 个点群及任意 $R_B^+/R_B^-$ 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
+| Edelstein 与 bilayer LEE | 32 个点群及任意 R<sub>B</sub><sup>+</sup>/R<sub>B</sub><sup>−</sup> 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 4028 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
 | 具体结构的响应判定 | 覆盖 7 个晶系的真实结构基准 | 从 CIF/POSCAR 识别空间群和晶体点群，并直接给出 Edelstein 与三类非磁二阶响应的允许张量维数 |

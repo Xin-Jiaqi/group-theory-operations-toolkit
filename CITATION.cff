@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software or data in research, please cite this repository and the version used."
 type: software
 title: "group-theory-operations-toolkit"
-version: 0.16.0
-date-released: 2026-09-13
+version: 0.17.0
+date-released: 2026-09-27
 authors:
   - family-names: Xin
     given-names: Jiaqi
