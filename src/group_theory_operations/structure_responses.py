@@ -1,4 +1,4 @@
-"""Symmetry-allowed nonlinear responses for concrete crystal structures."""
+"""Symmetry-allowed Edelstein and nonlinear responses for crystal structures."""
 
 from __future__ import annotations
 
@@ -92,14 +92,14 @@ def analyze_structure_responses(
     point_group_registry: Mapping[str, Any] | None = None,
     tolerance: float = 1.0e-8,
 ) -> StructureResponseAnalysis:
-    """Classify a nonmagnetic crystal and screen its second-order responses.
+    """Classify a nonmagnetic crystal and screen its available responses.
 
     The supplied structure must be periodic along all three lattice directions.
     The spatial symmetry search is delegated to spglib and independently checked
     against the package Hall registry by :func:`classify_structure_symmetry`.
     The detected crystallographic point-group number is then used to evaluate
-    shift current, electric-dipole SHG, and circular injection current through
-    character inner products.
+    Edelstein, shift-current, electric-dipole SHG, and circular-injection
+    tensors through character inner products.
 
     Magnetic response sectors are intentionally excluded because atomic species
     and positions alone do not specify magnetic moments or a magnetic group.

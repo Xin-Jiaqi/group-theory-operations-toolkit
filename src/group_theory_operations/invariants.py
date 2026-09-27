@@ -33,6 +33,9 @@ from .representations import determinant3, quadratic_field_representation
 Matrix = tuple[tuple[float, ...], ...]
 
 POLAR_BASIS = ("x", "y", "z")
+EDELSTEIN_COMPONENTS = tuple(
+    f"{spin}{current}" for spin in POLAR_BASIS for current in POLAR_BASIS
+)
 SYMMETRIC_FIELD_BASIS = ("xx", "yy", "zz", "xy", "xz", "yz")
 ANTISYMMETRIC_FIELD_BASIS = ("h_x", "h_y", "h_z")
 
@@ -59,6 +62,12 @@ _TENSOR_SPACE_ALIASES = {
 }
 
 RESPONSE_SPECS = {
+    "edelstein": {
+        "input_space": "polar_vector",
+        "output_basis": TENSOR_SPACE_BASES["axial_vector"],
+        "input_basis": POLAR_BASIS,
+        "equation": "S_i = chi_ij j_j; S is axial and j is polar",
+    },
     "shift_current": {
         "input_space": "symmetric",
         "output_basis": POLAR_BASIS,
@@ -153,6 +162,9 @@ _RESPONSE_SYMMETRY_CLASS_ALIASES = {
 }
 
 _RESPONSE_ALIASES = {
+    "edelstein": "edelstein",
+    "rashba_edelstein": "edelstein",
+    "rashbaedelstein": "edelstein",
     "shift": "shift_current",
     "shiftcurrent": "shift_current",
     "shift_current": "shift_current",
@@ -394,6 +406,55 @@ class InvariantTensorBasis:
                 [[_json_number(value) for value in row] for row in matrix]
                 for matrix in self.basis
             ],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class BilayerEdelsteinAnalysis:
+    """Symmetry-only component-wise classification of a bilayer LEE setup.
+
+    ``type_i_basis`` contains zero-field local tensors whose partner-layer
+    tensor is their negative under every supplied layer-exchange operation.
+    ``type_ii_components`` are absent in both the isolated monolayer and the
+    zero-field global bilayer response, yet allowed after removing the
+    layer-exchange operations while retaining the intralayer operations.
+    """
+
+    monolayer_basis: tuple[Matrix, ...]
+    zero_field_global_basis: tuple[Matrix, ...]
+    field_dressed_basis: tuple[Matrix, ...]
+    type_i_basis: tuple[Matrix, ...]
+    type_i_components: tuple[str, ...]
+    type_ii_components: tuple[str, ...]
+    intralayer_operation_count: int
+    interlayer_operation_count: int
+    classification: str
+
+    @property
+    def lee_allowed(self) -> bool:
+        return self.classification != "forbidden"
+
+    def to_dict(self) -> dict[str, Any]:
+        def serialize(basis: tuple[Matrix, ...]) -> list[list[list[int | float]]]:
+            return [
+                [[_json_number(value) for value in row] for row in matrix]
+                for matrix in basis
+            ]
+
+        return {
+            "response": "bilayer_edelstein",
+            "equation": "S_i^L = chi_ij^L j_j; chi^L' = det(R-) R- chi^L R-^T",
+            "classification": self.classification,
+            "lee_allowed": self.lee_allowed,
+            "intralayer_operation_count": self.intralayer_operation_count,
+            "interlayer_operation_count": self.interlayer_operation_count,
+            "components": list(EDELSTEIN_COMPONENTS),
+            "type_i_components": list(self.type_i_components),
+            "type_ii_components": list(self.type_ii_components),
+            "monolayer_basis": serialize(self.monolayer_basis),
+            "zero_field_global_basis": serialize(self.zero_field_global_basis),
+            "field_dressed_basis": serialize(self.field_dressed_basis),
+            "type_i_basis": serialize(self.type_i_basis),
         }
 
 
@@ -1073,9 +1134,21 @@ def response_tensor_basis(
         database=source_database,
         registry=source_registry,
     )
-    output_representations = [operation.matrix_cartesian for operation in operations]
+    output_representations: list[Matrix] = [
+        tuple(tuple(float(value) for value in row) for row in operation.matrix_cartesian)
+        for operation in operations
+    ]
     input_representations: list[tuple[tuple[float, ...], ...]]
-    if specification["input_space"] == "symmetric":
+    if specification["input_space"] == "polar_vector":
+        input_representations = output_representations
+        output_representations = [
+            tuple(
+                tuple(determinant3(operation.matrix_cartesian) * value for value in row)
+                for row in operation.matrix_cartesian
+            )
+            for operation in operations
+        ]
+    elif specification["input_space"] == "symmetric":
         input_representations = [
             quadratic_field_representation(operation.matrix_cartesian).matrix_symmetric
             for operation in operations
@@ -1099,6 +1172,175 @@ def response_tensor_basis(
         input_basis=tuple(specification["input_basis"]),
         equation=str(specification["equation"]),
         basis=basis,
+    )
+
+
+def _cartesian_operation_matrix(operation: Any) -> Matrix:
+    """Extract one 3 by 3 Cartesian point-operation matrix."""
+
+    if hasattr(operation, "matrix_cartesian"):
+        value = operation.matrix_cartesian
+    elif isinstance(operation, Mapping) and "matrix_cartesian" in operation:
+        value = operation["matrix_cartesian"]
+    else:
+        value = operation
+    matrix = _matrix(value, square=True)
+    if len(matrix) != 3:
+        raise ValueError("Edelstein operations must be 3x3 Cartesian matrices")
+    return matrix
+
+
+def _edelstein_representations(
+    operations: Sequence[Any], *, require_nonempty: bool = True
+) -> tuple[tuple[Matrix, ...], tuple[Matrix, ...]]:
+    if require_nonempty and not operations:
+        raise ValueError("at least one point operation is required")
+    polar = tuple(_cartesian_operation_matrix(operation) for operation in operations)
+    axial = tuple(_scale_matrix(matrix, determinant3(matrix)) for matrix in polar)
+    return polar, axial
+
+
+def edelstein_tensor_basis_from_operations(
+    operations: Sequence[Any], *, tolerance: float = 1e-10
+) -> tuple[Matrix, ...]:
+    """Solve ordinary Edelstein invariants for arbitrary Cartesian operations."""
+
+    polar, axial = _edelstein_representations(operations)
+    return equivariant_map_basis(axial, polar, tolerance=tolerance)
+
+
+def partition_bilayer_operations(
+    operations: Sequence[Any], *, tolerance: float = 1e-10
+) -> tuple[tuple[Matrix, ...], tuple[Matrix, ...]]:
+    """Partition a layer-normal-preserving point group into ``R+`` and ``R-``.
+
+    The bilayer mid-plane is ``z=0``. Operations with ``Rzz=+1`` preserve
+    each layer; those with ``Rzz=-1`` exchange the layers. Operations that
+    mix the layer normal with in-plane coordinates are rejected because their
+    layer action is not defined by this two-sector model.
+    """
+
+    matrices = tuple(_cartesian_operation_matrix(operation) for operation in operations)
+    if not matrices:
+        raise ValueError("at least one bilayer point operation is required")
+    intralayer: list[Matrix] = []
+    interlayer: list[Matrix] = []
+    for matrix in matrices:
+        mixed = (matrix[0][2], matrix[1][2], matrix[2][0], matrix[2][1])
+        if any(abs(value) > tolerance for value in mixed) or abs(abs(matrix[2][2]) - 1) > tolerance:
+            raise ValueError("bilayer operations must preserve or reverse the layer normal")
+        (intralayer if matrix[2][2] > 0 else interlayer).append(matrix)
+    return tuple(intralayer), tuple(interlayer)
+
+
+def _supported_edelstein_components(
+    basis: Sequence[Matrix], tolerance: float
+) -> tuple[str, ...]:
+    return tuple(
+        label
+        for index, label in enumerate(EDELSTEIN_COMPONENTS)
+        if any(abs(matrix[index // 3][index % 3]) > tolerance for matrix in basis)
+    )
+
+
+def bilayer_edelstein_analysis(
+    monolayer_operations: Sequence[Any],
+    intralayer_operations: Sequence[Any],
+    interlayer_operations: Sequence[Any],
+    *,
+    tolerance: float = 1e-10,
+) -> BilayerEdelsteinAnalysis:
+    """Classify Type-I and Type-II LEE from layer-resolved point operations.
+
+    The three operation sets use one common Cartesian coordinate system.
+    ``intralayer_operations`` are the bilayer's ``R_B+`` operations and
+    ``interlayer_operations`` are its ``R_B-`` operations. A vertical field
+    removes only the latter set. This implements the symmetry criterion, not
+    a transport-magnitude or interlayer-tunnelling model.
+    """
+
+    mono_polar, mono_axial = _edelstein_representations(monolayer_operations)
+    intra_polar, intra_axial = _edelstein_representations(intralayer_operations)
+    inter_polar, inter_axial = _edelstein_representations(
+        interlayer_operations, require_nonempty=False
+    )
+    monolayer_basis = equivariant_map_basis(mono_axial, mono_polar, tolerance=tolerance)
+    field_dressed_basis = equivariant_map_basis(intra_axial, intra_polar, tolerance=tolerance)
+    zero_field_global_basis = equivariant_map_basis(
+        intra_axial + inter_axial, intra_polar + inter_polar, tolerance=tolerance
+    )
+    if interlayer_operations:
+        type_i_basis = equivariant_map_basis(
+            mono_axial + intra_axial + inter_axial,
+            mono_polar + intra_polar
+            + tuple(_scale_matrix(matrix, -1.0) for matrix in inter_polar),
+            tolerance=tolerance,
+        )
+    else:
+        type_i_basis = ()
+
+    monolayer_components = set(_supported_edelstein_components(monolayer_basis, tolerance))
+    zero_field_components = set(
+        _supported_edelstein_components(zero_field_global_basis, tolerance)
+    )
+    field_components = set(_supported_edelstein_components(field_dressed_basis, tolerance))
+    type_i_components = _supported_edelstein_components(type_i_basis, tolerance)
+    type_ii_components = tuple(
+        component
+        for component in EDELSTEIN_COMPONENTS
+        if component in field_components
+        and component not in monolayer_components
+        and component not in zero_field_components
+    )
+    if type_i_components and type_ii_components:
+        classification = "both"
+    elif type_i_components:
+        classification = "type_i"
+    elif type_ii_components:
+        classification = "type_ii"
+    else:
+        classification = "forbidden"
+    return BilayerEdelsteinAnalysis(
+        monolayer_basis=monolayer_basis,
+        zero_field_global_basis=zero_field_global_basis,
+        field_dressed_basis=field_dressed_basis,
+        type_i_basis=type_i_basis,
+        type_i_components=type_i_components,
+        type_ii_components=type_ii_components,
+        intralayer_operation_count=len(intralayer_operations),
+        interlayer_operation_count=len(interlayer_operations),
+        classification=classification,
+    )
+
+
+def bilayer_edelstein_point_groups(
+    monolayer_point_group: str | int,
+    bilayer_point_group: str | int,
+    *,
+    database: Mapping[str, Any] | None = None,
+    registry: Mapping[str, Any] | None = None,
+    tolerance: float = 1e-10,
+) -> BilayerEdelsteinAnalysis:
+    """Convenience wrapper for standard point-group embeddings of a bilayer."""
+
+    source_database = load_database() if database is None else database
+    source_registry = load_point_group_registry() if registry is None else registry
+    monolayer = get_crystallographic_point_group(monolayer_point_group, source_registry)
+    bilayer = get_crystallographic_point_group(bilayer_point_group, source_registry)
+    monolayer_operations = point_group_operations(
+        monolayer.number, database=source_database, registry=source_registry
+    )
+    bilayer_operations = point_group_operations(
+        bilayer.number, database=source_database, registry=source_registry
+    )
+    intralayer, interlayer = partition_bilayer_operations(
+        bilayer_operations, tolerance=tolerance
+    )
+    return bilayer_edelstein_analysis(
+        monolayer_operations,
+        intralayer,
+        interlayer,
+        tolerance=tolerance,
     )
 
 

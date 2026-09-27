@@ -80,6 +80,8 @@ from .magnetic_layer_groups import (
 )
 from .invariants import (
     AntiunitaryEquivariantMapBasis,
+    BilayerEdelsteinAnalysis,
+    EDELSTEIN_COMPONENTS,
     InvariantTensorBasis,
     MAGNETIC_RESPONSE_SPECS,
     RESPONSE_SYMMETRY_CLASSES,
@@ -90,11 +92,14 @@ from .invariants import (
     ResponseSymmetryResult,
     TENSOR_SPACE_BASES,
     antiunitary_equivariant_map_basis,
+    bilayer_edelstein_analysis,
+    bilayer_edelstein_point_groups,
     canonical_magnetic_response_name,
     canonical_response_symmetry_class,
     canonical_response_name,
     canonical_tensor_space,
     canonical_time_parity,
+    edelstein_tensor_basis_from_operations,
     equivariant_map_basis,
     load_optical_response_catalog,
     magnetic_equivariant_map_basis,
@@ -102,6 +107,7 @@ from .invariants import (
     magnetic_layer_tensor_basis,
     magnetic_response_tensor_basis,
     magnetic_tensor_basis,
+    partition_bilayer_operations,
     response_tensor_basis,
     screen_response_symmetry,
 )
@@ -133,6 +139,8 @@ from .stacking import (
 __all__ = [
     "lattice_point_operations",
     "AntiunitaryEquivariantMapBasis",
+    "BilayerEdelsteinAnalysis",
+    "EDELSTEIN_COMPONENTS",
     "BRAVAIS_LATTICE_POINT_GROUPS",
     "GroupDataError",
     "CrystallographicPointGroup",
@@ -172,6 +180,8 @@ __all__ = [
     "WyckoffPositionRecord",
     "antisymmetric_field_matrix",
     "antiunitary_equivariant_map_basis",
+    "bilayer_edelstein_analysis",
+    "bilayer_edelstein_point_groups",
     "apply_fractional_operation",
     "bravais_lattice_operations",
     "canonical_name",
@@ -188,6 +198,7 @@ __all__ = [
     "load_wyckoff_registry",
     "split_wyckoff_orbit",
     "determinant3",
+    "edelstein_tensor_basis_from_operations",
     "equivalent_interface_orbit",
     "equivalent_interface_translation",
     "family_data",
@@ -224,6 +235,7 @@ __all__ = [
     "multiply_operations",
     "operation_record",
     "partition_left_cosets",
+    "partition_bilayer_operations",
     "point_group_operations",
     "polarization_space",
     "polarization_switch",
@@ -238,4 +250,4 @@ __all__ = [
     "validate_database",
 ]
 
-__version__ = "0.16.0"
+__version__ = "0.17.0"

@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论工具。它汇集晶体学与磁性群表、点操作矩阵、群乘法、光场二次表示和对称性允许张量基，可用于查阅群论结果，也可接入真实晶体结构分析与高通量材料筛选。
 
-当前版本为 **0.15.0**。仓库回答九类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；任一 Hall setting 中有哪些 Wyckoff 位置、指定母群轨道在同胞或超胞子群下怎样分裂；以及该结构的晶体点群是否允许 shift current、SHG 与 circular injection current。
+当前版本为 **0.17.0**。仓库回答十类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；普通 Edelstein tensor 与 bilayer layer Edelstein effect 的 Type-I/II 分量是否由对称性允许；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；任一 Hall setting 中有哪些 Wyckoff 位置、指定母群轨道在同胞或超胞子群下怎样分裂；以及该结构的晶体点群是否允许 Edelstein、shift current、SHG 与 circular injection current。
 
 ## 科学能力
 
@@ -18,9 +18,10 @@
 | Wyckoff 轨道与位点群 | 具体结构中实际占据的不等价原子轨道 | 给出标准晶胞中的重数与 Wyckoff 字母、位点群、位置参数维数，并把结构理想化位移分解为沿局部 Wyckoff 流形的切向残差和横向偏离 |
 | Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，将母群轨道在同胞或超胞子群中分裂并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
+| Edelstein 与 bilayer LEE | 32 个点群及任意 R<sub>B</sub><sup>+</sup>/R<sub>B</sub><sup>−</sup> 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
-| 高通量响应筛选 | 3996 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
-| 具体结构的响应判定 | 覆盖 7 个晶系的真实结构基准 | 从 CIF/POSCAR 识别空间群和晶体点群，并直接给出三类非磁二阶响应的允许张量维数 |
+| 高通量响应筛选 | 4028 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
+| 具体结构的响应判定 | 覆盖 7 个晶系的真实结构基准 | 从 CIF/POSCAR 识别空间群和晶体点群，并直接给出 Edelstein 与三类非磁二阶响应的允许张量维数 |
 | 堆叠铁电 | 80 层群与五类二维 Bravais 晶格 | 判断单层极化类型、双层取向类、等价界面、极化切换和递归多层保留对称性 |
 
 基础数据位于 [`data/`](data)，相应的数据格式说明位于 [`schema/`](schema)。[`data/group_operations.json`](data/group_operations.json) 是基础点操作的唯一来源；常用数据表包括 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json) 与 [`data/optical_response_invariants.json`](data/optical_response_invariants.json)。其余数据表由固定版本的程序重复生成，并记录来源数据或输入文件的 SHA-256 校验值。
@@ -53,7 +54,7 @@ $$d=\frac{1}{|G|}\sum_{g\in G}\chi_A(g)\chi_B(g).$$
 
 $$d_\eta=\frac{1}{|M|}\sum_{(R,\theta)\in M}\eta^\theta\chi_A(R)\chi_B(R).$$
 
-其中 i-type（时间偶）取 $\eta=+1$，c-type（时间奇）取 $\eta=-1$。这种计算只给出允许空间的维数，适合先筛选大量群；确定候选群后，再求完整张量基以读取允许分量。0.10.0 对 32 个点群的 3 类响应、122 个磁点群和 528 个磁性层群的 6 类响应逐项核验，共覆盖 3996 个“群–响应”组合。
+其中 i-type（时间偶）取 $\eta=+1$，c-type（时间奇）取 $\eta=-1$。这种计算只给出允许空间的维数，适合先筛选大量群；确定候选群后，再求完整张量基以读取允许分量。0.17.0 将普通点群响应扩展为 Edelstein、shift current、SHG 与 circular injection current 四类；磁性点群和磁性层群仍各筛选六类非线性光学响应，合计覆盖 4028 个“群–响应”组合。
 
 ### 从具体晶体结构到响应选择定则
 
