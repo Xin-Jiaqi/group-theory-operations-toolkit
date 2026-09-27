@@ -6,7 +6,7 @@
 
 这是我为二维材料、层间堆叠、铁电与非线性光学研究维护的群论工具。它汇集晶体学与磁性群表、点操作矩阵、群乘法、光场二次表示和对称性允许张量基，可用于查阅群论结果，也可接入真实晶体结构分析与高通量材料筛选。
 
-当前版本为 **0.17.0**。仓库回答十类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；普通 Edelstein tensor 与 bilayer layer Edelstein effect 的 Type-I/II 分量是否由对称性允许；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；任一 Hall setting 中有哪些 Wyckoff 位置、指定母群轨道在同胞或超胞子群下怎样分裂；以及该结构的晶体点群是否允许 Edelstein、shift current、SHG 与 circular injection current。
+当前版本为 **0.18.0**。仓库回答十类问题：一个操作怎样作用与复合；某个（磁）点群允许哪些非线性响应分量；时间反演怎样区分普通与磁性响应；一组候选点群或磁性层群中哪些允许指定响应；普通 Edelstein tensor、bilayer layer Edelstein effect 与 planar IMHE 的分量是否由对称性允许；给定单层对称性与层间平移后，堆叠结构允许何种极化与切换关系；给定具体三维周期结构后，其输入晶胞与标准 Hall setting 怎样对应；其中各不等价原子属于哪个 Wyckoff 轨道、具有几个局部位置参数、输入坐标偏离该局部流形多少；任一 Hall setting 中有哪些 Wyckoff 位置、指定母群轨道在同胞或超胞子群下怎样分裂；以及该结构的晶体点群是否允许 Edelstein、shift current、SHG 与 circular injection current。
 
 ## 科学能力
 
@@ -19,6 +19,7 @@
 | Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，将母群轨道在同胞或超胞子群中分裂并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | Edelstein 与 bilayer LEE | 32 个点群及任意 R<sub>B</sub><sup>+</sup>/R<sub>B</sub><sup>−</sup> 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
+| IMHE 张量 | 106 个轴保持磁点群与 528 个磁性层群 | 对固定分量 χ<sub>ab;zz</sub> 求 intrinsic 反对称与 extrinsic 对称允许子空间；拒绝混合层法向量的 cubic 点群 |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 4028 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
 | 具体结构的响应判定 | 覆盖 7 个晶系的真实结构基准 | 从 CIF/POSCAR 识别空间群和晶体点群，并直接给出 Edelstein 与三类非磁二阶响应的允许张量维数 |
@@ -170,6 +171,8 @@ from group_theory_operations import (
     equivalent_interface_orbit,
     layer_group_polarization,
     magnetic_layer_response_tensor_basis,
+    magnetic_imhe_tensor_basis,
+    magnetic_layer_imhe_tensor_basis,
     point_group_operations,
     screen_response_symmetry,
     get_wyckoff_setting,
@@ -178,6 +181,8 @@ from group_theory_operations import (
 
 print(layer_group_polarization(68).polar_type)  # NP
 print(magnetic_layer_response_tensor_basis("6.5.25", "shg_odd").dimension)
+print(magnetic_imhe_tensor_basis("3", "intrinsic").basis)
+print(magnetic_layer_imhe_tensor_basis("6.5.25", "extrinsic").dimension)
 print(equivalent_interface_orbit((1 / 3, 2 / 3), point_group_operations("6/mmm")))
 
 allowed_shg = screen_response_symmetry(
@@ -257,6 +262,7 @@ group-ops apply-structure structure.vasp 3+_001 \
 | **0.15.0** | 将 Wyckoff 轨道分裂推广到超胞子群 | 由给定的整数超胞矩阵构造平移陪集，将母群轨道展开到子群常规胞；分别报告常规胞体积比、平移子群指数、点群指数和完整空间群指数，并验证对角/非对角倍胞、原点移动及 F 中心到 P 晶格的重数守恒 |
 | **0.16.0** | 从实际层状晶格导出 slab 点操作并判定本征极化 | 以真实晶格度量生成 slab 操作；相对调用者给定的层法向量分类极化固定空间，并以五种二维 Bravais 晶格、整数换基和旋转基准核验 |
 | **0.17.0** | 加入 Edelstein tensor 与 bilayer layer Edelstein effect | 对 32 个点群求 axial-spin ← polar-current 允许张量基；按层保持/交换操作逐分量区分 bilayer LEE 的 Type-I、Type-II、Both 或 forbidden，并以 MoSSe、MoTe₂ 与反演构型基准核验 |
+| **0.18.0** | 加入 planar IMHE tensor symmetry solver | 对固定 χ<sub>ab;zz</sub> 分量求 intrinsic 反对称和 extrinsic 对称允许子空间；覆盖 106 个轴保持磁点群和全部 528 个磁性层群，并将论文 Table I 的公开不一致保留为待 SM 验证项 |
 
 完整核验要求与后续范围见 [`ROADMAP.md`](ROADMAP.md)。版本号描述的是群论数据与物理分析能力的演进，不代表已经计算任何具体材料的响应强度。
 
@@ -312,3 +318,24 @@ to the actual layer normal. With `normal` specified, operations must be Cartesia
 orthogonal matrices. Without it the established catalog-coordinate behavior is
 preserved. This determines symmetry-allowed directions, not switching partners,
 polarization magnitudes or energy barriers.
+
+
+### Planar IMHE tensor symmetry
+
+The planar intrinsic/extrinsic magnetoelectric Hall response
+
+$$
+j_a=\chi_{ab;zz}E_b\mathcal E B,
+\qquad a,b\in\{x,y\},
+$$
+
+is available through `magnetic_imhe_tensor_basis` and
+`magnetic_layer_imhe_tensor_basis`. The intrinsic sector is treated as a
+T-even antisymmetric planar pseudotensor, while the extrinsic sector is a
+T-odd symmetric planar pseudotensor. The fixed-`zz` solver is defined for
+operations preserving the chosen layer normal; all 528 magnetic layer groups
+are supported, while magnetic point groups whose standard operations rotate
+z into x/y are rejected instead of projected onto a non-closed component set.
+See [`docs/imhe_tensor_symmetry.md`](docs/imhe_tensor_symmetry.md) for the
+independent derivation and the documented differences from arXiv:2604.20249v1
+Table I.

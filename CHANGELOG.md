@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.18.0 - 2026-09-27
+
+- Add an independent planar intrinsic/extrinsic IMHE tensor solver for
+  axis-preserving magnetic point groups and all magnetic layer groups.
+- Document the fixed-zz scope and retain the public Table I discrepancies as
+  validation questions pending the unavailable supplemental classification.
+
 ## 0.17.0 - 2026-09-27
 
 - Add ordinary axial-spin/polar-current Edelstein tensor invariants for all
