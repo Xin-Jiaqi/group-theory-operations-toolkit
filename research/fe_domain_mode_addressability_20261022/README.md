@@ -187,3 +187,22 @@ The numerical parity residuals were \(2.22\times10^{-16}\). This **is not a mate
 Added [\`aa_mos2_registry_geometry_gate.py\`](aa_mos2_registry_geometry_gate.py) using the AA bilayer MoS\(_2\) coordinates and interlayer spacing from Venkateswarlu et al., PRB 102, 081103(R) (2020). The script was run locally and passes 450 interlayer pair/lattice-translation checks for \(u\) and \(-u\); the maximum distance covariance error is \(1.776\times10^{-15}\) Å. It also recovers the source's \(3.676\) Å interfacial S–S plane spacing.
 
 This is **geometry-only**, not a tight-binding Hamiltonian, SOC, band structure or response. The initial test correctly failed on a bug in the assertion that upper/lower S planes are the same chemical species; after changing both to chemical label S and retaining their distinct mirror indices, the test passed. Next is the full orbital Slater–Koster matrix covariance, including orbital parity/rotation, before SOC/Kubo. No DFT/HPC jobs.
+
+
+## 13. BD27–BD28: a genuine *general-theory seed* from configuration-space response topology (2026-10-22)
+
+**Research report:** [BD27 stacking-torus zero/index and parity theory](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD27_REGISTRY_TORUS_ZERO_INDEX_GATE_20261022.md). The key methodological correction remains: a specific earlier material example **does not automatically pre-empt** a later family-wide theory. Any priority comparison must match the level and actual proposition; [BSF PRL 130, 146801 (2023)](https://doi.org/10.1103/PhysRevLett.130.146801) and [LEE PRL 137, 076401 (2026)](https://doi.org/10.1103/qhvs-pfkq) are **direct foundations for high-symmetry registry geometry and general layer-spin effects**, but their SM needs to be compared to **the exact response zero/index rule** before deciding novelty. The 2025 [shift-current vortex paper](https://doi.org/10.1038/s41699-025-00552-6) treats another source/output and is an Introduction/nearest-texture result for this claim.
+
+**All tests below were executed on standalone NumPy scripts locally; no DFT or electronic current–spin susceptibility was computed:**
+
+| Script | Physically defined symmetry comparison | Result |
+|---|---|---|
+| [stacking_response_torus_gate.py](stacking_response_torus_gate.py) | Hex C3 + vertical mirror + horizontal layer swap; current \(\to S_-^z\) real response field over \(\mathbb T^2\) | **Six forced zero registries** G/A/B/C/M/N; Fourier witness indices +1 at G/M/N and −1 at A/B/C; sum zero |
+| [registry_fixedpoints_exact.py](registry_fixedpoints_exact.py) | **Exact rational** solve \((I-R)\delta\in\Lambda\) | C3 has 3 fixed registries; C4 has 2; layer-swap inversion has 4; unions hex 6 and square 4 |
+| [stacking_square_response_torus_gate.py](stacking_square_response_torus_gate.py) | Square C4+mirror+layer swap, same current \(\to S_-^z\) | **Four forced zero registries**, witness indices +1,+1,−1,−1 |
+| [registry_layer_even_spin_gate.py](registry_layer_even_spin_gate.py) | Hex current \(\to S_+^z\) instead of \(S_-^z\) | Three C3-forced zero registries; **quadratic** onset and generic G winding **−2**; M/N +1, total zero in witness |
+| [layer_parity_activation_gate.py](layer_parity_activation_gate.py) | Same hex family, layer even vs odd; square C4 vs horizontal layer swap | Hex \(S_-^z\) first allowed \(i\gamma u\) with index +1; \(S_+^z\) first allowed \(\beta\bar u^2\), index −2 if nonzero. Square \(C_{2z}\) versus \(m_z\) requires **\(S_+^z\) response identically zero for all registry translations** |
+
+A successful **method gate** is distinct from a physics discovery. Poincaré–Hopf on a smooth real vector field over the torus gives \(\sum\mathrm{ind}=0\); a simple C3-fixed zero has +1 index; if these are the *only* six zeros, half-translation A/B/C must be −1 saddles. But an actual spin response can vanish everywhere or have additional zeros, complex AC needs separate treatment, and \(\gamma,\beta\) remain entirely unknown.
+
+**Research novelty test:** an S2 classification is worthwhile only if response-specific *operator parity, global zeros and activation/index rules* create a nontrivial, measurably distinct prediction beyond a restatement of existing BSF registry-point tables, LEE static tensor selection, and standard symmetry/index theorems. Start with one source-backed microscopic model and compare the original LEE SM equation-by-equation. The next physical task is still **not** a 528-MLG scan or domain-wall DFT.
