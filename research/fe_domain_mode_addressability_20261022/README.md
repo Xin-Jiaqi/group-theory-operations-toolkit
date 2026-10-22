@@ -101,3 +101,8 @@ A publishable *general* theory would need a **nontrivial new physically testable
 **Current verdict:** the verified **domain-covariance no-go is useful but textbook group theory**. The group-level scientific opening is **not yet proved**; Class 1 or Class 2 physics, possibly finite \(q\), is a research search strategy subject to strict novelty checks.
 
 No MnPS3 DFT jobs or R1 restart authorized. The original Xiang PRL reproduction is untouched. For real magnetic site mapping, see the previously approved read-only B+D R2-P0 task in \`quantum-geometry-reproductions\`; full magnetic mode projectors have not been returned yet.
+
+
+### Important additional publication status: the full spin-layer-group *representation theory* is also now available as a preprint
+
+[Zhang et al., *Spin layer groups and their corepresentations*, arXiv:2605.25484v2 (29 May 2026)](https://arxiv.org/html/2605.25484v2) already tabulates **40,087** inequivalent spin layer groups under its **supercell-index cutoff \(I_k\le12\)**: **448 collinear, 6,083 coplanar-noncollinear, 33,556 noncoplanar**, and constructs little-group corepresentations. This is a PREPRINT, not verified here as a journal publication. It makes the suggestion "we will newly classify all magnetic/spin layer-group irreps" particularly weak. Our possible distinction must be an **actual electric-drive-to-site/mode addressability *functional* under FE switching**, with a physically available excitation probe, not a spin layer-group table or representation construction. The **464 count** used in [arXiv:2601.15031](https://arxiv.org/abs/2601.15031) is a different reported enumeration that requires definition comparison; this note does **not** resolve the discrepancy.
