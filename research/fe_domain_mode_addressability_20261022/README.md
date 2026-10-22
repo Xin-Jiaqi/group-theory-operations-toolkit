@@ -155,3 +155,18 @@ K_0\in\mathrm{Hom}_{H_*}(E,O),\qquad
 For a mirror \(m_x\), axial \(S_z\) is odd, \(E_x,u_x\) odd and \(E_y,u_y\) even. \(E_y\to S_z\) is forbidden at the symmetric reference but a first-order \(u_xE_y\to S_z\) is symmetry-allowed; equally \(u_yE_x\to S_z\) is allowed. This is a **simple tensor-product/Neumann result**, not a newly discovered phonon effect or a nonadiabatic response. **If a space operation swaps top/bottom layers, U need not transform as a simple polar field:** verify explicit Seitz + layer indexing before running across 80 LG.
 
 **G3.1 next non-DFT evidence:** use two actual 80-layer-group BSF-generated *source-supported* cases with proper layer-exchange and local-magnetic mode bases; compare rank/induced operators and candidate \(\Gamma\) to the closest already-published microscopic phonon/Edelstein response. If result is only ordinary tensor activation or standard SOT, preserve as METHOD_PASS / NO_GO_NOVELTY. Do not claim a full 80/528 census from this one mirror proof. No HPC or DFT job authorized.
+
+
+## 10. Physics-first correction: direct competitors vs Introduction and a one-parameter seed (22 Oct 2026)
+
+User-requested [core scientific reset and paper-by-claim reference roles](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD_CORE_PROBLEM_REFERENCE_ROLES_AND_SMALL_SEED_20261022.md) replaces over-eager topic-wide "NO-GO" heuristics. Every NO_GO rejects ONLY the specific general originality claim, not the possibility of a different source/measurement/frequency-specific effect. A paper is a **DIRECT competitor** only relative to the SAME observable, source/experimental drive, response regime and overlapping conclusion (or a demonstrably inclusive theorem). Related methods and materials are legitimate **Introduction context**, not automatic project rejection.
+
+Two standalone, **locally executed and corrected** symmetry gates now give an actually focused small next calculation:
+- [physical_layer_exchange_gate.py](physical_layer_exchange_gate.py): for layer-swapping operations, \(\mathbf u=\mathbf r_T-\mathbf r_B\) transforms as \(D_u(g)=-R_\parallel(g)\) and layer-odd spin adds a permutation sign to the axial-vector representation. Under \`mz\`, naive \(\mathbf u\to R_\parallel\mathbf u\) would wrongly forbid allowed first-derivative components.
+- [stacking_first_seed_gate.py](stacking_first_seed_gate.py): in an **IDEAL** bilayer with \`C3z\`, vertical \`mx\`, layer-swapping horizontal \`mz\`, a uniform in-plane charge-current-driven nonequilibrium layer-odd \(S_-^z=S_T^z-S_B^z\) has no zero-shift linear response; its first order in slide is uniquely
+\[
+\delta S_-^z=\gamma\,(u_x j_y-u_y j_x)+O(u^2j).
+\]
+A full \(12\times4\) linear constraint SVD has rank 3 and nullity 1, with the \(\pm\) normalized antisymmetric matrix as its only basis. This is **STANDARD** equivariant tensor algebra, and **does not** show \(\gamma\ne0\), a real material bilayer symmetry, FE switchability, or a novel spin accumulation. Unlike the 2026 PRL's vertical-electric-field-activated response, this **relative-shift parameter derivative** may be an analytically useful target, but the primary PRL SM must be reviewed before treating it as an independent contribution.
+
+**Proposed first microscopic output, not yet computed:** one controlled \(\chi_{S_-^z,j_y}(u_x)\) curve in a physical SOC/transport model, with odd-slide/mirror/SOC-off and fixed-current-vs-fixed-field checks. Use the existing 2026 LEE source's minimal model *only if* it actually permits the required registry deformation and layer-operator embedding. No new VASP/HPC jobs.
