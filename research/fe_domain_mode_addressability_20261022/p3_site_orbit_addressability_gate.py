@@ -101,6 +101,21 @@ def audit():
     assert np.linalg.norm(induced)>.01
     assert abs(induced.sum())<1e-12
 
+    # Transverse physical spin (Sx,Sy) rotates as an axial in-plane vector.
+    # Spin-z is a longitudinal density, NOT a transverse magnon normal mode.
+    # These are only allowed local transverse force/spin directions; actual
+    # dynamical eigenmodes need a magnetic force-constant matrix.
+    spinA=np.kron(Pa,C3_CART)
+    spinB=np.kron(Pb,C3_CART)
+    transverse_one=(len(hom_basis(spinA,C3_CART)),
+                    len(hom_basis(spinB,C3_CART)))
+    transverse_six=(len(hom_basis(np.kron(np.eye(2),spinA),C3_CART)),
+                    len(hom_basis(np.kron(np.eye(2),spinB),C3_CART)))
+    assert transverse_one==(4,6)
+    assert transverse_six==(8,12)
+    assert abs(dim_by_character(spinA,C3_CART)-4)<1e-12
+    assert abs(dim_by_character(spinB,C3_CART)-6)<1e-12
+
     # Pure relabelling is a negative control: cannot change dimension.
     V=np.array([[0,1,0],[1,0,0],[0,0,1.]])
     permuted=V@Pa@V.T
@@ -115,6 +130,8 @@ def audit():
       "general_permutation":Pa.astype(int).tolist(),
       "special_permutation":Pb.astype(int).tolist(),
       "ordered_six_moments":order.tolist(),
+      "Hom_uniform_E_to_three_transverse_spins_general_special":list(transverse_one),
+      "Hom_uniform_E_to_six_transverse_spins_general_special":list(transverse_six),
       "Hom_uniform_E_to_six_local_Sz_general":len(basis_a),
       "Hom_uniform_E_to_six_local_Sz_special":len(basis_b),
       "Hom_uniform_E_to_three_layer_odd_general":len(minus_a),
@@ -130,4 +147,4 @@ def audit():
 
 if __name__=="__main__":
     print(json.dumps(audit(),indent=2))
-    print("PASS: p3 site-orbit Hom 4 vs 0; layer-odd 2 vs 0; all sums zero")
+    print("PASS p3 Sz Hom six-site 4 vs 0; layer-odd 2 vs 0; transverse six-site 8 vs 12")
