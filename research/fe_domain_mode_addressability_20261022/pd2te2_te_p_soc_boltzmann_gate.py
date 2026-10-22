@@ -2,7 +2,7 @@
 """BiDB Pd2Te2 id 980 (or Pd2Se2 id 975): geometric Te/Se p-orbital
 Slater-Koster plus atomic L.S, 24-band spinful illustrative Boltzmann model.
 
-This is NOT a fitted Pd2Te2 band structure, a source parametrization, or
+WARNING: default hard bond cutoff at 7.2 A creates discontinuous H(u) when\nbonds cross the boundary. Use --smooth-cutoff-start 6.5 for registry\nwinding/zero-index analysis; old results are reproducible in hard mode.\nThis is NOT a fitted Pd2Te2 band structure, a source parametrization, or
 an experimental spin susceptibility. Pd d orbitals are intentionally
 omitted. All numerical amplitudes, SOC, T and chemical potential are
 chosen model values, not BiDB material quantities.
@@ -32,7 +32,7 @@ MZ=np.diag([1.,1.,-1.])
 ORBIT=(np.eye(3),C3,C3@C3,MX,C3@MX,C3@C3@MX)
 
 class Model:
- def __init__(self,db,db_id=980):
+ def __init__(self,db,db_id=980,smooth_cutoff_start=None):
   if db_id not in (980,975):
    raise ValueError("the Te/Se atom ordering is established only for ids 980/975")
   conn=sqlite3.connect("file:"+db+"?mode=ro",uri=True)
@@ -81,6 +81,9 @@ class Model:
   self.decay=.8
   self.distance_ref=3.
   self.cutoff=7.2
+  self.smooth_cutoff_start=smooth_cutoff_start
+  if smooth_cutoff_start is not None and not (0<smooth_cutoff_start<self.cutoff):
+   raise ValueError('Smooth cutoff start must lie between 0 and 7.2 Angstrom')
   self.inner_onsite=.25
   self.outer_onsite=-.12
 
@@ -100,6 +103,10 @@ class Model:
     n=d/r
     orbital=(self.pp_pi*np.eye(3)+(self.pp_sigma-self.pp_pi)
              *np.outer(n,n))*np.exp(-(r-self.distance_ref)/self.decay)
+    if self.smooth_cutoff_start is not None and r>self.smooth_cutoff_start:
+     x=np.clip((self.cutoff-r)/(self.cutoff-self.smooth_cutoff_start),0.,1.)
+     switch=x**3*(10.-15.*x+6.*x*x)
+     orbital=orbital*switch
     bonds.append((i,j,d,orbital))
   return bonds
 
@@ -190,8 +197,11 @@ def main():
  p.add_argument("--T",type=float,default=.13)
  p.add_argument("--soc",type=float,default=.48)
  p.add_argument("--grid",nargs="+",type=int,default=[8,12,16])
+ p.add_argument("--smooth-cutoff-start",type=float,default=None,
+                help="C2 quintic bond taper from this distance up to cutoff 7.2 A. Required for continuous registry-topology scans; default hard cutoff reproduces archival numbers.")
  a=p.parse_args()
- model=Model(a.db,a.id)
+ model=Model(a.db,a.id,smooth_cutoff_start=a.smooth_cutoff_start)
+ print("cutoff_mode:", "smooth-C2" if a.smooth_cutoff_start is not None else "HARD historical; NOT continuity safe for registry topology")
  print("id:",a.id,"cell_symmetrization_A:",model.cell_projection_A)
  print("H/TR audit:",json.dumps(model.audit(a.soc),indent=2))
  for nk in a.grid:
