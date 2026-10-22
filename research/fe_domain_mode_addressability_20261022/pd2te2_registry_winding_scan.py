@@ -33,13 +33,20 @@ def calc_winding(model, radius, mu, soc, nk, nangles, T):
     out = {}
     for channel, name in ((0, "layer_odd"), (1, "layer_even")):
         z = np.asarray(fields[channel], dtype=complex)
-        # Pairwise phase increments avoid choosing an arbitrary phase branch.
-        increments = np.angle(np.roll(z, -1)/z)
+        # A winding is undefined if the sampled field vanishes; do not
+        # divide by zero or report a spurious integer in that case.
+        norms = np.abs(z)
+        sampled_zero = bool(np.any(norms < 1e-10))
+        if sampled_zero:
+            winding = None
+        else:
+            increments = np.angle(np.roll(z, -1)/z)
+            winding = float(np.sum(increments)/(2*np.pi))
         out[name] = {
-            "winding": float(np.sum(increments)/(2*np.pi)),
-            "min_norm": float(np.min(np.abs(z))),
-            "max_norm": float(np.max(np.abs(z))),
-            "sampled_zero": bool(np.any(np.abs(z) < 1e-10)),
+            "winding": winding,
+            "min_norm": float(np.min(norms)),
+            "max_norm": float(np.max(norms)),
+            "sampled_zero": sampled_zero,
         }
     return out
 
