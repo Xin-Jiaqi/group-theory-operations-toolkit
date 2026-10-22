@@ -105,3 +105,26 @@ This is classical **Frobenius reciprocity**, not a new theorem. It gives a poten
 **The two independently computed methods agree exactly:** full site-permutation-and-spin nullspace \((2,0)\) vs per-site stabilizer \((2,0)\) for axial \(S_z\); \((4,6)\) vs \((4,6)\) for transverse \(S_{xy}\). The double layer simply doubles the total allowed local coefficient count, provided there are **no additional layer-exchange/antiunitary symmetries**.
 
 **Next evidence gate:** add the correct magnetic site orbit, magnetic symmetry including \(\Theta\), physically meaningful transverse normal modes and source-backed **switchable structures**. The site-label test establishes *allowed local spin density/force*, not dynamically nonzero magnetic excitations or experimentally detectable contrast.
+
+
+## 7. Second G2 no-go and AC caveat: the allowed-space dimension is not a mode count
+
+A matrix \(K\in\mathbb R^{n_{\rm local}\times2}\) has **rank at most two** because there are only two uniform in-plane field components. Therefore increasing \(\dim\mathrm{Hom}\) from 8 to 12 (transverse spin, two layers) does **not** by itself create more independently excitable orthogonal modes at fixed input dimension. Both constructed transverse orbit spaces admit generic rank **2**.
+
+Moreover, for any **REAL** \(C_3\)-equivariant local response \(QK=KR_3\), with orthogonal \(Q,R_3\),
+\[
+K^TK=R_3^TK^T K R_3.
+\]
+Because \(K^TK\) is real symmetric and commutes with a \(120^\circ\) rotation, it must be proportional to identity:
+\[
+\boxed{K^TK=\lambda I_2.}
+\]
+Hence the **total Euclidean local-response norm** \(\|K\mathbf E\|^2=\lambda\|\mathbf E\|^2\) is independent of *linear* in-plane field orientation (with a symmetry-invariant normalized detector metric). It does **not** mean every individual local site's response is direction independent. Independent random combinations of p3 \(S_z\) and transverse symmetry-allowed basis matrices give residual \(\sim10^{-15}\) and both singular values equal. **This is standard \(C_3\)/Schur selection, not a new optical-isotropy law.**
+
+**Do not extend the real result naively to complex finite-frequency \(\chi(\omega)\):** for a complex \(K\), the Hermitian Gram matrix \(K^\dagger K\), still commuting with real \(R_3\), may have
+\[
+K^\dagger K=aI_2+b\,iJ,\qquad J=\begin{pmatrix}0&-1\\1&0\end{pmatrix},
+\]
+with eigenvalues \(a\pm b\) for opposite circular field helicities. A **pure symmetry-basis** test \(K=K_1+iK_2\) for local \(S_z\) yields eigenvalues **0 and 2**, while all *real linearly polarized* input vectors have identical total norm. This only demonstrates **circular selectivity is allowed**, **not** a real optical absorption/photomagnetic prediction: complex Kubo causality, the physical detector metric, antiunitary symmetries and microscopic oscillator strength are missing. Opposite circular response is also already familiar magneto-optic/magnon physics (e.g. [Yuan et al. PRL 137, 106901 (2026)](https://doi.org/10.1103/12cl-b9jj)).
+
+**Scientific filter from G2:** simple changes in tensor allowed-coefficient **dimension**, rank, linear-polarization norm or circular polarization selectivity each have distinct meanings. A paper-level claim must identify the physically normalized magnetic eigenmodes, real response order/frequency, and partner-switching operation. The full Wyckoff-orbit contrast here is **not** a source-validated FE switching pair.
