@@ -129,7 +129,7 @@ For tensor components and nontrivial group rotations, transform both physical op
 
 ## 8. Falsification-first gate: claim-level NO-GO does NOT delete scientific assets
 
-The project now has a public [B+D idea elimination protocol and 14-claim register](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD_IDEA_ELIMINATION_GATES_20261022.md) and a [16-entry machine-readable registry](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/data/BD_IDEA_REGISTRY_20261022.json).
+The project now has a public [B+D idea elimination protocol and 20-claim register](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD_IDEA_ELIMINATION_GATES_20261022.md) and a [20-entry machine-readable registry](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/data/BD_IDEA_REGISTRY_20261022.json).
 
 Research-only [idea_elimination_gate.py](idea_elimination_gate.py) provides a conservative claim-screening utility (Python stdlib only; self-test mode supplied) with [NO-GO example](example_BD08_NO_GO.json) and [OPEN but currently BLOCKED example](example_BD12_BLOCKED.json). Its possible statuses are NO_GO, BLOCKED, PHYSICS_CANDIDATE and **none** is a novelty certificate. It cannot certify that user-filled FE-state mappings, papers, same-gauge vertices, or original material outputs are true. This is an **unmerged PR branch**, not a released group-toolkit API; do not silently invoke it in production.
 
