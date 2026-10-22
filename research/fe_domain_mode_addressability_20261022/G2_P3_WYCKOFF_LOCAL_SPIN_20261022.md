@@ -86,3 +86,22 @@ Indeed, a pure parent symmetry element conjugates site stabilizers and preserves
 5. Compare direct mechanisms with 2018 PRB multipoles, 2020 hidden physical effects, 2025 trimer electro-magnetism, 2026 HSP and 2026 magnon/SOT group theories **at the same observable level**. Stop if the alleged effect is merely another hidden-spin site multipole.
 
 **Scientific decision:** G2 **PASS as a precise mathematics/structure-vs-site-orbit demonstration**, but **FAIL as proof of FE-controlled new magnetic physics**. Extension to exhaustive groups without a genuine switching source pair, a physical mode and a distinct measurable response would mostly replicate existing representation theory.
+
+
+## 6. Algorithmic compression: Frobenius reciprocity, independently tested
+
+[**p3 site-stabilizer test against full induced site permutation**](site_frobenius_gate.py) verifies the representation-theory equivalence
+\[
+\mathrm{Hom}_{G}(V_E,\mathrm{Ind}_{H_r}^{G}V_{\mathrm{spin},r})
+\simeq
+\mathrm{Hom}_{H_r}(\mathrm{Res}_{H_r}^G V_E,V_{\mathrm{spin},r}),
+\]
+where \(H_r\) is the **actual site stabilizer**, and \(V_{\mathrm{spin},r}\) transforms as a **local axial-spin component**. For translations and a \(\Gamma\) point drive, use the appropriate finite co-group representation; this formula here is explicitly tested only for **unitary \(C_3\)**, not an antiunitary magnetic-layer-group corepresentation or finite-\(q\) nonsymmorphic projective representation.
+
+This is classical **Frobenius reciprocity**, not a new theorem. It gives a potentially major **software efficiency advantage**: determine the allowed physical local observable from the site stabilizer before building full orbital/mode matrices for all layers. Independent p3 nullspace checks find the same **per-layer** dimensions:
+- General \(3d\): \(\mathrm{Hom}_{C_1}(E,\ S_z)=2\), \(\mathrm{Hom}_{C_1}(E,\ S_{xy})=4\).
+- Three distinct \(1a+1b+1c\): \(3\mathrm{Hom}_{C_3}(E,\ S_z)=0\), \(3\mathrm{Hom}_{C_3}(E,\ S_{xy})=6\), where each transverse commutant of \(R_3\) over the **real** numbers is two-dimensional (identity and the in-plane \(90^\circ\) rotation generator).
+
+**The two independently computed methods agree exactly:** full site-permutation-and-spin nullspace \((2,0)\) vs per-site stabilizer \((2,0)\) for axial \(S_z\); \((4,6)\) vs \((4,6)\) for transverse \(S_{xy}\). The double layer simply doubles the total allowed local coefficient count, provided there are **no additional layer-exchange/antiunitary symmetries**.
+
+**Next evidence gate:** add the correct magnetic site orbit, magnetic symmetry including \(\Theta\), physically meaningful transverse normal modes and source-backed **switchable structures**. The site-label test establishes *allowed local spin density/force*, not dynamically nonzero magnetic excitations or experimentally detectable contrast.
