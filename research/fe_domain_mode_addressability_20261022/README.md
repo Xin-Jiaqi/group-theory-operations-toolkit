@@ -141,3 +141,17 @@ Closest newly identified **direct precedence** is particularly strong:
 - [Ke, Liu & Liu, *Superlubric Motion of Wavelike Domain Walls in Sliding Ferroelectrics*, PRL 135, 046201 (2025)](https://doi.org/10.1103/jhlq-2dd7) warns that **rigid uniform layer sliding is often not the experimentally relevant switching path**; wall motion and Born-charge physics matter.
 
 **Next physical test, not a discovery:** use **actual BSF FE domain/connection evidence** and magnetic-site/projector operators to determine whether *driven real FE domain-wall switching* has a measurable compensated layer/magnetic-mode signal not predicted by already known local SOT, magnetic multipoles and wall electrodynamics. A wall-local allowed tensor, alone, fails the originality test. No VASP/HPC authority is implied.
+
+
+## 9. G3 high-return decision: do not run domain-wall DFT, screen registry-gradient representations first
+
+The [B+D source/ROI report](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD_G3_DOMAIN_DFT_COST_AND_REGISTRY_GRADIENT_20261022.md) explicitly **defers magnetic FE domain-wall DFT**: the source-derived MnPS3 R1 primitive-cell SCF already failed under 2 h walltime, and larger wall supercells have more structural, magnetic, electrostatic and response-vertex degrees of freedom. [Nasir/Atkinson PRB 113, 035425 (2026)](https://doi.org/10.1103/y87v-34d8) have FE-wall Edelstein precedent; [Dong et al. RRL 2024](https://doi.org/10.1002/pssr.202400062) magnetic sliding bilayer spin/orbital Edelstein; [Yarmohammadi et al. PRB 113, 184403 (2026)](https://doi.org/10.1103/4txy-gy8f) slow-phonon Edelstein; [WTe2 coherent sliding/SHG Nature Physics online 21 Oct 2026](https://doi.org/10.1038/s41567-026-03491-1) direct sliding-mode dynamics. Plain wall, sliding-phonon and local spin response claims are **not new**.
+
+New, limited group-theoretic [\`registry_gradient_gate.py\`](registry_gradient_gate.py) checks (for an **assumed physical representation of relative displacement U**):
+\[
+K_0\in\mathrm{Hom}_{H_*}(E,O),\qquad
+\Gamma=\partial_\delta K\in\mathrm{Hom}_{H_*}(U\otimes E,O).
+\]
+For a mirror \(m_x\), axial \(S_z\) is odd, \(E_x,u_x\) odd and \(E_y,u_y\) even. \(E_y\to S_z\) is forbidden at the symmetric reference but a first-order \(u_xE_y\to S_z\) is symmetry-allowed; equally \(u_yE_x\to S_z\) is allowed. This is a **simple tensor-product/Neumann result**, not a newly discovered phonon effect or a nonadiabatic response. **If a space operation swaps top/bottom layers, U need not transform as a simple polar field:** verify explicit Seitz + layer indexing before running across 80 LG.
+
+**G3.1 next non-DFT evidence:** use two actual 80-layer-group BSF-generated *source-supported* cases with proper layer-exchange and local-magnetic mode bases; compare rank/induced operators and candidate \(\Gamma\) to the closest already-published microscopic phonon/Edelstein response. If result is only ordinary tensor activation or standard SOT, preserve as METHOD_PASS / NO_GO_NOVELTY. Do not claim a full 80/528 census from this one mirror proof. No HPC or DFT job authorized.
