@@ -180,3 +180,10 @@ Added [\`lee_published_model_baseline.py\`](lee_published_model_baseline.py), a 
 - \(\chi_{S_-^z,j_y}=0\) exactly in the published minimal model, because the spin-helicity eigenstates are in-plane and \(\langle\tau_z\sigma_z\rangle=0\).
 
 The numerical parity residuals were \(2.22\times10^{-16}\). This **is not a material fit or novel response**. Crucially, it shows why the proposed slide-induced \(S_z\) curve cannot be computed by simply changing scalar \(t_\perp\) or \(\Delta\) in Eq. (3). Need a source-backed spin-z SOC/valley term AND microscopic registry derivative \(\partial_uH\); do not add a free spinful hopping merely to force nonzero \(\gamma\). See [source model audit](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD25_LEE_MODEL_AUDIT_20261022.md). No DFT/HPC jobs.
+
+
+## 12. Source-backed geometry prerequisite for a registry-dependent SOC model
+
+Added [\`aa_mos2_registry_geometry_gate.py\`](aa_mos2_registry_geometry_gate.py) using the AA bilayer MoS\(_2\) coordinates and interlayer spacing from Venkateswarlu et al., PRB 102, 081103(R) (2020). The script was run locally and passes 450 interlayer pair/lattice-translation checks for \(u\) and \(-u\); the maximum distance covariance error is \(1.776\times10^{-15}\) Å. It also recovers the source's \(3.676\) Å interfacial S–S plane spacing.
+
+This is **geometry-only**, not a tight-binding Hamiltonian, SOC, band structure or response. The initial test correctly failed on a bug in the assertion that upper/lower S planes are the same chemical species; after changing both to chemical label S and retaining their distinct mirror indices, the test passed. Next is the full orbital Slater–Koster matrix covariance, including orbital parity/rotation, before SOC/Kubo. No DFT/HPC jobs.
