@@ -106,3 +106,22 @@ No MnPS3 DFT jobs or R1 restart authorized. The original Xiang PRL reproduction 
 ### Important additional publication status: the full spin-layer-group *representation theory* is also now available as a preprint
 
 [Zhang et al., *Spin layer groups and their corepresentations*, arXiv:2605.25484v2 (29 May 2026)](https://arxiv.org/html/2605.25484v2) already tabulates **40,087** inequivalent spin layer groups under its **supercell-index cutoff \(I_k\le12\)**: **448 collinear, 6,083 coplanar-noncollinear, 33,556 noncoplanar**, and constructs little-group corepresentations. This is a PREPRINT, not verified here as a journal publication. It makes the suggestion "we will newly classify all magnetic/spin layer-group irreps" particularly weak. Our possible distinction must be an **actual electric-drive-to-site/mode addressability *functional* under FE switching**, with a physically available excitation probe, not a spin layer-group table or representation construction. The **464 count** used in [arXiv:2601.15031](https://arxiv.org/abs/2601.15031) is a different reported enumeration that requires definition comparison; this note does **not** resolve the discrepancy.
+
+
+## 7. NEW: independent antiunitary finite-frequency response gate (2026-10-22)
+
+**Correction to any naive extension of Sec. 2:** The unitary full-domain rule \(K_B=D_QKD_E^{-1}\) is a legitimate static representation-covariance result. For an **ANTIUNITARY** domain connection \(\Theta=UK\) the correct finite-frequency retarded relation is *not*, in general, same-index \(\chi_{A B}^{(B)}(\omega)=\eta_A\eta_B\chi_{A B}^{(A)}(\omega)\) or \(\eta_A\eta_B\chi_{A B}^{(A)}(\omega)^*\).
+
+With *strict definitions*: the partner Hamiltonian \(H_B=U H_A^*U^\dagger\), two Hermitian measurement/source operators \(A,B\) of definite antiunitary parities \(\Theta A\Theta^{-1}=\eta_A A\), \(\Theta B\Theta^{-1}=\eta_B B\) (\(\eta=\pm1\)); the Lehmann-retarded response with \(e^{-i\omega t}\) and identical causal \(+i\eta\) **satisfies the Onsager-Casimir cross response**
+\[
+\boxed{\chi_{A B}^{(B)}(\omega)=
+\eta_A\eta_B\chi_{B A}^{(A)}(\omega).}
+\]
+For tensor components and nontrivial group rotations, transform both physical operator bases and their indices appropriately. This is a known **generalized Onsager relation**, NOT a discovery or a new classification invariant. It does **not** state that the *forward* cross susceptibility for the two magnetic domains is the negative of the same forward cross susceptibility in one domain. At finite \(\omega\) the forward and reciprocal functions can differ; broadening/contact protocols must match for both.
+
+[**Independent two-band and physical \(\Theta^2=-1\) four-band Lehmann test**](antiunitary_kubo_onsager_gate.py) was separately executed on the same complete spectral Kubo sum and demonstrates:
+- spinless \(\Theta=K\), \(H_A=0.5\sigma_x+0.8\sigma_y+0.7\sigma_z\), \(A=\sigma_z,B=\sigma_x\), at \(\omega=.6,\eta=.03\): \(\chi_{AB}^A=0.22188817+0.15989348i\) whereas \(\chi_{AB}^B=\chi_{BA}^A=0.23993095-0.15667204i\).
+- spinful \(\Theta=(I_{\rm orbital}\otimes i\sigma_y)K\), \(A=I\otimes\sigma_z/2\) (odd), \(B=\tau_x\otimes I\) (even): at \(\omega=.24\), \(\chi_{AB}^A=0.03240507-0.00152205i\), but \(\chi_{AB}^B=-\chi_{BA}^A=-0.03199982-0.00165070i\).
+- Reciprocity residuals \(\sim10^{-17}\); **naive same-index sign fails** by nonzero finite-\(\omega\) difference. The example has random Hermitian \(4\times4\) matrices as a purely algebraic verification (not a material, and no causality contact term added).
+
+**Consequences for group-wide G1:** distinguish (a) exact unitary domain covariance of **same type of response**, (b) antiunitary **Onsager-swapped** cross correlations with appropriate time parity, (c) structural or nonrelativistic-spin connections that are not symmetries of the *relativistic* SOC Hamiltonian, and (d) different stabilizers/site orbits. Full antiunitary corepresentation catalog and experimentally normalized electric-field coupling are still OPEN. The primary source MnPS3 path1 Eq.13 \([E\parallel M_zM_y]\) is a **nonrelativistic spin-space** statement, not by itself a valid physical \(\Theta\) for this Kubo identity.
