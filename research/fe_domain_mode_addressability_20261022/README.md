@@ -206,3 +206,26 @@ This is **geometry-only**, not a tight-binding Hamiltonian, SOC, band structure 
 A successful **method gate** is distinct from a physics discovery. Poincaré–Hopf on a smooth real vector field over the torus gives \(\sum\mathrm{ind}=0\); a simple C3-fixed zero has +1 index; if these are the *only* six zeros, half-translation A/B/C must be −1 saddles. But an actual spin response can vanish everywhere or have additional zeros, complex AC needs separate treatment, and \(\gamma,\beta\) remain entirely unknown.
 
 **Research novelty test:** an S2 classification is worthwhile only if response-specific *operator parity, global zeros and activation/index rules* create a nontrivial, measurably distinct prediction beyond a restatement of existing BSF registry-point tables, LEE static tensor selection, and standard symmetry/index theorems. Start with one source-backed microscopic model and compare the original LEE SM equation-by-equation. The next physical task is still **not** a 528-MLG scan or domain-wall DFT.
+
+
+## 14. Direct BiDB geometric validation resolves the "ideal symmetry, no real material" blocker
+
+The user supplied the full actual BiDB ASE/SQLite dataset; [BD29 database analysis](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD29_BIDB_DB_DIRECT_SCREEN_20261022.md) validated 11,184 systems and uses exact species ratios (not BiDB's abstract ABC stoichiometry). Full source database is **not public in this repository**.
+
+**New read-only independent geometry code:** [bidb_geometry_layer_swap_gate.py](bidb_geometry_layer_swap_gate.py), invoked with the user's own database path and explicit IDs; validates source atomic species and position permuations modulo in-plane lattice under C3z, a vertical mirror and *pure horizontal layer-exchanging mz*. Executed locally with these results:
+
+| BiDB id | Material | Structural C3 / vertical mirror / horizontal layer swap | Maximum matching residual |
+| ---: | --- | --- | ---: |
+| **980** | **Pd2Te2** | 8/8 PASS / 8/8 PASS / **8/8 PASS** | **0.001291 Å** |
+| **975** | **Pd2Se2** | 8/8 PASS / 8/8 PASS / **8/8 PASS** | **0.001044 Å** |
+| 2903 | NBa2 | all 6/6 PASS | 0 |
+| 3555 | ScSe2 | all 6/6 PASS | 0 |
+| 2684/2685 | WSe2 | C3, mv PASS; **mz FAIL** | fails first site ~1.916 Å |
+| 8055 | VTeS | C3, mv PASS; **mz FAIL** | ~0.673 Å |
+| 7964 | VSeTe | C3, mv PASS; **mz FAIL** | ~2.005 Å |
+
+**First microscopic test family is now Pd2Te2 id980** (Stable p-6m2 / D3h, 8 atoms, BiDB nonmagnetic/metallic flags) with Pd2Se2 id975 as control, precisely because its physical layer exchange matches the original BD27 hypothesis. The Pd2Te2 parent monolayer is **0.134 eV/atom above the hull**, so it is a **theoretical demonstrator**, not a confirmed feasible material. Need Pd/Te orbital symmetry/SOC TB, fixed-current spin operator and causal response; the group construction alone proves neither nonzero spin accumulation nor a new effect.
+
+Magnetic extension: VSeTe (8 Stable FM bilayers), VTeS (2 Stable FM), then AgVP2Se6 (17 Stable but 20-atom low-symmetry), with the critical warning that BiDB interlayer FM/AFM fields do **not** certify intralayer Néel/spiral or the SOC magnetic group.
+
+No new DFT, HPC or external access to the source database has been initiated. No source structures or full BiDB contents are committed to GitHub; selected research notes and self-contained symmetry test code only.
