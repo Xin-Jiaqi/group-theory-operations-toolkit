@@ -170,3 +170,13 @@ Two standalone, **locally executed and corrected** symmetry gates now give an ac
 A full \(12\times4\) linear constraint SVD has rank 3 and nullity 1, with the \(\pm\) normalized antisymmetric matrix as its only basis. This is **STANDARD** equivariant tensor algebra, and **does not** show \(\gamma\ne0\), a real material bilayer symmetry, FE switchability, or a novel spin accumulation. Unlike the 2026 PRL's vertical-electric-field-activated response, this **relative-shift parameter derivative** may be an analytically useful target, but the primary PRL SM must be reviewed before treating it as an independent contribution.
 
 **Proposed first microscopic output, not yet computed:** one controlled \(\chi_{S_-^z,j_y}(u_x)\) curve in a physical SOC/transport model, with odd-slide/mirror/SOC-off and fixed-current-vs-fixed-field checks. Use the existing 2026 LEE source's minimal model *only if* it actually permits the required registry deformation and layer-operator embedding. No new VASP/HPC jobs.
+
+
+## 11. Test against the *published* LEE minimal Hamiltonian (22 Oct 2026)
+
+Added [\`lee_published_model_baseline.py\`](lee_published_model_baseline.py), a dimensionless Eq. (2)-style Boltzmann sanity test of Zhou et al., PRL 137, 076401 (2026), Eq. (3). With \(t_\perp=1,\alpha=0.5,m=1,\mu=0,T=0.02\), 161 values of \(\Delta/t_\perp\) satisfy:
+- layer-odd in-plane \(\chi_{S_-^y,j_x}\) even in \(\Delta\);
+- global in-plane \(\chi_{S_+^y,j_x}\) odd in \(\Delta\);
+- \(\chi_{S_-^z,j_y}=0\) exactly in the published minimal model, because the spin-helicity eigenstates are in-plane and \(\langle\tau_z\sigma_z\rangle=0\).
+
+The numerical parity residuals were \(2.22\times10^{-16}\). This **is not a material fit or novel response**. Crucially, it shows why the proposed slide-induced \(S_z\) curve cannot be computed by simply changing scalar \(t_\perp\) or \(\Delta\) in Eq. (3). Need a source-backed spin-z SOC/valley term AND microscopic registry derivative \(\partial_uH\); do not add a free spinful hopping merely to force nonzero \(\gamma\). See [source model audit](https://github.com/Xin-Jiaqi/quantum-geometry-reproductions/blob/main/papers/xiang-2025-spin-quantum-geometry/research/brainstorm-20261021/docs/BD25_LEE_MODEL_AUDIT_20261022.md). No DFT/HPC jobs.
