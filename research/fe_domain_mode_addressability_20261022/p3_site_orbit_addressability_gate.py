@@ -116,6 +116,27 @@ def audit():
     assert abs(dim_by_character(spinA,C3_CART)-4)<1e-12
     assert abs(dim_by_character(spinB,C3_CART)-6)<1e-12
 
+    # Schur/Neumann negative control: any REAL C3-equivariant K has
+    # K.T K proportional to the identity. More allowed coefficients does
+    # not imply more rank (at most 2 for Ex,Ey) or linear-polarization
+    # direction-dependent norm. Complex AC coefficients may instead have
+    # circular helicity asymmetry: K^dag K = a I + b iJ.
+    for site_rep,spin in ((Pa,np.eye(1)),(Pa,C3_CART),(Pb,C3_CART)):
+        group_basis=hom_basis(np.kron(site_rep,spin),C3_CART)
+        rng=np.random.default_rng(101)
+        Ksum=sum(float(c)*b for c,b in zip(rng.normal(size=len(group_basis)),group_basis))
+        gram=Ksum.T@Ksum
+        assert np.linalg.norm(gram-np.trace(gram)/2*np.eye(2))<1e-12
+        assert np.linalg.matrix_rank(Ksum)==2
+    zbase=hom_basis(Pa,C3_CART)
+    Kac=zbase[0]+1j*zbase[1]
+    gac=Kac.conj().T@Kac
+    assert np.linalg.norm(C3_CART.T@gac@C3_CART-gac)<1e-12
+    assert np.linalg.norm(gac.real-np.trace(gac).real/2*np.eye(2))<1e-12
+    assert abs(gac[0,1].imag)>.1
+    helicity=np.linalg.eigvalsh(gac)
+    assert helicity[1]-helicity[0]>.1
+
     # Pure relabelling is a negative control: cannot change dimension.
     V=np.array([[0,1,0],[1,0,0],[0,0,1.]])
     permuted=V@Pa@V.T
@@ -138,6 +159,8 @@ def audit():
       "Hom_uniform_E_to_three_layer_odd_special":len(minus_b),
       "net_spin_and_layer_sums":"forbidden in both by C3",
       "synthetic_allowed_local_Ex_pattern":np.round(induced,8).tolist(),
+      "static_real_linear_polarization_norm_isotropy":"K.T K=lambda I2",
+      "complex_AC_possible_helicity_gram_eigenvalues":np.round(helicity,8).tolist(),
       "source_to_real_FE_partner":"NOT ESTABLISHED",
       "actual_MLG_and_additional_antiunitary":"NOT VERIFIED",
       "nonzero_static_or_AC_Kubo_response":"NOT PROVEN",
