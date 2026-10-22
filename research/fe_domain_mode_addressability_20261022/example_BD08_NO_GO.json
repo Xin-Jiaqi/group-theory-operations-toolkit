@@ -1,0 +1,37 @@
+{
+  "idea_id": "BD08",
+  "hypothesis": "Generic moire polarization merons produce new shift-photocurrent vortices",
+  "observable": {
+    "source": "optical E E",
+    "measurement": "local shift photocurrent",
+    "spatial_support": "moire position",
+    "response_order": "second",
+    "time_protocol": "optical DC output"
+  },
+  "domain": {
+    "connection_type": "unknown"
+  },
+  "claim": {
+    "mechanism": "moire_shift_current_vortex",
+    "generic_novelty": true
+  },
+  "evidence": {},
+  "closest_peers": [
+    {
+      "doi": "10.1038/s41699-025-00552-6",
+      "relation": "subsumed",
+      "same_observable": true,
+      "same_mechanism": true
+    }
+  ],
+  "controls": {
+    "unitary_covariance": "not_tested",
+    "antiunitary_onsager_swap": "not_tested",
+    "site_relabel_invariance": "not_tested",
+    "rank_vs_hom": "not_tested",
+    "real_vs_complex_ac": "not_tested",
+    "toy_off_controls": "not_tested",
+    "gauge_and_contact": "not_tested",
+    "peer_same_observable": "not_tested"
+  }
+}
