@@ -84,7 +84,7 @@ class Model:
   self.inner_onsite=.25
   self.outer_onsite=-.12
 
- def hoppings(self,u):
+ def hoppings(self,u,interlayer_factor=1.0):
   u=np.asarray(u,float)
   xyz=self.xyz.copy()
   xyz[:2,:2]-=u/2
@@ -96,6 +96,7 @@ class Model:
     d=xyz[j]+n1*self.A[0]+n2*self.A[1]-xyz[i]
     r=np.linalg.norm(d)
     if r>self.cutoff or r<1e-6: continue
+    if interlayer_factor==0 and ((i<2)!=(j<2)): continue
     n=d/r
     orbital=(self.pp_pi*np.eye(3)+(self.pp_sigma-self.pp_pi)
              *np.outer(n,n))*np.exp(-(r-self.distance_ref)/self.decay)
@@ -156,8 +157,8 @@ class Model:
   if max(errors.values())>1e-10: raise AssertionError(errors)
   return errors
 
- def chi_current(self,u=(0,0),nk=16,mu=1.5,T=.13,soc=.48):
-  bonds=self.hoppings(u)
+ def chi_current(self,u=(0,0),nk=16,mu=1.5,T=.13,soc=.48,interlayer_factor=1.0):
+  bonds=self.hoppings(u,interlayer_factor)
   conduct=np.zeros((2,2))
   source=np.zeros((2,2))
   reciprocal=np.linalg.inv(self.A[:2,:2].T)
@@ -203,6 +204,10 @@ def main():
    assert max(odd_error,even_error)<1e-9
    if soc==0:assert max(np.max(np.abs(x))
                         for x in (neg,zero,pos))<1e-8
+   if soc==a.soc and nk==a.grid[0]:
+    decoupled=model.chi_current((a.slide,0),nk,a.mu,a.T,soc,interlayer_factor=0)
+    assert np.max(np.abs(decoupled))<1e-8
+    print('interlayer-off control',np.round(decoupled,10).tolist())
    print(json.dumps({"nk":nk,"soc":soc,
      "chi_minus_u":np.round(neg,10).tolist(),
      "chi_zero_u":np.round(zero,10).tolist(),
