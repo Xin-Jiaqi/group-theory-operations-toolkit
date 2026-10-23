@@ -1,0 +1,53 @@
+{
+  "idea_id": "BD12",
+  "hypothesis": "A real FE magnetic switching pair has a mode-resolved electrically measurable response beyond domain covariance",
+  "observable": {
+    "source": "E_b(omega)",
+    "measurement": "physical site/mode exchange generalized force",
+    "spatial_support": "magnetic sublattice",
+    "response_order": "linear",
+    "time_protocol": "causal retarded AC"
+  },
+  "domain": {
+    "connection_type": "structural_only"
+  },
+  "claim": {
+    "mechanism": "mode_projected_switching",
+    "generic_novelty": false,
+    "material_prediction": false
+  },
+  "evidence": {
+    "defined_operators": true,
+    "response_protocol_defined": true,
+    "source_symmetry_checked": false,
+    "physical_switch_pair_verified": false,
+    "magnetic_site_map_checked": false,
+    "novelty_equation_compared": false,
+    "experimentally_distinguishable": false,
+    "closest_peer_equations_verified": false
+  },
+  "closest_peers": [
+    {
+      "doi": "10.1038/s41467-024-51565-6",
+      "relation": "unresolved",
+      "same_observable": true,
+      "same_mechanism": true
+    },
+    {
+      "doi": "10.1103/ktpw-7s2b",
+      "relation": "unresolved",
+      "same_observable": true,
+      "same_mechanism": false
+    }
+  ],
+  "controls": {
+    "unitary_covariance": "not_tested",
+    "antiunitary_onsager_swap": "not_tested",
+    "site_relabel_invariance": "not_tested",
+    "rank_vs_hom": "not_tested",
+    "real_vs_complex_ac": "not_tested",
+    "toy_off_controls": "not_tested",
+    "gauge_and_contact": "not_tested",
+    "peer_same_observable": "not_tested"
+  }
+}
