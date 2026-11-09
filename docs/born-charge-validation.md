@@ -10,7 +10,7 @@
 - **mypy：通过**（21 个源文件，0 问题）。
 - **数据校验：通过**。`group-ops validate` 目录有效；`scripts/check_born_registry.py` 32/32 群通过与独立解析表逐项一致（含数字字符串与 HM 符号区分）；`scripts/verify_born_exact.py` 32/32 精确零空间通过；`scripts/generate_born_reference.py` 再生成的 `docs/born-charge-reference.json` 与已提交版本逐字节一致。
 - **wheel/sdist：通过**。`python -m build` 成功，`twine check` 通过；安装构建的 wheel 后 `group-ops validate`、`layer-groups 80`、`magnetic-layer-groups 80.9.528`、`magnetic-layer-responses 6.5.25 shg_odd` 及 `validate_database(load_database())` 全部通过；在仅安装 wheel 的纯净 venv 中相同命令及 `point_group_born_space("C3v")` 均通过。
-- **唯一修复：** 新文档中的 `\operatorname` 不被 GitHub 数学渲染器支持，仓库测试 `test_rendered_markdown_uses_github_compatible_math` 因此失败；已统一替换为 `\mathrm`（与既有文档约定一致），测试恢复通过。
+- **唯一修复：** 新文档中使用了 GitHub 数学渲染器不支持的 operatorname 宏（仓库测试 `test_rendered_markdown_uses_github_compatible_math` 因此失败）；已统一替换为 `\mathrm`（与既有文档约定一致），测试恢复通过。
 - **远端 CI 原因确认：** GitHub Actions 运行 `42616744450`（PR #33）的 4 个 job 全部在 1–2 秒内失败、`steps=[]`、无 runner；job 日志接口返回 404；运行页注解为 **“The job was not started because your account is locked due to a billing issue.”** —— 即账户计费锁定导致 GitHub-hosted runner 不可用，不是代码断言失败。该结论与第一次复核的记录一致。
 
 ## GitHub 实仓库与远端 CI 的后续复核（2026-11-09）
