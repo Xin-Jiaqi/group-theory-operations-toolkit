@@ -53,7 +53,7 @@
 ## 尚未执行的检查与外部操作
 
 - **未执行新的 VASP/DFPT、有限电场或畴壁动力学计算。** 合成 OUTCAR 只测试解析器和模式投影，不是任何材料的预测数据。
-- **远端发布记录：** 本增量包随后通过 GitHub 连接器提交到独立功能分支，未直接修改 `main`。远端 GitHub Actions 因账户计费锁定无法取得 runner；完整本地验证已在合并前全部执行并通过，仓库 `main` 分支未启用分支保护，故在本地验证通过后按 PR 流程合并。
+- **远端发布记录：** 本增量包随后通过 GitHub 连接器提交到独立功能分支，未直接修改 `main`。远端 GitHub Actions 因账户计费锁定无法取得 runner（运行注解原文：“The job was not started because your account is locked due to a billing issue.”）。仓库 ruleset `protect-main` 要求 `test (3.10)` 与 `test (3.14)` 两个状态检查成功后才能合并，而这两项检查在计费锁定下无法启动 runner，客观不能通过；GitHub 对 admin 合并同样返回规则违反（HTTP 405），且该 ruleset 未配置任何 bypass 参与者。在未改动分支保护设置（未强推、未修改/禁用 ruleset）的前提下，合并被该外部阻塞；完整本地验证已全部通过。待账户计费恢复后重跑 CI（本地已验证的同一套步骤应全部通过）即可完成合并，或由仓库所有者显式授权在 ruleset 中加入 bypass 参与者后再执行合并。
 
 ## 复现命令
 
