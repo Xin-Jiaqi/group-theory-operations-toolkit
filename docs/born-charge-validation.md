@@ -2,6 +2,13 @@
 
 核验日期：2026-11-09。目标仓库：`Xin-Jiaqi/group-theory-operations-toolkit`。通过 GitHub 读取的 `main` 快照为 `551a0daf8d4ba5a5f24b2811694bfe438616de48`，版本 `0.18.0`。本记录的“通过”仅指下列已经执行的检查，不表示完成新材料的 DFT 验证或全部上游集成测试。
 
+## GitHub 实仓库与远端 CI 的后续复核（2026-11-09）
+
+- **实仓库点群表，32/32 通过：** 通过已连接的 GitHub API 分别读取 `main` 中的 `data/crystallographic_point_groups.json` 与 `data/group_operations.json`，逐群建立九分量 `I-R⊗R` 约束，数值求秩并核对本功能分支 `docs/born-charge-reference.json` 的独立参数数目和张量基。全部 32 群通过；最大操作不变性残差为 `7.60e-13`。这是实际 registry 数据交叉核验，不应等同于执行完整 Python 仓库测试。
+- **新增测试，165/165 通过：** 在同一会话的本地容器内重新运行 `python -m unittest discover -s tests -p test_born_effective_charges.py -q`，全部通过；独立精确代数验证脚本亦完成。
+- **GitHub Actions 无法作为此次功能测试证据：** PR #33 的 `Verify repository` 工作流运行 `42611757474`，原始与重新运行两次的 Python 3.14 任务均约 2 秒结束，`runner_name` 为空、`steps=[]`；3.10 任务取消。说明未实际进入 runner 执行代码。GitHub job logs 下载接口返回 404，不能断言是账户额度、账单还是 GitHub runner 配置的具体哪一项导致。
+- **仍未验证：** 完整仓库现有回归测试、项目 mypy、wheel 构建，以及外部 VASP/DFPT 数据。CI 红灯不得解释为新增代码的测试断言失败，也不得视为全套测试已通过。
+
 ## 文献交叉核验
 
 | 来源 | 实际核对的位置或内容 | 本次推导/实现中的对应项 |
@@ -34,7 +41,7 @@
 
 ## 尚未执行的检查与外部操作
 
-- **未执行完整仓库的回归测试、实际 registry 适配验证、mypy、wheel 构建或 GitHub CI。** 当前环境未取得可运行的完整上游检出；新模块的 registry 接口使用了明确标注的接口替身测试，不能把该测试说成实际上游数据核验。
+- **未执行完整仓库的 Python 回归测试、mypy、wheel 构建。** 现已通过已连接的 GitHub API 实际读取上游 32 点群 registry 并进行独立逐群数值/解析交叉核验；但 `scripts/check_born_registry.py` 尚未在真实完整 checkout 下运行，且 GitHub Actions 在 runner 启动前失败。
 - 附带 `scripts/check_born_registry.py`，用于在完整仓库中将实际 32 群 registry 与独立解析表逐项比较，包括数字字符串与 Hermann–Mauguin 符号的区分。
 - **没有进行新的 VASP/DFPT、有限电场或畴壁动力学计算。** 合成 OUTCAR 只测试解析器和模式投影，不是任何材料的预测数据。
 - **远端发布记录：** 本增量包随后通过 GitHub 连接器提交到独立功能分支，未直接修改 `main`。远端 GitHub Actions 状态应以相应提交和 PR 页面为准。
