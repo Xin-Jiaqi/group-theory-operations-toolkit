@@ -20,9 +20,9 @@ $$
 \begin{aligned}
 A&=\begin{pmatrix}a&b&c\\d&e&f\\g&h&i\end{pmatrix},&d_A&=9,\\
 B&=\begin{pmatrix}a&b&0\\c&d&0\\0&0&e\end{pmatrix},&d_B&=5,\\
-C&=\operatorname{diag}(a,b,c),&d_C&=3,\\
+C&=\mathrm{diag}(a,b,c),&d_C&=3,\\
 D&=\begin{pmatrix}a&b&0\\-b&a&0\\0&0&c\end{pmatrix},&d_D&=3,\\
-E&=\operatorname{diag}(a,a,c),&d_E&=2,\\
+E&=\mathrm{diag}(a,a,c),&d_E&=2,\\
 F&=aI_3,&d_F&=1.
 \end{aligned}
 $$
@@ -67,7 +67,7 @@ $$
 | 32 | `m-3m` | `Oh` | F | 1 | 均为零（上述参考坐标） |
 
 
-表中 B 类虽然在上述坐标的交叉元为零，换取向后可以非零。例如独特轴/镜面法向为 $x$ 时：
+表中 B 类虽然在上述坐标的交叉元为零，换到其他取向后可以非零。例如独特轴/镜面法向为 $x$ 时：
 
 $$Z=\begin{pmatrix}a&0&0\\0&b&c\\0&d&e\end{pmatrix},$$
 
@@ -99,8 +99,8 @@ $$
 | 操作 | 面内块 $A$ | 模式约束 |
 |---|---|---|
 | 恒等 $E$、水平镜面 $m_z$ | $I_2$ | 两个分量均允许 |
-| $m_{xz}$、$C_{2x}$ | $\operatorname{diag}(1,-1)$ | 只允许 $\zeta_x$ |
-| $m_{yz}$、$C_{2y}$ | $\operatorname{diag}(-1,1)$ | 只允许 $\zeta_y$ |
+| $m_{xz}$、$C_{2x}$ | $\mathrm{diag}(1,-1)$ | 只允许 $\zeta_x$ |
+| $m_{yz}$、$C_{2y}$ | $\mathrm{diag}(-1,1)$ | 只允许 $\zeta_y$ |
 | $C_{2z}$、反演 $I$ | $-I_2$ | 两个分量均为零 |
 | $C_{3z},C_{4z},C_{6z}$ | 非平凡面内旋转 | 两个分量均为零 |
 | 多个操作 | 分别施加 | 取所有允许空间的交集 |

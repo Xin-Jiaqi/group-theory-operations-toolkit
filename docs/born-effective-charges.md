@@ -118,7 +118,7 @@ $$
 \Pi=\frac1{|G|}\sum_{g\in G}R_g\otimes R_g,
 \quad \Pi^2=\Pi,
 \quad
-\boxed{d=\operatorname{tr}\Pi=\frac1{|G|}\sum_g[\operatorname{tr}R_g]^2.}
+\boxed{d=\mathrm{tr}\Pi=\frac1{|G|}\sum_g[\mathrm{tr}R_g]^2.}
 \tag{7}
 $$
 
@@ -137,7 +137,7 @@ $$
 当完整有限操作集合及原子置换形成一致表示时，未加 ASR 的维数还可独立检查：
 
 $$
-d_{\rm atoms}=\frac1{|G|}\sum_g n_{\rm fixed}(g)[\operatorname{tr}R_g]^2.
+d_{\rm atoms}=\frac1{|G|}\sum_g n_{\rm fixed}(g)[\mathrm{tr}R_g]^2.
 \tag{8}
 $$
 
@@ -158,16 +158,16 @@ $$
 |---|---|---|---:|
 | A | $1,\bar1$ | $\begin{pmatrix}a&b&c\\d&e&f\\g&h&i\end{pmatrix}$ | 9 |
 | B | $2,m,2/m$ | $\begin{pmatrix}a&b&0\\c&d&0\\0&0&e\end{pmatrix}$ | 5 |
-| C | $222,mm2,mmm$ | $\operatorname{diag}(a,b,c)$ | 3 |
+| C | $222,mm2,mmm$ | $\mathrm{diag}(a,b,c)$ | 3 |
 | D | $3,\bar3,4,\bar4,4/m,6,\bar6,6/m$ | $\begin{pmatrix}a&b&0\\-b&a&0\\0&0&c\end{pmatrix}$ | 3 |
-| E | $32,3m,\bar3m,422,4mm,\bar42m,4/mmm,622,6mm,\bar6m2,6/mmm$ | $\operatorname{diag}(a,a,c)$ | 2 |
+| E | $32,3m,\bar3m,422,4mm,\bar42m,4/mmm,622,6mm,\bar6m2,6/mmm$ | $\mathrm{diag}(a,a,c)$ | 2 |
 | F | $23,m\bar3,432,\bar43m,m\bar3m$ | $aI_3$ | 1 |
 
 ### 4.1 A、B、C 类
 
 反演 $R=-I$ 对二阶极性张量的作用为 $(-I)Z(-I)=Z$，所以 $1$ 与 $\bar1$ 都不给出局域分量限制。
 
-对 $C_{2z}=\operatorname{diag}(-1,-1,1)$，$Z_{ij}=r_ir_jZ_{ij}$。恰有一个指标为 $z$ 的项变号，故 $Z_{xz},Z_{yz},Z_{zx},Z_{zy}=0$；面内 $2\times2$ 块仍一般不对称。$m_z=-C_{2z}$ 对二阶张量作用完全相同，加入反演也不改变结果，得到 B 类。
+对 $C_{2z}=\mathrm{diag}(-1,-1,1)$，$Z_{ij}=r_ir_jZ_{ij}$。恰有一个指标为 $z$ 的项变号，故 $Z_{xz},Z_{yz},Z_{zx},Z_{zy}=0$；面内 $2\times2$ 块仍一般不对称。$m_z=-C_{2z}$ 对二阶张量作用完全相同，加入反演也不改变结果，得到 B 类。
 
 再加入独立的面内二重轴或相应镜面，$xy,yx$ 也被禁止，只剩三个独立对角元，得到 C 类。
 
@@ -192,7 +192,7 @@ $$
 
 立方群中的二重轴先消去非对角元，绕 $[111]$ 的三重旋转循环交换三个轴，再要求三个对角元相同。因此所有五个立方点群均只有 $aI_3$。
 
-另一种一致性解释是 $Z=(\operatorname{tr}Z/3)I+S_0+A$：标量、对称无迹和反对称三部分分别约束；反对称部分等价于轴矢量，只有相应轴矢量被点群允许时才可保留。
+另一种一致性解释是 $Z=(\mathrm{tr}Z/3)I+S_0+A$：标量、对称无迹和反对称三部分分别约束；反对称部分等价于轴矢量，只有相应轴矢量被点群允许时才可保留。
 
 ### 4.4 坐标变化不能省略
 
@@ -247,7 +247,7 @@ $$
 这才是一般的模式选择定则，而非对所有模式都使用 $C=RCR^T$。按行展开后的约束为
 
 $$
-[R_g\otimes I_m-I_3\otimes D_g^T]\operatorname{vec}_r C=0.
+[R_g\otimes I_m-I_3\otimes D_g^T]\mathrm{vec}_r C=0.
 \tag{12}
 $$
 

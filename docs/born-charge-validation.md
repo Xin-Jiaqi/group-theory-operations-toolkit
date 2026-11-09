@@ -2,6 +2,17 @@
 
 核验日期：2026-11-09。目标仓库：`Xin-Jiaqi/group-theory-operations-toolkit`。通过 GitHub 读取的 `main` 快照为 `551a0daf8d4ba5a5f24b2811694bfe438616de48`，版本 `0.18.0`。本记录的“通过”仅指下列已经执行的检查，不表示完成新材料的 DFT 验证或全部上游集成测试。
 
+## 合并前完整仓库复核（2026-11-09，第二遍）
+
+在完整 checkout（Python 3.12.4，NumPy 2.5.4）中按仓库 CI 步骤执行：
+
+- **完整回归套件：384/384 通过**（`python -m unittest discover -s tests`），含原有全部模块与新增 Born 测试。
+- **mypy：通过**（21 个源文件，0 问题）。
+- **数据校验：通过**。`group-ops validate` 目录有效；`scripts/check_born_registry.py` 32/32 群通过与独立解析表逐项一致（含数字字符串与 HM 符号区分）；`scripts/verify_born_exact.py` 32/32 精确零空间通过；`scripts/generate_born_reference.py` 再生成的 `docs/born-charge-reference.json` 与已提交版本逐字节一致。
+- **wheel/sdist：通过**。`python -m build` 成功，`twine check` 通过；安装构建的 wheel 后 `group-ops validate`、`layer-groups 80`、`magnetic-layer-groups 80.9.528`、`magnetic-layer-responses 6.5.25 shg_odd` 及 `validate_database(load_database())` 全部通过；在仅安装 wheel 的纯净 venv 中相同命令及 `point_group_born_space("C3v")` 均通过。
+- **唯一修复：** 新文档中的 `\operatorname` 不被 GitHub 数学渲染器支持，仓库测试 `test_rendered_markdown_uses_github_compatible_math` 因此失败；已统一替换为 `\mathrm`（与既有文档约定一致），测试恢复通过。
+- **远端 CI 原因确认：** GitHub Actions 运行 `42616744450`（PR #33）的 4 个 job 全部在 1–2 秒内失败、`steps=[]`、无 runner；job 日志接口返回 404；运行页注解为 **“The job was not started because your account is locked due to a billing issue.”** —— 即账户计费锁定导致 GitHub-hosted runner 不可用，不是代码断言失败。该结论与第一次复核的记录一致。
+
 ## GitHub 实仓库与远端 CI 的后续复核（2026-11-09）
 
 - **实仓库点群表，32/32 通过：** 通过已连接的 GitHub API 分别读取 `main` 中的 `data/crystallographic_point_groups.json` 与 `data/group_operations.json`，逐群建立九分量 `I-R⊗R` 约束，数值求秩并核对本功能分支 `docs/born-charge-reference.json` 的独立参数数目和张量基。全部 32 群通过；最大操作不变性残差为 `7.60e-13`。这是实际 registry 数据交叉核验，不应等同于执行完整 Python 仓库测试。
@@ -41,10 +52,8 @@
 
 ## 尚未执行的检查与外部操作
 
-- **未执行完整仓库的 Python 回归测试、mypy、wheel 构建。** 现已通过已连接的 GitHub API 实际读取上游 32 点群 registry 并进行独立逐群数值/解析交叉核验；但 `scripts/check_born_registry.py` 尚未在真实完整 checkout 下运行，且 GitHub Actions 在 runner 启动前失败。
-- 附带 `scripts/check_born_registry.py`，用于在完整仓库中将实际 32 群 registry 与独立解析表逐项比较，包括数字字符串与 Hermann–Mauguin 符号的区分。
-- **没有进行新的 VASP/DFPT、有限电场或畴壁动力学计算。** 合成 OUTCAR 只测试解析器和模式投影，不是任何材料的预测数据。
-- **远端发布记录：** 本增量包随后通过 GitHub 连接器提交到独立功能分支，未直接修改 `main`。远端 GitHub Actions 状态应以相应提交和 PR 页面为准。
+- **未执行新的 VASP/DFPT、有限电场或畴壁动力学计算。** 合成 OUTCAR 只测试解析器和模式投影，不是任何材料的预测数据。
+- **远端发布记录：** 本增量包随后通过 GitHub 连接器提交到独立功能分支，未直接修改 `main`。远端 GitHub Actions 因账户计费锁定无法取得 runner；完整本地验证已在合并前全部执行并通过，仓库 `main` 分支未启用分支保护，故在本地验证通过后按 PR 流程合并。
 
 ## 复现命令
 
