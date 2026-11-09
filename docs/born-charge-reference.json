@@ -1,0 +1,2951 @@
+{
+  "schema_version": 1,
+  "convention": "row=polarization/electric field; column=displacement/force",
+  "setting": "principal axis z; monoclinic mirror xy; secondary twofold x; explicit generators authoritative",
+  "atomic_scope": "ONE atomic site and its stabilizer, not the total neutral-cell charge tensor",
+  "sliding_scope": "free isolated bilayer in xy, relative mode s=u_top-u_bottom, chi=eta=Rzz",
+  "warnings": [
+    "A point-group name without orientation is not sufficient for a real material.",
+    "Nonzero allowed entries are not predicted values.",
+    "Null sliding response at one configuration is not a global switching prohibition."
+  ],
+  "forms": {
+    "A": [
+      [
+        "a",
+        "b",
+        "c"
+      ],
+      [
+        "d",
+        "e",
+        "f"
+      ],
+      [
+        "g",
+        "h",
+        "i"
+      ]
+    ],
+    "B": [
+      [
+        "a",
+        "b",
+        "0"
+      ],
+      [
+        "c",
+        "d",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "e"
+      ]
+    ],
+    "C": [
+      [
+        "a",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "b",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "c"
+      ]
+    ],
+    "D": [
+      [
+        "a",
+        "b",
+        "0"
+      ],
+      [
+        "-b",
+        "a",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "c"
+      ]
+    ],
+    "E": [
+      [
+        "a",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "a",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "c"
+      ]
+    ],
+    "F": [
+      [
+        "a",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "a",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "a"
+      ]
+    ]
+  },
+  "point_groups": [
+    {
+      "number": 1,
+      "hm_symbol": "1",
+      "schoenflies_symbol": "C1",
+      "group_order": 1,
+      "atomic_form": "A",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "c"
+        ],
+        [
+          "d",
+          "e",
+          "f"
+        ],
+        [
+          "g",
+          "h",
+          "i"
+        ]
+      ],
+      "atomic_dimension": 9,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 2,
+      "isolated_bilayer_sliding_projector": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "dimension_from_group_character": 9
+    },
+    {
+      "number": 2,
+      "hm_symbol": "-1",
+      "schoenflies_symbol": "Ci",
+      "group_order": 2,
+      "atomic_form": "A",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "c"
+        ],
+        [
+          "d",
+          "e",
+          "f"
+        ],
+        [
+          "g",
+          "h",
+          "i"
+        ]
+      ],
+      "atomic_dimension": 9,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 9
+    },
+    {
+      "number": 3,
+      "hm_symbol": "2",
+      "schoenflies_symbol": "C2",
+      "group_order": 2,
+      "atomic_form": "B",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "c",
+          "d",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "e"
+        ]
+      ],
+      "atomic_dimension": 5,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 5
+    },
+    {
+      "number": 4,
+      "hm_symbol": "m",
+      "schoenflies_symbol": "Cs",
+      "group_order": 2,
+      "atomic_form": "B",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "c",
+          "d",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "e"
+        ]
+      ],
+      "atomic_dimension": 5,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 2,
+      "isolated_bilayer_sliding_projector": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "dimension_from_group_character": 5
+    },
+    {
+      "number": 5,
+      "hm_symbol": "2/m",
+      "schoenflies_symbol": "C2h",
+      "group_order": 4,
+      "atomic_form": "B",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "c",
+          "d",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "e"
+        ]
+      ],
+      "atomic_dimension": 5,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 5
+    },
+    {
+      "number": 6,
+      "hm_symbol": "222",
+      "schoenflies_symbol": "D2",
+      "group_order": 4,
+      "atomic_form": "C",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "b",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 7,
+      "hm_symbol": "mm2",
+      "schoenflies_symbol": "C2v",
+      "group_order": 4,
+      "atomic_form": "C",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "b",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 8,
+      "hm_symbol": "mmm",
+      "schoenflies_symbol": "D2h",
+      "group_order": 8,
+      "atomic_form": "C",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "b",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 9,
+      "hm_symbol": "4",
+      "schoenflies_symbol": "C4",
+      "group_order": 4,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 10,
+      "hm_symbol": "-4",
+      "schoenflies_symbol": "S4",
+      "group_order": 4,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.0,
+            1.0,
+            -0.0
+          ],
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 11,
+      "hm_symbol": "4/m",
+      "schoenflies_symbol": "C4h",
+      "group_order": 8,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 12,
+      "hm_symbol": "422",
+      "schoenflies_symbol": "D4",
+      "group_order": 8,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 13,
+      "hm_symbol": "4mm",
+      "schoenflies_symbol": "C4v",
+      "group_order": 8,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 14,
+      "hm_symbol": "-42m",
+      "schoenflies_symbol": "D2d",
+      "group_order": 8,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.0,
+            1.0,
+            -0.0
+          ],
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 15,
+      "hm_symbol": "4/mmm",
+      "schoenflies_symbol": "D4h",
+      "group_order": 16,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 16,
+      "hm_symbol": "3",
+      "schoenflies_symbol": "C3",
+      "group_order": 3,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 17,
+      "hm_symbol": "-3",
+      "schoenflies_symbol": "C3i",
+      "group_order": 6,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 18,
+      "hm_symbol": "32",
+      "schoenflies_symbol": "D3",
+      "group_order": 6,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 19,
+      "hm_symbol": "3m",
+      "schoenflies_symbol": "C3v",
+      "group_order": 6,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 20,
+      "hm_symbol": "-3m",
+      "schoenflies_symbol": "D3d",
+      "group_order": 12,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 21,
+      "hm_symbol": "6",
+      "schoenflies_symbol": "C6",
+      "group_order": 6,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 22,
+      "hm_symbol": "-6",
+      "schoenflies_symbol": "C3h",
+      "group_order": 6,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            0.8660254037844386,
+            -0.0
+          ],
+          [
+            -0.8660254037844386,
+            -0.5,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 23,
+      "hm_symbol": "6/m",
+      "schoenflies_symbol": "C6h",
+      "group_order": 12,
+      "atomic_form": "D",
+      "symbolic_tensor": [
+        [
+          "a",
+          "b",
+          "0"
+        ],
+        [
+          "-b",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 3,
+      "atomic_allowed_mask": [
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 3
+    },
+    {
+      "number": 24,
+      "hm_symbol": "622",
+      "schoenflies_symbol": "D6",
+      "group_order": 12,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 25,
+      "hm_symbol": "6mm",
+      "schoenflies_symbol": "C6v",
+      "group_order": 12,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 26,
+      "hm_symbol": "-6m2",
+      "schoenflies_symbol": "D3h",
+      "group_order": 12,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            -0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 27,
+      "hm_symbol": "6/mmm",
+      "schoenflies_symbol": "D6h",
+      "group_order": 24,
+      "atomic_form": "E",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "c"
+        ]
+      ],
+      "atomic_dimension": 2,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.5,
+            -0.8660254037844386,
+            0.0
+          ],
+          [
+            0.8660254037844386,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": true,
+      "isolated_bilayer_sliding_dimension": 0,
+      "isolated_bilayer_sliding_projector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "dimension_from_group_character": 2
+    },
+    {
+      "number": 28,
+      "hm_symbol": "23",
+      "schoenflies_symbol": "T",
+      "group_order": 12,
+      "atomic_form": "F",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "a"
+        ]
+      ],
+      "atomic_dimension": 1,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": false,
+      "isolated_bilayer_sliding_dimension": null,
+      "isolated_bilayer_sliding_projector": null,
+      "dimension_from_group_character": 1
+    },
+    {
+      "number": 29,
+      "hm_symbol": "m-3",
+      "schoenflies_symbol": "Th",
+      "group_order": 24,
+      "atomic_form": "F",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "a"
+        ]
+      ],
+      "atomic_dimension": 1,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": false,
+      "isolated_bilayer_sliding_dimension": null,
+      "isolated_bilayer_sliding_projector": null,
+      "dimension_from_group_character": 1
+    },
+    {
+      "number": 30,
+      "hm_symbol": "432",
+      "schoenflies_symbol": "O",
+      "group_order": 24,
+      "atomic_form": "F",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "a"
+        ]
+      ],
+      "atomic_dimension": 1,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": false,
+      "isolated_bilayer_sliding_dimension": null,
+      "isolated_bilayer_sliding_projector": null,
+      "dimension_from_group_character": 1
+    },
+    {
+      "number": 31,
+      "hm_symbol": "-43m",
+      "schoenflies_symbol": "Td",
+      "group_order": 24,
+      "atomic_form": "F",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "a"
+        ]
+      ],
+      "atomic_dimension": 1,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            -0.0,
+            1.0,
+            -0.0
+          ],
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": false,
+      "isolated_bilayer_sliding_dimension": null,
+      "isolated_bilayer_sliding_projector": null,
+      "dimension_from_group_character": 1
+    },
+    {
+      "number": 32,
+      "hm_symbol": "m-3m",
+      "schoenflies_symbol": "Oh",
+      "group_order": 48,
+      "atomic_form": "F",
+      "symbolic_tensor": [
+        [
+          "a",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "a",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "a"
+        ]
+      ],
+      "atomic_dimension": 1,
+      "atomic_allowed_mask": [
+        [
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true
+        ]
+      ],
+      "cartesian_generators": [
+        [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -1.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0,
+            -1.0
+          ]
+        ]
+      ],
+      "layer_plane_preserved_in_this_setting": false,
+      "isolated_bilayer_sliding_dimension": null,
+      "isolated_bilayer_sliding_projector": null,
+      "dimension_from_group_character": 1
+    }
+  ]
+}
