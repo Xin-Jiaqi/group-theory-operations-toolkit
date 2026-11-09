@@ -19,6 +19,7 @@
 | Wyckoff 位置表与轨道分裂 | 530 个 Hall setting、3467 个 Wyckoff 位置 | 查询坐标参数式与位点群；在给定群—子群基变换和原点移动后，将母群轨道在同胞或超胞子群中分裂并标定为子群 Wyckoff 轨道 |
 | 磁性群 | 122 磁点群、528 磁性层群 | 显式保存 (<i>R</i>, θ) 中的时间反演标签；区分 I–IV 型和 type-IV 反平移 |
 | Edelstein 与 bilayer LEE | 32 个点群及任意 R<sub>B</sub><sup>+</sup>/R<sub>B</sub><sup>−</sup> 操作集合 | 求 axial-spin ← polar-current tensor；按层交换关系区分 Type-I、Type-II、Both 或 forbidden |
+| Born 有效电荷与层滑移模式 | 32 个位点点群模板；任意原子置换及中性声学求和约束；双层相对滑移模式 | 求静态 Born 张量允许空间、等价原子关系、面外电场对面内相对滑移的一阶力选择定则，并读取原始 VASP OUTCAR |
 | IMHE 张量 | 106 个轴保持磁点群与 528 个磁性层群 | 对固定分量 χ<sub>ab;zz</sub> 求 intrinsic 反对称与 extrinsic 对称允许子空间；拒绝混合层法向量的 cubic 点群 |
 | 二次光场与响应 | 88 组 M<sub>+</sub>(<i>R</i>) 与 M<sub>−</sub>(<i>R</i>)；全部注册群的允许基 | 求 shift current、circular injection current、SHG 及通用时间奇偶张量的对称性允许空间 |
 | 高通量响应筛选 | 4028 个“群–响应”组合 | 用特征标内积快速计算允许张量空间的维数，筛选普通点群、磁点群和磁性层群中的候选响应 |
@@ -28,6 +29,20 @@
 基础数据位于 [`data/`](data)，相应的数据格式说明位于 [`schema/`](schema)。[`data/group_operations.json`](data/group_operations.json) 是基础点操作的唯一来源；常用数据表包括 [`data/crystallographic_point_groups.json`](data/crystallographic_point_groups.json) 与 [`data/optical_response_invariants.json`](data/optical_response_invariants.json)。其余数据表由固定版本的程序重复生成，并记录来源数据或输入文件的 SHA-256 校验值。
 
 ## 物理框架
+
+### Born 有效电荷与滑移模式（静态绝缘体）
+
+原子 Born 电荷采用 VASP OUTCAR 的 `Z[k,i,j]` 约定（先电场/极化指标，后力/位移指标）。**单个位点**按 `Z = R Z R^T` 分类；真实结构必须保留空间群操作的原子置换。对于中性孤立双层相对滑移 `s = u_top - u_bottom`，另行求解面外极化与面内滑移的模式有效电荷；它不是把晶体点群限制强加到每个原子。允许非零不表示实际有限，也不代表能够完成铁电切换。
+
+```bash
+python -m group_theory_operations.born_effective_charges atomic --point-group C3v
+python -m group_theory_operations.born_effective_charges sliding --point-group C3v
+python -m group_theory_operations.born_effective_charges project --outcar OUTCAR --layers layer_labels.json
+```
+
+详情：[完整理论推导](docs/born-effective-charges.md) · [32 点群与滑移模式速查表](docs/born-charge-quick-reference.md) · [检验记录及限制](docs/born-charge-validation.md)。当前独立新增测试通过，但 GitHub Actions 因未分配 Runner 而未执行仓库 CI，不能以红灯或工作流状态代替真实测试结果。
+
+
 
 ### 从光场表示到允许张量
 
